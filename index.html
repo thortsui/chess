@@ -201,6 +201,8 @@ body.nowarn .glow{display:none!important}
 .board.d3 .gst.winl{box-shadow:0 0 0 3px var(--hint-strong)!important}
 .opt3d{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-radius:14px;padding:12px 14px 12px 18px;
   background:var(--bar);font-size:15px;font-weight:700;cursor:pointer}
+.opt3d>span{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
+.opt3d small{font-size:12px;font-weight:400;color:var(--muted)}
 .opt3d b{font-size:13px;padding:4px 14px;border-radius:999px;background:var(--page);color:var(--muted)}
 .opt3d.on b{background:var(--hint-strong);color:#fff}
 .flyfx>*{animation:fly2 1s cubic-bezier(.3,.05,.55,1) both}
@@ -320,6 +322,18 @@ body.nowarn .glow{display:none!important}
   letter-spacing:.08em;-webkit-text-stroke:3px #fff;paint-order:stroke fill;text-shadow:0 4px 18px rgba(0,0,0,.45);
   animation:jiang 1.6s ease-out forwards}
 .jiang div.flip{rotate:180deg}
+/* 單機不面對面（電腦／並排）：取消倒轉 */
+.nof2f .bar.rot,.nof2f .dkinfo.rot{transform:none}
+.nof2f .pc.rot .face{transform:none}
+.nof2f .pc.rot.sel .face{transform:scale(1.08)}
+.nof2f .promo.rot{transform:translate(-50%,-50%)}
+.nof2f .jiang div.flip{display:none}
+.app>.bar{width:100%;align-self:center}
+@media (hover:hover) and (pointer:fine){
+  .pc:not(.hid):hover .face{filter:brightness(1.07)}
+  .tg:hover{filter:brightness(1.15)}
+  .big:hover,.opt3d:hover,.btns button:not(:disabled):hover,.seg button:hover{filter:brightness(.96)}
+}
 @keyframes jiang{0%{transform:scale(2.2);opacity:0}14%{transform:scale(.92);opacity:1}22%{transform:scale(1.04)}30%,78%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
 @media (prefers-reduced-motion:reduce){.jiang div{animation:fade 1.6s linear forwards}@keyframes fade{0%,80%{opacity:1}100%{opacity:0}}
   .tg::before,.pc.cap::after{animation:none}.pc .face{transition:none}.pc .glow,.gst .glow{animation:none}.pc.flipin .face{animation:none}.trail .draw{animation:none;stroke-dashoffset:0}}
@@ -334,7 +348,7 @@ body.nowarn .glow{display:none!important}
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
     <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button></div>
-    <button class="big" data-act="local" id="localBtn">單機對戰<small>同一支手機，兩人面對面下</small></button>
+    <button class="big" data-act="local" id="localBtn">單機對戰<small>同一台手機或電腦，兩人輪流下</small></button>
     <div class="aibox">
       <div class="aihead"><b>和 AI 對戰</b><span id="lvHint"></span></div>
       <div class="lvrow"><span>弱</span><input type="range" id="lvIn" min="1" max="10" step="1" value="8" aria-label="AI 強度"><span>強</span><span class="lvval" id="lvVal"></span></div>
@@ -347,6 +361,7 @@ body.nowarn .glow{display:none!important}
       <button data-act="join" id="joinBtn" disabled>加入</button>
     </div>
     <button class="opt3d" data-act="opt3d" id="opt3dBtn" aria-pressed="false"><span>3D 模式</span><b id="opt3dState">關</b></button>
+    <button class="opt3d" data-act="f2f" id="f2fBtn" aria-pressed="false"><span>單機面對面<small>黑方畫面倒轉，適合手機平放</small></span><b id="f2fState">關</b></button>
     <button class="opt3d" data-act="skinOpen" id="skinBtn"><span>象棋外觀設定</span><b>字體・顏色・材質</b></button>
     <p class="msg" id="menuMsg">正在連線…</p>
   </div>
@@ -2201,6 +2216,8 @@ function load3D(){
 }
 function webglOK(){if(gl3OK===null){try{const c=document.createElement('canvas');gl3OK=!!(c.getContext('webgl')||c.getContext('experimental-webgl'));}catch(e){gl3OK=false;}}return gl3OK;}
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let f2f=matchMedia('(pointer:coarse)').matches;try{const v=localStorage.getItem('xq-f2f');if(v!==null)f2f=v==='1';}catch(e){}
+function syncF2f(){document.body.classList.toggle('nof2f',!f2f);const b=$('f2fBtn');if(!b)return;b.setAttribute('aria-pressed',f2f);b.classList.toggle('on',f2f);$('f2fState').textContent=f2f?'開':'關';}
 function syncOpt3d(){const b=$('opt3dBtn');if(!b)return;b.setAttribute('aria-pressed',opt3d);b.classList.toggle('on',opt3d);$('opt3dState').textContent=opt3d?'開':'關';}
 function boardCanvas(B){return new Promise(res=>{
   const cs=getComputedStyle(B),bv=(n,d)=>cs.getPropertyValue(n).trim()||cssv(n)||d,skinOn=variant==='xq';
@@ -2216,12 +2233,12 @@ function boardCanvas(B){return new Promise(res=>{
 });}
 const texCache=new Map();
 function faceTex(el){
-  if(variant==='xq'&&el.dataset.k){const s=el.dataset.k[0],t=el.dataset.k[1],rot=el.classList.contains('rot'),X=skS(s),ok=skEnsureFont(X.fd,skRefresh);
+  if(variant==='xq'&&el.dataset.k){const s=el.dataset.k[0],t=el.dataset.k[1],rot=el.classList.contains('rot')&&f2f,X=skS(s),ok=skEnsureFont(X.fd,skRefresh);
     const key=['sk',X.fd.id,X.mat.id,X.ink.id,s,t,rot,ok].join('|');if(texCache.has(key))return texCache.get(key);
     const cv=document.createElement('canvas');cv.width=cv.height=256;
     skDrawFace(cv.getContext('2d'),256,X.mat,X.ink.c,NAMES[s][t],X.fd,-Math.PI/2+(rot?Math.PI:0));
     const tx=new THREE.CanvasTexture(cv);tx.anisotropy=4;texCache.set(key,tx);return tx;}
-  const hid=el.classList.contains('hid'),chess=el.classList.contains('chp'),f=el.querySelector('.face'),ch=f?f.textContent:'',rot=el.classList.contains('rot');
+  const hid=el.classList.contains('hid'),chess=el.classList.contains('chp'),f=el.querySelector('.face'),ch=f?f.textContent:'',rot=el.classList.contains('rot')&&f2f;
   const col=el.classList.contains('r')?'#c20d0a':el.classList.contains('cw')?'#ffffff':'#100a04';
   const SERIF='700 165px "LXGW WenKai TC","Noto Serif TC","Songti TC",serif',fontOK=(()=>{try{return document.fonts.check(SERIF,ch||'帥');}catch(e){return true;}})();
   if(!fontOK){try{document.fonts.load(SERIF,'帥將').then(()=>{texCache.clear();if(d3)d3Sync(true);}).catch(()=>{});}catch(e){}}
@@ -2744,7 +2761,7 @@ function drawGrid(){
       for(const sy of[-1,1]){const px=x+sx*d,py=y+sy*d;L(px,py,px+sx*l,py,2.5);L(px,py,px,py+sy*l,2.5);}}};
   [[2,1],[2,7],[7,1],[7,7]].forEach(([r,c])=>tick(r,c));
   [0,2,4,6,8].forEach(c=>{tick(3,c);tick(6,c);});
-  s+=skRiverSVG('楚河',250,500,mode==='local')+skRiverSVG('漢界',650,500,false);
+  s+=skRiverSVG('楚河',250,500,mode==='local'&&f2f)+skRiverSVG('漢界',650,500,false);
   $('grid').innerHTML=s;
 }
 
@@ -3054,6 +3071,7 @@ document.addEventListener('click',e=>{
     case 'gconfirm':goConfirm();break;
     case 'gresume':goResume();break;
     case 'slap':if(Date.now()-skipClick>600&&!flipping)slap(b.dataset.s==='T'?'T':'B');break;
+    case 'f2f':f2f=!f2f;try{localStorage.setItem('xq-f2f',f2f?'1':'0');}catch(e){}syncF2f();break;
     case 'opt3d':opt3d=!opt3d;try{localStorage.setItem('xq-3d',opt3d?'1':'0');}catch(e){}syncOpt3d();if(opt3d)load3D();break;
     case 'skinOpen':skOpen();break;
     case 'skinClose':skClose();break;
@@ -3083,7 +3101,7 @@ $('layer').addEventListener('click',e=>{
   if(b&&b.dataset.i!==undefined)(variant==='ch'?chTap:dkTap)(+b.dataset.i);
   else if(b)tap(+b.dataset.r,+b.dataset.c);else if(sel!==null){sel=null;targets=[];render();}
 });
-syncVariant();syncOpt3d();if(opt3d)load3D();
+syncVariant();syncOpt3d();syncF2f();if(opt3d)load3D();
 $('lvIn').addEventListener('input',e=>{aiLevel=+e.target.value;syncLv();});
 syncLv();
 $('codeIn').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
@@ -3092,7 +3110,7 @@ $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&R&&!busy)joinRoom
 function fit(){if(mode==='menu')return;const st=$('stage'),W=st.clientWidth,dk=variant==='dk',ch=variant==='ch'||variant==='gm'||variant==='go';
   const H=st.clientHeight-[$('infoT'),$('infoM')].reduce((a,x)=>a+(x.hidden?0:x.offsetHeight+6),0);
   const w=Math.max(200,Math.min(W,H*(dk?0.5:ch?1:0.9))),bd=$('board');
-  bd.style.width=w+'px';$('infoT').style.width=$('infoM').style.width=w+'px';if(d3)requestAnimationFrame(()=>{try{d3Sync(true);}catch(e){}});bd.style.setProperty('--pf',(w*(dk?0.105:ch?0.068:0.066)).toFixed(1)+'px');}
+  bd.style.width=w+'px';{const bw=Math.max(w,Math.min(W,560))+'px';$('barT').style.maxWidth=$('barM').style.maxWidth=bw;}$('infoT').style.width=$('infoM').style.width=w+'px';if(d3)requestAnimationFrame(()=>{try{d3Sync(true);}catch(e){}});bd.style.setProperty('--pf',(w*(dk?0.105:ch?0.068:0.066)).toFixed(1)+'px');}
 addEventListener('resize',fit);
 
 R=typeof Peer!=='undefined';
