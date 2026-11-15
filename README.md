@@ -14,7 +14,11 @@
 
 象棋外觀設定（選單的「象棋外觀設定」）：上方是依目前設定畫出的整盤預覽，下面分「紅方棋子／黑方棋子／棋盤」三頁，紅黑各自選字體（19 種，含小篆、隸書與多款歌德體）、字色（19 種）、棋子材質（19 種），棋盤材質 18 種。會讓字看不清、棋子和棋盤混色、或紅黑分不出的組合會灰掉不能選。
 
-字形來源：小篆取自[開元小篆 Kaiyuan Small Seal Font](https://github.com/frankslin/kaiyuan-small-seal-font)（SIL OFL 1.1），隸書取自 [hanzi-glyphs-svg](https://github.com/zhouyongh/hanzi-glyphs-svg) 隸書層（CC0 1.0），皆描摹自《說文解字》與漢代碑簡；俥、傌、砲等古代沒有的字以部件組合。其餘字體由 Google Fonts 載入。
+字形來源：小篆取自[開元小篆 Kaiyuan Small Seal Font](https://github.com/frankslin/kaiyuan-small-seal-font)（SIL OFL 1.1），隸書取自 [hanzi-glyphs-svg](https://github.com/zhouyongh/hanzi-glyphs-svg) 隸書層（CC0 1.0），皆描摹自《說文解字》與漢代碑簡；俥、傌、砲等古代沒有的字以部件組合。其餘字體由 Google Fonts 載入。人手模型取自 WebXR Input Profiles 的 generic hand（MIT）。
+
+設定（選單的「設定」）：3D 模式（預設開）、動畫模式（預設關，吃子時播放漫畫分鏡動畫）、單機面對面、拍桌的手（奶牛貓、橘貓、黑貓、三花貓、柴犬、哈士奇、人手，3D 毛皮與寫實模型）、個性棋子（貓耳、狗耳、兔耳、熊耳、惡魔角、天使光環、青蛙眼、機器人天線、皇冠，紅黑各自設定）。走子時棋子會滑過去，不會瞬間移動。
+
+所有功能與實作方式的完整說明見 [docs/功能說明.md](docs/功能說明.md)。
 
 資訊列的「!」開關紅色警示（含走過去會被吃的格子標紅），「AI」開關 AI 提示（以 Lv 4 計算，推薦走法標綠）。
 
