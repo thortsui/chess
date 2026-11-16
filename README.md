@@ -30,6 +30,10 @@
 
 這是可安裝的網頁 App（PWA）：Android／電腦用 Chrome 開啟後按下方的「安裝」，iPhone 用 Safari「分享」→「加入主畫面」。裝好後單機、AI 對戰都能離線玩，只有連線對戰需要網路。
 
+## iPhone App（App Store）
+
+iOS 專案在 `app/`，雲端打包流程在 `.github/workflows/ios.yml`，上架步驟見 [docs/上架App Store.md](docs/上架App%20Store.md)。
+
 ## 上線
 
 Settings → Pages → Source 選 `Deploy from a branch`，Branch 選 `main`、資料夾 `/ (root)`，存檔後約一分鐘可在
