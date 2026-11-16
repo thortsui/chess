@@ -12,6 +12,17 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-title" content="對坐象棋">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1320x2868.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1290x2796.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1206x2622.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1179x2556.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1284x2778.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1170x2532.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1125x2436.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="icons/splash-1242x2688.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/splash-828x1792.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/splash-750x1334.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="icons/splash-640x1136.jpg">
 <link rel="stylesheet" href="fonts/fonts.css">
 <script src="lib/peerjs.min.js"></script>
 <style>
@@ -181,8 +192,8 @@ body.nowarn .glow{display:none!important}
   33%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(var(--rot))}
   52%{opacity:1;transform:translate(-50%,-47%) scale(.95) rotate(var(--rot))}
   100%{opacity:0;transform:translate(-50%,-95%) scale(1.08) rotate(var(--rot))}}
-.board.shake{animation:shake .38s ease-out}
-@keyframes shake{15%{translate:0 5px}35%{translate:-2px -2px}55%{translate:2px 2px}75%{translate:0 -1px}100%{translate:0 0}}
+.board.shake{animation:shake .6s ease-out}
+@keyframes shake{8%{translate:0 12px}22%{translate:-6px -5px}36%{translate:5px 4px}50%{translate:-3px -2px}66%{translate:2px 2px}82%{translate:-1px 0}100%{translate:0 0}}
 .layer.jump .face,.layer.jump .gst{animation:hop .5s ease-out both}
 @keyframes hop{0%{translate:0 0}30%{translate:0 -16px}58%{translate:0 0}74%{translate:0 -5px}100%{translate:0 0}}
 @media (prefers-reduced-motion:reduce){.board.shake,.layer.jump .face,.layer.jump .gst{animation:none}}
@@ -195,7 +206,8 @@ body.nowarn .glow{display:none!important}
 .layer.fly .pc,.layer.fly .gst{opacity:0;animation:none}
 .flyfx{position:fixed;inset:0;pointer-events:none;z-index:30}
 .fx3d{position:fixed;inset:0;z-index:30;pointer-events:none}
-.d3cv{position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;pointer-events:none}
+.d3cv{position:absolute;left:-60px;top:-60px;pointer-events:none}
+html,body{overflow-x:hidden;overflow-x:clip}
 .board.d3 #grid{visibility:hidden}
 .board.d3 .pc .face{background:none!important;box-shadow:none!important;color:transparent!important}
 .board.d3 .pc .face::before,.board.d3 .pc.hid .face::after{display:none}
@@ -2434,8 +2446,9 @@ function d3Sync(force){
   B.classList.add('d3');
   const u=100,bw=w/u,bh=h/u,key=[variant,w,h,mode,mySide].join('|');
   if(key!==d3.key||force){
-    d3.key=key;d3.ren.setSize(w,h,false);d3.cv.style.width='100%';d3.cv.style.height='100%';
-    const D=(bh/2)/Math.tan(35/2*Math.PI/180);d3.D=D;d3.cam.aspect=w/h;d3.cam.position.set(0,D,0);d3.cam.up.set(0,0,-1);d3.cam.lookAt(0,0,0);d3.cam.updateProjectionMatrix();
+    d3.key=key;const M=60;d3.ren.setSize(w+2*M,h+2*M,false);d3.cv.style.width=(w+2*M)+'px';d3.cv.style.height=(h+2*M)+'px';
+    // 畫布比棋盤每邊多 60px，讓震飛的棋子可以飛出棋盤；視角放寬但棋盤平面的比例不變
+    const D=(bh/2)/Math.tan(35/2*Math.PI/180);d3.D=D;d3.cam.fov=2*Math.atan((bh/2+M/u)/D)*180/Math.PI;d3.cam.aspect=(w+2*M)/(h+2*M);d3.cam.position.set(0,D,0);d3.cam.up.set(0,0,-1);d3.cam.lookAt(0,0,0);d3.cam.updateProjectionMatrix();
     if(d3.board){d3.scene.remove(d3.board);d3.board.geometry.dispose();}
     const top=new T.MeshBasicMaterial({color:0xefd8ad}),edge=new T.MeshStandardMaterial({color:cssv('--wood-edge')||'#a8763a',roughness:.8});
     d3.board=new T.Mesh(new T.BoxGeometry(bw,.24,bh),[edge,edge,top,edge,edge,edge]);d3.board.position.y=-.12;d3.board.receiveShadow=true;d3.scene.add(d3.board);
@@ -2455,47 +2468,70 @@ function d3Sync(force){
     d3.grp.add(m);});
   d3Draw();
 }
-// 拍桌（3D）：the slap jolts the board down; every piece is kicked up, tilts a little and drops back onto its spot
-function d3Hop(){
-  if(!d3)return;const T=THREE,id=++d3.hop,ps=d3.grp.children.map(m=>({m,vy:3.2+Math.random()*3.6,
-    w:new T.Vector3((Math.random()-.5)*9,(Math.random()-.5)*3,(Math.random()-.5)*9)}));
-  const t0=performance.now(),q=new T.Quaternion(),ax=new T.Vector3(),I=new T.Quaternion();let prev=t0;
+// 拍桌（3D）：桌面猛震，棋子依離手掌的距離被震飛（越近越高、越會翻轉並往外彈），彈跳幾下後落回原位
+function d3Hop(hx,hy){
+  if(!d3)return;const T=THREE,id=++d3.hop,br=$('board').getBoundingClientRect(),u=100,bw=br.width/u,bh=br.height/u;
+  const X=hx!=null?(hx-br.left)/u-bw/2:0,Z=hy!=null?(hy-br.top)/u-bh/2:0,sq=bw/9;
+  const ps=d3.grp.children.map(m=>{const bs=m.userData.base||m.position,dx=bs.x-X,dz=bs.z-Z,d=Math.hypot(dx,dz)||1e-3;
+    const k=Math.max(.3,Math.min(1.15,1.25-d/(bw*.85))),r=.85+Math.random()*.3;
+    return{m,k,vy:(3.6+4.6*k)*r,y:m.userData.y0,ux:dx/d,uz:dz/d,A:sq*(.25+.5*k)*r,air:0,land:0,
+      w:new T.Vector3((Math.random()-.5),(Math.random()-.5)*.4,(Math.random()-.5)).normalize().multiplyScalar((7+15*k)*r)};});
+  const t0=performance.now(),q=new T.Quaternion(),ax=new T.Vector3(),I=new T.Quaternion(),G=34;let prev=t0;
   (function f(now){
     if(!d3||d3.hop!==id)return;
-    const t=(now-t0)/1000,dt=Math.min(.025,Math.max(0,(now-prev)/1000));prev=now;
-    d3.board.position.y=-.12-.07*Math.max(0,1-t/.12)*Math.sin(Math.min(1,t/.12)*Math.PI);
-    for(const p of ps){const y0=p.m.userData.y0;
-      p.vy-=70*dt;p.m.position.y+=p.vy*dt;
+    const t=(now-t0)/1000,dt=Math.min(.03,Math.max(0,(now-prev)/1000));prev=now;
+    d3.board.position.y=-.12-.2*Math.exp(-t*14)*Math.cos(t*48);
+    let busy=t<.3;
+    for(const p of ps){const y0=p.m.userData.y0,bs=p.m.userData.base;
+      p.vy-=G*dt;p.y+=p.vy*dt;
+      if(p.y<y0){p.y=y0;p.land++;p.vy=Math.abs(p.vy)>1.5?-p.vy*.34:0;p.w.multiplyScalar(.35);}
+      const flying=p.y>y0+.002||p.vy>0;if(flying){busy=true;p.air+=dt;}
+      // 往外彈出、落地時回到原位（第一次落地前偏移最大）
+      const T1=2*(3.6+4.6*p.k)/G,off=p.land?0:p.A*Math.sin(Math.PI*Math.min(1,p.air/T1));
+      p.m.position.set(bs.x+p.ux*off,p.y,bs.z+p.uz*off);
       const wl=p.w.length();if(wl>1e-3){ax.copy(p.w).divideScalar(wl);q.setFromAxisAngle(ax,wl*dt);p.m.quaternion.premultiply(q);}
-      if(p.m.position.y<y0){p.m.position.y=y0;p.vy=Math.abs(p.vy)>1.2?-p.vy*.3:0;p.w.multiplyScalar(.4);}
-      if(p.m.position.y<=y0+.02)p.m.quaternion.slerp(I,Math.min(1,14*dt));}
+      if(!flying){p.m.quaternion.slerp(I,Math.min(1,12*dt));if(1-Math.abs(p.m.quaternion.w)>1e-4)busy=true;}}
     d3Draw();
-    if(t<.9)requestAnimationFrame(f);else{d3.board.position.y=-.12;ps.forEach(p=>{p.m.position.y=p.m.userData.y0;p.m.quaternion.identity();});d3Draw();}
+    if(busy&&t<2.2)requestAnimationFrame(f);else{d3.board.position.y=-.12;ps.forEach(p=>{p.m.position.copy(p.m.userData.base);p.m.position.y=p.m.userData.y0;p.m.quaternion.identity();});d3Draw();}
   })(t0);
+}
+// 拍桌（平面）：同樣依距離把棋子震飛、旋轉、彈兩下
+function hop2D(els,hx,hy){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const br=$('board').getBoundingClientRect(),W=br.width;
+  els.forEach(el=>{const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=cx-hx,dy=cy-hy,d=Math.hypot(dx,dy)||1;
+    const k=Math.max(.3,Math.min(1.15,1.25-d/(W*.85))),rnd=.85+Math.random()*.3,H=(26+62*k)*rnd,o=(6+18*k)*rnd,ox=dx/d*o,oy=dy/d*o;
+    const spin=(Math.random()<.5?-1:1)*(60+260*k)*rnd,sc=1+.28*k;
+    el.animate([
+      {translate:'0 0',rotate:'0deg',scale:1,easing:'cubic-bezier(.2,.75,.35,1)'},
+      {offset:.34,translate:`${ox}px ${oy-H}px`,rotate:`${spin}deg`,scale:sc,easing:'cubic-bezier(.6,0,.85,.5)'},
+      {offset:.62,translate:'0 0',rotate:`${spin*.12}deg`,scale:1,easing:'ease-out'},
+      {offset:.74,translate:`0 ${-H*.2}px`,rotate:`${-spin*.05}deg`,scale:1+.05*k,easing:'ease-in'},
+      {offset:.86,translate:'0 0',rotate:'0deg',scale:1,easing:'ease-out'},
+      {offset:.93,translate:`0 ${-H*.05}px`,easing:'ease-in'},
+      {translate:'0 0',rotate:'0deg',scale:1}],{duration:1150,delay:(Math.random()*40)|0});});
 }
 
 /* ---------- 拍桌 ---------- */
 let lastSlap=0,actx=null;
 function thump(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
-  o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.2);
-  g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.3);}catch(e){}}
+  o.type='sine';o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(36,t+.25);
+  g.gain.setValueAtTime(1,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.3);}catch(e){}}
 function slapFx(side){
   if(mode==='menu')return;
   const r=$('board').getBoundingClientRect(),h=$('hand');
   const top=side==='T',tilt=(Math.random()*16-8)|0,hx=r.left+r.width*(top?.44:.56),hy=r.top+r.height*(top?.3:.7);
-  let hitDone=false;const hit=()=>{if(hitDone)return;hitDone=true;slapHit();};
+  let hitDone=false;const hit=()=>{if(hitDone)return;hitDone=true;slapHit(hx,hy);};
   const css=()=>{if(webglOK())load3D();h.classList.remove('go');void h.offsetWidth;
     h.style.left=hx+'px';h.style.top=hy+'px';h.style.setProperty('--rot',(top?180:0)+tilt+'deg');h.classList.add('go');setTimeout(hit,200);};
   if(fx3dOK())slap3D(side,hx,hy,r.width/9*3,tilt,hit).then(ok=>{if(!ok)css();});else css();
 }
-function slapHit(){
-  {if(d3)d3Hop();
-    const L=$('layer'),B=$('board'),els=L.querySelectorAll('.face,.gst');
-    els.forEach(el=>el.style.animationDelay=((Math.random()*90)|0)+'ms');
-    L.classList.remove('jump');B.classList.remove('shake');void L.offsetWidth;L.classList.add('jump');B.classList.add('shake');
-    thump();try{navigator.vibrate&&navigator.vibrate(40);}catch(e){}
-    setTimeout(()=>{L.classList.remove('jump');B.classList.remove('shake');L.querySelectorAll('.face,.gst').forEach(el=>el.style.animationDelay='');},750);
-  }
+function slapHit(hx,hy){
+  const B=$('board'),r=B.getBoundingClientRect();if(hx==null){hx=r.left+r.width/2;hy=r.top+r.height/2;}
+  if(d3)d3Hop(hx,hy);else hop2D($('layer').querySelectorAll('.face,.gst'),hx,hy);
+  B.classList.remove('shake');void B.offsetWidth;B.classList.add('shake');
+  thump();setTimeout(thump,60);try{navigator.vibrate&&navigator.vibrate(70);}catch(e){}
+  setTimeout(()=>B.classList.remove('shake'),700);
 }
 function slap(side){const now=Date.now();if(now-lastSlap<500)return;lastSlap=now;slapFx(side);
   if(mode==='online'&&room)room.emit('sl',{s:side}).catch(()=>{});}

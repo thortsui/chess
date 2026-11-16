@@ -7,7 +7,7 @@ let s=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const a=s.indexOf('<div id="pwaBar"'),b=s.indexOf('</script>',a);
 if(a<0||b<0)throw new Error('PWA block not found');
 s=s.slice(0,a)+s.slice(b+'</script>\n'.length);
-s=s.replace(/<link rel="manifest"[^>]*>\n|<link rel="(apple-touch-)?icon"[^>]*>\n|<meta name="apple-mobile-web-app-[^>]*>\n|<meta name="mobile-web-app-capable"[^>]*>\n/g,'');
+s=s.replace(/<link rel="manifest"[^>]*>\n|<link rel="(apple-touch-)?icon"[^>]*>\n|<link rel="apple-touch-startup-image"[^>]*>\n|<meta name="apple-mobile-web-app-[^>]*>\n|<meta name="mobile-web-app-capable"[^>]*>\n/g,'');
 const app=`<script>
 // App 版：iOS 沒有 navigator.vibrate，改用系統觸覺回饋
 (function(){const H=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Haptics;

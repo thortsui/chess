@@ -8,8 +8,8 @@
 |---|---|---|
 | iOS 專案 | `app/ios/` | 用 Capacitor（把網頁包成原生 App 的開源工具）產生，網頁、字體、3D 模型都打包在 App 裡，完全離線可玩 |
 | App 版網頁 | `app/build-www.mjs` | 從網站的 `index.html` 複製一份，拿掉「安裝成 App」提示，震動改用 iPhone 的觸覺回饋 |
-| App 圖示 | `app/ios/App/App/Assets.xcassets/AppIcon.appiconset/` | 1024×1024「帥」字圖示 |
-| 啟動畫面 | `Splash.imageset/` | 淺灰底加小棋子 |
+| App 圖示 | `app/ios/App/App/Assets.xcassets/AppIcon.appiconset/` | 1024×1024「奶牛貓掌拍飛帥」3D 圖示 |
+| 啟動畫面 | `Splash.imageset/` | 同一張圖加「對坐象棋」字樣 |
 | 雲端打包 | `.github/workflows/ios.yml` | GitHub 提供的雲端 Mac 每次推送都會編譯檢查；手動執行可簽章並上傳到 App Store Connect |
 | 隱私權政策 | `privacy.html` | 網址 <https://thortsui.github.io/chess/privacy.html> |
 | 商店截圖 | `app/store/screenshots/` | 7 張 1320×2868（6.9 吋 iPhone 規格，App Store 會自動縮給其他尺寸用）|
