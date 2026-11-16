@@ -154,5 +154,5 @@ All game logic, fonts and 3D models are bundled in the app and work fully offlin
 ## 之後怎麼更新 App
 
 1. 照平常方式修改網站並推上 git（GitHub 的雲端 Mac 會自動檢查能不能編譯）
-2. 要發新版時，把 `app/ios/App/App.xcodeproj/project.pbxproj` 裡兩處 `MARKETING_VERSION = 1.0;` 改成新版號（例如 1.1）
+2. 要發新版時，把 `app/ios/App/App.xcodeproj/project.pbxproj` 裡兩處 `MARKETING_VERSION` 改成新版號（目前是 0.5.0），並同步改選單右上角的版本號
 3. 執行步驟 5 上傳，再到 App Store Connect 建立新版本、選這個建置版本、送審

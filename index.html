@@ -66,6 +66,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--hint-strong);ou
 .menu{position:fixed;inset:0;display:grid;place-items:center;background:var(--page);overflow-y:auto;
   padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ver{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.03em;pointer-events:none}
 .card{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px}
 .logo{display:flex;align-items:center;gap:14px;margin-bottom:6px}
 .logo .duo{display:flex}
@@ -404,6 +405,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
 <body>
 
 <div class="menu" id="menu">
+  <span class="ver" aria-label="版本 0.5.0">v0.5.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -3004,6 +3006,14 @@ function fireFx(side){return new Promise(res=>{
     if(t<DUR+1.3)requestAnimationFrame(f);
     else{ps.forEach(p=>{pc.hide(p.o);if(!pc.three){p.o.el.style.filter='';p.o.el.style.scale='';}});st.R.render(st.sc,st.cam);st.done();pc.restore();setTimeout(res,700);}
   })(t0);});}
+/* ---------- 電腦版隱藏快捷鍵（畫面上不顯示）：1 拍桌 2 弓箭 3 炸彈 4 翻桌 5 海嘯 6 龍捲風 7 火燒 ---------- */
+const FX_KEYS=['slap','arrow','bomb','flip','wave','tornado','fire'];
+function fxGo(kind,side){if(mode==='menu')return;
+  if(kind==='slap')slap(side);else if(kind==='flip')flipSend(side);else if(kind==='bomb')bombSend(side);else bigSend(kind,side);}
+document.addEventListener('keydown',e=>{
+  if(mode==='menu'||$('app').hidden||e.ctrlKey||e.metaKey||e.altKey||e.repeat||e.target.closest('input,textarea'))return;
+  if(!$('skinSheet').hidden||!$('setSheet').hidden)return;
+  const i='1234567'.indexOf(e.key);if(i<0)return;e.preventDefault();fxGo(FX_KEYS[i],'B');});
 // 點一下＝拍桌；0.32 秒內連點三下＝弓箭
 let tapN=0,tapT=null,tapSide='B';
 function tapSlap(side){if(tapSide!==side)tapN=0;tapSide=side;tapN++;clearTimeout(tapT);
