@@ -186,7 +186,7 @@ body.nowarn .glow{display:none!important}
 .dkc.out b{text-decoration:line-through}
 /* 拍桌 */
 .bar{position:relative}
-.slap{position:absolute;left:6px;top:-14px;width:44%;max-width:150px;height:30px;border:0;padding:0;margin:0;background:transparent;
+.slap{position:absolute;left:0;top:-24px;width:46%;height:calc(100% + 24px);border:0;padding:0;margin:0;background:transparent;
   opacity:0;cursor:default;-webkit-tap-highlight-color:transparent;z-index:3;touch-action:none}
 .hand{position:fixed;left:0;top:0;width:min(38vw,170px);pointer-events:none;z-index:9;opacity:0;--rot:0deg}
 .hand svg{display:block;width:100%;height:auto}
@@ -489,7 +489,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.7.0">v0.7.0</span>
+  <span class="ver" aria-label="版本 0.7.1">v0.7.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -2709,7 +2709,8 @@ function tableFlip(side){
   },1000);
 }
 /* ---------- 炸彈：長按拍桌 3 秒後放開，黑色圓炸彈掉到棋盤正中央，引信燒完爆炸，棋子全被炸飛後落回原位 ---------- */
-const BOMB_HOLD=2000;let bombing=false,bombR=null,bombHoldT=null;
+// 按住 2 秒＝炸彈；手指移動 28px 以上＝滑動
+const BOMB_HOLD=2000,SWIPE_MIN=28;let bombing=false,bombR=null,bombHoldT=null;
 function bombSend(side){if(bombing||flipping||mode==='menu'||(typeof fxBusy!=='undefined'&&fxBusy))return;bombFx();if(mode==='online'&&room)room.emit('sl',{s:side,b:1}).catch(()=>{});}
 function bombHint(on,x,y){let h=$('bombHint');
   if(!h){h=document.createElement('div');h.id='bombHint';h.className='bombhint';h.setAttribute('aria-hidden','true');h.innerHTML='<i></i><b></b>';document.body.appendChild(h);}
@@ -3488,11 +3489,11 @@ document.addEventListener('keydown',e=>{
   if(mode==='menu'||$('app').hidden||e.ctrlKey||e.metaKey||e.altKey||e.repeat||e.target.closest('input,textarea'))return;
   if(!$('skinSheet').hidden||!$('setSheet').hidden)return;
   const i='1234567'.indexOf(e.key);if(i<0)return;e.preventDefault();fxGo(FX_KEYS[i],'B');});
-// 點一下＝拍桌；0.32 秒內連點三下＝弓箭
-let tapN=0,tapT=null,tapSide='B';
+// 點一下＝拍桌；每下間隔 0.42 秒內連點三下＝弓箭
+let tapN=0,tapT=null,tapSide='B';const TAP_GAP=420;   // 兩下之間 0.42 秒內算連點
 function tapSlap(side){if(tapSide!==side)tapN=0;tapSide=side;tapN++;clearTimeout(tapT);
   if(tapN>=3){tapN=0;bigSend('arrow',side);return;}
-  tapT=setTimeout(()=>{tapN=0;slap(side);},320);}
+  tapT=setTimeout(()=>{tapN=0;slap(side);},TAP_GAP);}
 function flipSend(side){if(flipping)return;tableFlip(side);if(mode==='online'&&room)room.emit('tf',{s:side}).catch(()=>{});}
 function onTflip(m){if(m.isMe||mode!=='online')return;tableFlip(m.data&&m.data.s==='T'?'B':'T');}
 document.addEventListener('touchmove',e=>{if(!$('app').hidden&&!e.target.closest('.sheetbody,.menu'))e.preventDefault();},{passive:false});
@@ -3504,10 +3505,13 @@ document.addEventListener('pointerup',e=>{if(!slapPtr||e.pointerId!==slapPtr.id)
   const toward=((e.clientX-p.x)*vx+(e.clientY-p.y)*vy)/vl;
   clearTimeout(bombHoldT);bombHint(false);
   if(p.bomb){skipClick=Date.now();return;}
-  const dx=e.clientX-p.x,dy=e.clientY-p.y,dxl=fxSide(p.side)?-dx:dx;
-  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2&&Date.now()-p.t<900){skipClick=Date.now();bigSend(dxl<0?'wave':'tornado',p.side);return;}   // 右往左＝海嘯，左往右＝龍捲風
-  if(toward>45&&Date.now()-p.t<500){skipClick=Date.now();flipSend(p.side);return;}
-  if(toward<-45&&Math.abs(dy)>Math.abs(dx)&&Date.now()-p.t<900){skipClick=Date.now();bigSend('fire',p.side);}});   // 往棋盤反方向拉＝火燒
+  const dx=e.clientX-p.x,dy=e.clientY-p.y,dxl=fxSide(p.side)?-dx:dx,dist=Math.hypot(dx,dy),dt=Date.now()-p.t;
+  if(dist<SWIPE_MIN||dt>1500)return;            // 移動太少＝點擊（交給拍桌／連點判斷）
+  skipClick=Date.now();
+  if(Math.abs(dx)>=Math.abs(dy)){bigSend(dxl<0?'wave':'tornado',p.side);return;}   // 橫向：右往左＝海嘯，左往右＝龍捲風
+  if(toward>0)flipSend(p.side);else bigSend('fire',p.side);});                       // 直向：往棋盤＝翻桌，反方向＝火燒
+// 手指一開始移動就取消「按住炸彈」，避免慢慢滑變成炸彈
+document.addEventListener('pointermove',e=>{if(slapPtr&&e.pointerId===slapPtr.id&&Math.hypot(e.clientX-slapPtr.x,e.clientY-slapPtr.y)>SWIPE_MIN*.6)clearTimeout(bombHoldT);});
 document.addEventListener('pointercancel',()=>{slapPtr=null;clearTimeout(bombHoldT);bombHint(false);});
 function onSlap(m){if(m.isMe||mode!=='online')return;if(m.data&&m.data.b){bombFx();return;}if(m.data&&m.data.fx){bigFx(m.data.fx,m.data.s==='T'?'B':'T');return;}slapFx(m.data&&m.data.s==='T'?'B':'T');}
 
@@ -4359,7 +4363,9 @@ let warnOn=true;try{warnOn=localStorage.getItem('xq-warn')!=='0';}catch(e){}
 document.body.classList.toggle('nowarn',!warnOn);
 const warnBtnHTML=()=>`<button data-act="warn" class="wbtn${warnOn?' on':''}" aria-pressed="${warnOn}" title="紅色警示：${warnOn?'開（點一下關閉）':'關（點一下開啟）'}" aria-label="紅色警示${warnOn?'開啟中':'已關閉'}">!</button>`;
 function addWarn(){['barM',mode==='local'?'barT':null].forEach(id=>{const bt=id&&$(id).querySelector('.btns');if(bt)bt.insertAdjacentHTML('afterbegin',warnBtnHTML()+hintBtnHTML());});
-  [['barM','B'],mode==='local'?['barT','T']:null].forEach(x=>{if(x)$(x[0]).insertAdjacentHTML('beforeend',`<button class="slap" data-act="slap" data-s="${x[1]}" aria-label="拍桌"></button>`);});}
+  [['barM','B'],mode==='local'?['barT','T']:null].forEach(x=>{if(x)$(x[0]).insertAdjacentHTML('beforeend',`<button class="slap" data-act="slap" data-s="${x[1]}" aria-label="拍桌"></button>`);});
+  [['barM'],mode==='local'?['barT']:null].forEach(x=>{const bar=x&&$(x[0]);if(!bar)return;const sl=bar.querySelector('.slap'),bt=bar.querySelector('.btns');
+    if(sl&&bt&&bt.offsetLeft>0)sl.style.width=Math.max(110,bt.offsetLeft-6)+'px';});}
 function render(){if(mode==='menu')return;const fxPrev=fxSnap();renderCore();addWarn();decorate();requestHint();try{d3Sync();}catch(e){d3Teardown();}try{fxAfter(fxPrev);}catch(e){console.warn(e);}}
 /* ---------- AI 提示（Lv 4）與危險落點 ---------- */
 let hintOn=false;try{hintOn=localStorage.getItem('xq-hint')==='1';}catch(e){}
