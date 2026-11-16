@@ -484,12 +484,83 @@ html,body{overflow:hidden;overscroll-behavior:none}
 @keyframes jiang{0%{transform:scale(2.2);opacity:0}14%{transform:scale(.92);opacity:1}22%{transform:scale(1.04)}30%,78%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
 @media (prefers-reduced-motion:reduce){.jiang div{animation:fade 1.6s linear forwards}@keyframes fade{0%,80%{opacity:1}100%{opacity:0}}
   .tg::before,.pc.cap::after{animation:none}.pc .face{transition:none}.pc .glow,.gst .glow{animation:none}.pc.flipin .face{animation:none}.trail .draw{animation:none;stroke-dashoffset:0}}
+
+/* ---------- 撲克牌 v2：燙金風格牌面、牌背、絨布桌墊、弧形手牌、牌堆 ---------- */
+.pk{background:
+  radial-gradient(ellipse 85% 60% at 50% 42%,rgba(255,255,255,.07),transparent 70%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+  radial-gradient(ellipse at 50% 45%,#17543a,#0b3324 62%,#06190f)!important}
+.pk::before{content:"";position:absolute;inset:max(10px,env(safe-area-inset-top,0px)) 8px 8px;border:1.5px solid rgba(212,175,90,.55);border-radius:28px;pointer-events:none;box-shadow:inset 0 0 0 5px rgba(0,0,0,.18),inset 0 0 0 6.5px rgba(212,175,90,.25)}
+.pktable{position:relative}
+.pktable::before{content:"";position:absolute;left:50%;top:50%;width:min(92%,330px);height:min(86%,240px);transform:translate(-50%,-50%);border:1px solid rgba(212,175,90,.35);border-radius:50%;pointer-events:none;
+  box-shadow:0 0 0 8px rgba(212,175,90,.06),inset 0 0 40px rgba(0,0,0,.25)}
+.pkhead b{font-family:Georgia,"Noto Serif TC",serif;color:#e8cf8c}
+/* 牌面 */
+.pkc{border-radius:calc(var(--cw,56px)*.085);font-size:calc(var(--cw,56px)*.1);overflow:hidden}
+.pkc.face{background:linear-gradient(160deg,#fffdf7,#f6f0e2);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 2px 5px rgba(0,0,0,.4);color:#16171b}
+.pkc.face::after{content:"";position:absolute;inset:4.5%;border:1px solid rgba(176,138,52,.55);border-radius:calc(var(--cw,56px)*.05);pointer-events:none}
+.pkc.face.red{color:#b3141d}
+.pkc .ix{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:.95;z-index:2}
+.pkc .ix.tl{left:7%;top:6%}.pkc .ix.br{right:7%;bottom:6%;transform:rotate(180deg)}
+.pkc .ix b{font:700 2.9em/1 Georgia,"Times New Roman",serif;letter-spacing:-.06em}
+.pkc .ix i{font-style:normal;font-size:2.1em;line-height:1}
+.pkc .pp{position:absolute;font-style:normal;font-size:2.5em;line-height:1;transform:translate(-50%,-50%)}
+.pkc .pp.rv{transform:translate(-50%,-50%) rotate(180deg)}
+.pkc .ace{position:absolute;inset:0;display:grid;place-items:center}
+.pkc .ace span{font-size:5.6em;line-height:1}
+.pkc .ace.acesp span{font-size:6.4em;filter:drop-shadow(0 0 0 #c9a14a)}
+.pkc .ace.acesp::before{content:"";position:absolute;width:62%;aspect-ratio:1;border-radius:50%;border:1.5px solid #c9a14a;box-shadow:0 0 0 3px rgba(201,161,74,.25),inset 0 0 0 4px rgba(201,161,74,.15)}
+.pkc .court{position:absolute;left:19%;right:19%;top:15%;bottom:15%;border:1.5px solid #b08a34;border-radius:.6em;background:linear-gradient(180deg,#fbf3dc,#efdcae 50%,#fbf3dc);display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),inset 0 0 0 3px rgba(176,138,52,.4)}
+.pkc .court::after{content:"";position:absolute;left:8%;right:8%;top:50%;border-top:1px solid rgba(176,138,52,.6)}
+.pkc .ch{flex:1;display:flex;align-items:center;justify-content:center;gap:.15em;position:relative}
+.pkc .ch.rv{transform:rotate(180deg)}
+.pkc .ch b{font:700 3.3em/1 Georgia,serif}.pkc .ch u{text-decoration:none;font-size:2.4em;color:#b08a34;line-height:1}.pkc .ch i{font-style:normal;font-size:2em}
+.pkc.joker{background:linear-gradient(160deg,#16181e,#0b0c10);color:#d4af5a;box-shadow:0 2px 5px rgba(0,0,0,.45)}
+.pkc.joker .ix b{font-size:1.5em;letter-spacing:0;line-height:1.05;color:#d4af5a}
+.pkc.joker .jk{position:absolute;inset:0;display:grid;place-items:center}
+.pkc.joker .jk span{font-size:5.5em;color:#d4af5a;text-shadow:0 0 .2em rgba(212,175,90,.6)}
+/* 牌背 */
+.pkc.back{background:var(--pkback) center/100% 100% no-repeat,#101216;border:0;box-shadow:0 2px 5px rgba(0,0,0,.45)}
+.pkc.mini{--cw:28px}
+/* 弧形手牌 */
+.pkhand{height:auto;min-height:90px}
+.pkslot.arc{position:absolute;transform-origin:50% 100%;transform:rotate(var(--a));transition:transform .15s}
+.pkslot.arc.sel{transform:rotate(var(--a)) translateY(-20px)}
+.pkslot.arc.sel .pkc{box-shadow:0 0 0 2.5px #d4af5a,0 6px 12px rgba(0,0,0,.45)}
+.pkslot.arc:focus-visible .pkc{outline:2px solid #ffd54a;outline-offset:2px}
+/* 牌堆 */
+.pkpile{position:relative;width:min(80%,300px);height:calc(var(--pw,54px)*1.4 + 70px);--cw:var(--pw,54px);flex:none}
+.pkpile[data-act]{cursor:pointer}
+.pkgrp{position:absolute;left:50%;top:50%;display:flex;translate:calc(-50% + var(--dx)) calc(-50% + var(--dy));rotate:var(--rot)}
+.pkgrp .pkc{margin-left:calc(var(--cw)*-.62)}.pkgrp .pkc:first-child{margin-left:0}
+.pkgrp .pkc::before{content:"";position:absolute;inset:0;background:#000;opacity:var(--shade,0);pointer-events:none;z-index:3;border-radius:inherit}
+.pkpile.ready{filter:drop-shadow(0 0 10px rgba(255,213,74,.55))}
+.pkdrop{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);white-space:nowrap;font-size:13px;color:#ffe082;background:rgba(0,0,0,.45);padding:3px 10px;border-radius:10px;z-index:99;pointer-events:none;animation:pkdrop 1s ease-in-out infinite alternate}
+@keyframes pkdrop{to{opacity:.55}}
+.pkpile.hh.hot{border-radius:20px;animation:hhhot .5s ease-in-out infinite alternate}
+.pkpile.om{height:calc(var(--pw,54px)*1.4 + 30px);--pw:40px}
+.pklabel{margin:0;font-size:13px;opacity:.9;color:#f1e3b8}
+.ghostpile{pointer-events:none;z-index:50}
+.hhstack{position:relative;--cw:56px}.hhstack .pkc{box-shadow:calc(var(--n)*1px) calc(var(--n)*1px) 0 #0b0c10,calc(var(--n)*2px) calc(var(--n)*2px) 0 #1a1c22,0 4px 8px rgba(0,0,0,.45)}
+.hhmine .pkc.big{--cw:56px}
+/* 抽鬼牌：攤開的牌 */
+.omfan{display:flex;justify-content:center;--cw:44px;padding-top:6px}
+.omfan .pkslot{position:relative;margin-left:-22px;transform-origin:50% 120%;transform:rotate(var(--a));transition:transform .12s}
+.omfan .pkslot:first-child{margin-left:0}.omfan .pkslot:hover,.omfan .pkslot:focus-visible{transform:rotate(var(--a)) translateY(-12px)}
+/* 旋轉牌 */
+.pkspin{position:fixed;inset:0;pointer-events:none;z-index:60}
+.pkspinc{position:absolute;left:0;top:0;width:var(--cw);will-change:transform}.pkspinc .pkc{box-shadow:0 10px 20px rgba(0,0,0,.45)}
+#pkS0{position:relative}
+.p1 .pkname,.p3 .pkname{flex-direction:column;gap:2px}
+#pkS0 .slap{top:-30px;height:calc(100% + 30px);width:60%}
+@media (min-width:700px){.pkpile{--pw:62px}}
 </style>
 </head>
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.7.1">v0.7.1</span>
+  <span class="ver" aria-label="版本 0.8.0">v0.8.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -2629,7 +2700,7 @@ function d3Hop(hx,hy){
 // 拍桌（平面）：同樣依距離把棋子震飛、旋轉、彈兩下
 function hop2D(els,hx,hy){
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const br=$('board').getBoundingClientRect(),W=br.width;
+  const br=fxBoard().getBoundingClientRect(),W=br.width;
   els.forEach(el=>{const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=cx-hx,dy=cy-hy,d=Math.hypot(dx,dy)||1;
     const k=Math.max(.3,Math.min(1.15,1.25-d/(W*.85))),rnd=.85+Math.random()*.3,H=(26+62*k)*rnd,o=(6+18*k)*rnd,ox=dx/d*o,oy=dy/d*o;
     const spin=(Math.random()<.5?-1:1)*(60+260*k)*rnd,sc=1+.28*k;
@@ -2648,9 +2719,15 @@ let lastSlap=0,actx=null;
 function thump(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
   o.type='sine';o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(36,t+.25);
   g.gain.setValueAtTime(1,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.3);}catch(e){}}
+// 招式的作用對象：棋盤，或撲克牌桌（撲克牌畫面開著時）
+function inPk(){const e=document.getElementById('pk');return!!e&&!e.hidden;}
+function fxBoard(){return inPk()?$('pkTable'):$('board');}
+function fxEls(){return inPk()?[...$('pk').querySelectorAll('.pkc')].filter(e=>e.offsetParent&&!e.closest('.pkover,.pkspin')):[...$('layer').querySelectorAll('.face,.gst')];}
+function fxIdle(){return mode==='menu'&&!inPk();}
+function fxD3(){return!!d3&&!inPk();}
 function slapFx(side){
-  if(mode==='menu')return;
-  const r=$('board').getBoundingClientRect(),h=$('hand');
+  if(fxIdle())return;
+  const r=fxBoard().getBoundingClientRect(),h=$('hand');
   const top=side==='T',tilt=(Math.random()*16-8)|0,hx=r.left+r.width*(top?.44:.56),hy=r.top+r.height*(top?.3:.7);
   let hitDone=false;const hit=()=>{if(hitDone)return;hitDone=true;slapHit(hx,hy);};
   const css=()=>{if(webglOK())load3D();h.classList.remove('go');void h.offsetWidth;
@@ -2658,16 +2735,17 @@ function slapFx(side){
   if(fx3dOK())slap3D(side,hx,hy,r.width/9*3,tilt,hit).then(ok=>{if(!ok)css();});else css();
 }
 function slapHit(hx,hy){
-  const B=$('board'),r=B.getBoundingClientRect();if(hx==null){hx=r.left+r.width/2;hy=r.top+r.height/2;}
-  if(d3)d3Hop(hx,hy);else hop2D($('layer').querySelectorAll('.face,.gst'),hx,hy);
+  const B=fxBoard(),r=B.getBoundingClientRect();if(hx==null){hx=r.left+r.width/2;hy=r.top+r.height/2;}
+  if(fxD3())d3Hop(hx,hy);else hop2D(fxEls(),hx,hy);
   B.classList.remove('shake');void B.offsetWidth;B.classList.add('shake');
   thump();setTimeout(thump,60);try{navigator.vibrate&&navigator.vibrate(70);}catch(e){}
   setTimeout(()=>B.classList.remove('shake'),700);
 }
-function slap(side){const now=Date.now();if(now-lastSlap<500)return;lastSlap=now;slapFx(side);
+function slap(side){const now=Date.now();if(now-lastSlap<500)return;lastSlap=now;slapFx(side);pkFxSend('slap');
   if(mode==='online'&&room)room.emit('sl',{s:side}).catch(()=>{});}
 let flipping=false,slapPtr=null,skipClick=0;
 function tableFlip(side){
+  if(inPk()){pkTableFlip(side);return;}
   if(mode==='menu'||flipping)return;
   if(opt3d&&window.THREE&&webglOK()){
     flipping=true;
@@ -2711,7 +2789,7 @@ function tableFlip(side){
 /* ---------- 炸彈：長按拍桌 3 秒後放開，黑色圓炸彈掉到棋盤正中央，引信燒完爆炸，棋子全被炸飛後落回原位 ---------- */
 // 按住 2 秒＝炸彈；手指移動 28px 以上＝滑動
 const BOMB_HOLD=2000,SWIPE_MIN=28;let bombing=false,bombR=null,bombHoldT=null;
-function bombSend(side){if(bombing||flipping||mode==='menu'||(typeof fxBusy!=='undefined'&&fxBusy))return;bombFx();if(mode==='online'&&room)room.emit('sl',{s:side,b:1}).catch(()=>{});}
+function bombSend(side){if(bombing||flipping||fxIdle()||(typeof fxBusy!=='undefined'&&fxBusy))return;bombFx();pkFxSend('bomb');if(mode==='online'&&room)room.emit('sl',{s:side,b:1}).catch(()=>{});}
 function bombHint(on,x,y){let h=$('bombHint');
   if(!h){h=document.createElement('div');h.id='bombHint';h.className='bombhint';h.setAttribute('aria-hidden','true');h.innerHTML='<i></i><b></b>';document.body.appendChild(h);}
   if(on){h.style.left=x+'px';h.style.top=y+'px';h.hidden=false;}else h.hidden=true;}
@@ -2727,16 +2805,16 @@ function boom(){try{actx=actx||new (window.AudioContext||window.webkitAudioConte
 function bombShake(k){const a=$('app');a.animate([{translate:'0 0'},{translate:`${-9*k}px ${7*k}px`},{translate:`${8*k}px ${-6*k}px`},{translate:`${-6*k}px ${-4*k}px`},{translate:`${4*k}px ${5*k}px`},{translate:`${-2*k}px ${-2*k}px`},{translate:'0 0'}],{duration:520,easing:'ease-out'});}
 function bombFlash(){const f=document.createElement('div');f.className='bombflash';document.body.appendChild(f);f.animate([{opacity:.95},{opacity:0}],{duration:420,easing:'ease-out'}).onfinish=()=>f.remove();}
 async function bombFx(){
-  if(bombing||mode==='menu')return;bombing=true;
+  if(bombing||fxIdle())return;bombing=true;
   try{if(!fx3dOK()&&webglOK())await load3D();
-    const B=$('board'),br=B.getBoundingClientRect(),cx=br.left+br.width/2,cy=br.top+br.height/2,sq=br.width/9;
+    const B=fxBoard(),br=B.getBoundingClientRect(),cx=br.left+br.width/2,cy=br.top+br.height/2,sq=inPk()?40:br.width/9;
     if(fx3dOK())await bomb3D(cx,cy,sq);else await bomb2D(cx,cy,sq);
   }catch(e){document.querySelectorAll('.bomb3d').forEach(c=>c.style.display='none');if(d3)d3.grp.visible=true;d3Draw();}
   bombing=false;
 }
 // 炸飛棋子（平面）：往外飛出畫面、淡出，之後從上方落回原位
 function bombBlast2D(cx,cy){
-  const els=$('layer').querySelectorAll('.face,.gst');let far=Math.hypot(innerWidth,innerHeight);
+  const els=fxEls();let far=Math.hypot(innerWidth,innerHeight);
   els.forEach(el=>{const r=el.getBoundingClientRect(),dx=r.left+r.width/2-cx,dy=r.top+r.height/2-cy,d=Math.hypot(dx,dy)||1,
     a=Math.atan2(dy,dx)+(Math.random()-.5)*.5,D=far*(.45+Math.random()*.5),spin=(Math.random()<.5?-1:1)*(540+Math.random()*900),k=.55+Math.random()*.25;
     el.animate([
@@ -2789,13 +2867,13 @@ function bomb3D(cx,cy,sq){return new Promise(res=>{
   const P=[];const mk=(tex,add_,x,y,z,vx,vy,vz,s0,s1,life,col)=>{const m=new T.SpriteMaterial({map:tex,blending:add_?T.AdditiveBlending:T.NormalBlending,depthWrite:false,transparent:true,color:col||0xffffff});
     const sp=new T.Sprite(m);sp.position.set(x,y,z);sp.scale.setScalar(s0);sc.add(sp);P.push({sp,m,v:new T.Vector3(vx,vy,vz),s0,s1,life,t:0,add_});};
   // 棋子：3D 棋盤時把棋子複製到這一層炸飛，平面時用 DOM 動畫
-  let clones=null;const bc=$('board').getBoundingClientRect(),BX=(bc.left+bc.width/2-W/2)/u,BZ=(bc.top+bc.height/2-H/2)/u;
+  let clones=null;const bc=fxBoard().getBoundingClientRect(),BX=(bc.left+bc.width/2-W/2)/u,BZ=(bc.top+bc.height/2-H/2)/u;
   const t0=performance.now(),G=30;let prev=t0,by=D*.72,vy=0,landed=0,tLand=null,exploded=false,tBoom=null,restored=false;bomb.position.set(X,by,Z);
   (function f(now){
     const t=(now-t0)/1000,dt=Math.min(.033,(now-prev)/1000);prev=now;
     if(!exploded){
       vy-=G*dt;by+=vy*dt;
-      if(by<r){by=r;if(landed<3&&Math.abs(vy)>2){if(!landed){thump();bombShake(.5);tLand=t;bombHiss(.5);const Bd=$('board');Bd.classList.remove('shake');void Bd.offsetWidth;Bd.classList.add('shake');setTimeout(()=>Bd.classList.remove('shake'),700);try{navigator.vibrate&&navigator.vibrate(50);}catch(e){}}
+      if(by<r){by=r;if(landed<3&&Math.abs(vy)>2){if(!landed){thump();bombShake(.5);tLand=t;bombHiss(.5);const Bd=fxBoard();Bd.classList.remove('shake');void Bd.offsetWidth;Bd.classList.add('shake');setTimeout(()=>Bd.classList.remove('shake'),700);try{navigator.vibrate&&navigator.vibrate(50);}catch(e){}}
         vy=-vy*.28;landed++;body.scale.set(1.12,.86,1.12);}else{vy=0;}}
       body.scale.lerp(new T.Vector3(1,1,1),Math.min(1,dt*10));bomb.position.set(X,by,Z);
       const sh=Math.max(.25,1-by/(D*.72));shadow.scale.setScalar(.6+sh*.6);shM.opacity=sh;
@@ -2811,7 +2889,7 @@ function bomb3D(cx,cy,sq){return new Promise(res=>{
         const ringM=new T.MeshBasicMaterial({color:0xfff0c0,transparent:true,opacity:.85,depthWrite:false,side:T.DoubleSide});disp.push(ringM);
         const ring=add(new T.Mesh(new T.RingGeometry(.92,1,64),ringM));ring.rotation.x=-Math.PI/2;ring.position.set(X,.03,Z);P.push({ring,t:0,life:.55});
         // 炸飛棋子
-        if(d3&&d3.grp.children.length){clones=d3.grp.children.map(m=>{const c=m.clone();c.position.set(BX+m.position.x,m.position.y,BZ+m.position.z);c.quaternion.copy(m.quaternion);sc.add(c);
+        if(fxD3()&&d3.grp.children.length){clones=d3.grp.children.map(m=>{const c=m.clone();c.position.set(BX+m.position.x,m.position.y,BZ+m.position.z);c.quaternion.copy(m.quaternion);sc.add(c);
             const dx=c.position.x-X,dz=c.position.z-Z,d=Math.hypot(dx,dz)||.01,k=Math.max(.35,1.6-d/(bc.width/u*.7));
             return{c,v:new T.Vector3(dx/d*(7+7*k)*(.8+Math.random()*.4),(6+8*k)*(.8+Math.random()*.4),dz/d*(7+7*k)*(.8+Math.random()*.4)),w:new T.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize().multiplyScalar(12+18*k)};});
           d3.grp.visible=false;d3Draw();}
@@ -2858,7 +2936,7 @@ function fxStage(){
   const R=S.r;R.setPixelRatio(Math.min(2,devicePixelRatio||1));R.setSize(W,H);R.localClippingEnabled=true;R.domElement.style.display='block';
   const sc=fxLights(new T.Scene()),D=(H/u/2)/Math.tan(20*Math.PI/180),cam=new T.PerspectiveCamera(40,W/H,.1,200);
   cam.position.set(0,D,0);cam.up.set(0,0,-1);cam.lookAt(0,0,0);
-  const bc=$('board').getBoundingClientRect();
+  const bc=fxBoard().getBoundingClientRect();
   return{T,W,H,u,R,sc,cam,tx:S.tx,D,bc,X:px=>(px-W/2)/u,Z:py=>(py-H/2)/u,
     hw:W/u/2,hh:H/u/2,BX:(bc.left+bc.width/2-W/2)/u,BZ:(bc.top+bc.height/2-H/2)/u,sq:bc.width/9/u,
     done(){R.domElement.style.display='none';sc.traverse(o=>{if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.userData.fx)m.dispose();});}
@@ -2867,7 +2945,7 @@ function fxStage(){
 // 共用：把棋子交給特效控制。3D 棋盤＝複製 3D 棋子到覆蓋層；平面＝直接移動 DOM 棋子
 function fxGrab(st){
   const {u,W,H}=st;
-  if(d3&&d3.grp.visible&&d3.grp.children.length){
+  if(fxD3()&&d3.grp.visible&&d3.grp.children.length){
     const list=d3.grp.children.map(m=>{const c=m.clone();c.position.set(st.BX+m.position.x,m.position.y,st.BZ+m.position.z);c.quaternion.identity();st.sc.add(c);
       return{c,m,x0:c.position.x,y0:m.position.y,z0:c.position.z};});
     d3.grp.visible=false;d3Draw();
@@ -2876,7 +2954,7 @@ function fxGrab(st){
       hide(o){o.c.visible=false;},
       restore(){list.forEach(o=>st.sc.remove(o.c));bombRestore3D();}};
   }
-  const els=[...$('layer').querySelectorAll('.face,.gst')].filter(el=>!el.closest('.promo'));
+  const els=fxEls().filter(el=>!el.closest('.promo'));
   const list=els.map(el=>{const r=el.getBoundingClientRect();return{el,x0:(r.left+r.width/2-W/2)/u,y0:0,z0:(r.top+r.height/2-H/2)/u,w:r.width};});
   return{three:false,list,
     set(o,x,y,z,spin,tilt,op){const s=o.el.style;s.translate=`${((x-o.x0)*u).toFixed(1)}px ${((z-o.z0)*u).toFixed(1)}px`;
@@ -2902,13 +2980,15 @@ function fxParticles(st){
 function fxSide(side){return side==='T'&&(mode==='online'||f2f);}   // 對面玩家：他的右邊是我畫面的左邊
 let fxBusy=false;
 function bigFx(kind,side){
-  if(fxBusy||bombing||flipping||mode==='menu')return;
+  if(fxBusy||bombing||flipping||fxIdle())return;
+  if(inPk()&&kind==='arrow')kind='spin';
+  if(kind==='spin'){fxBusy=true;spinFx(side).then(()=>{fxBusy=false;},()=>{fxBusy=false;});return;}
   if(!fx3dOK()){if(webglOK()){load3D().then(ok=>{if(ok)bigFx(kind,side);else slapFx(side);});}else slapFx(side);return;}
   fxBusy=true;const fin=()=>{fxBusy=false;};
   const run=kind==='wave'?tsunamiFx:kind==='tornado'?tornadoFx:kind==='fire'?fireFx:arrowFx;
   try{run(side).then(fin,e=>{fin();try{bombR.r.domElement.style.display='none';}catch(_){}if(d3){d3.grp.visible=true;d3Draw();}});}catch(e){fin();}
 }
-function bigSend(kind,side){if(fxBusy||bombing||flipping||mode==='menu')return;bigFx(kind,side);if(mode==='online'&&room)room.emit('sl',{s:side,fx:kind}).catch(()=>{});}
+function bigSend(kind,side){if(fxBusy||bombing||flipping||fxIdle())return;if(inPk()&&kind==='arrow')kind='spin';bigFx(kind,side);pkFxSend(kind);if(mode==='online'&&room)room.emit('sl',{s:side,fx:kind}).catch(()=>{});}
 
 /* 海嘯：從玩家的右邊湧進一道水牆，浪頭的白沫與水花橫掃整個畫面，把棋子捲在浪頭前面沖走 */
 const WAVE_FS=`
@@ -3073,7 +3153,7 @@ void main(){float z=vW.z,x=vW.x;float n=vn(vec2(x*2.2,uT*1.5))*.35+vn(vec2(x*6.,
   gl_FragColor=vec4(c,a);}`;
 function fireFx(side){return new Promise(res=>{
   const st=fxStage(),T=st.T,pc=fxGrab(st),pt=fxParticles(st);
-  const bc=st.bc,top=(bc.top-st.H/2)/st.u,bot=(bc.bottom-st.H/2)/st.u,left=(bc.left-st.W/2)/st.u,right=(bc.right-st.W/2)/st.u;
+  const bc=inPk()?$('pk').getBoundingClientRect():st.bc,top=(bc.top-st.H/2)/st.u,bot=(bc.bottom-st.H/2)/st.u,left=(bc.left-st.W/2)/st.u,right=(bc.right-st.W/2)/st.u;
   const nearB=side==='B',z0=nearB?top-.3:bot+.3,z1=nearB?bot+.4:top-.4,dir=nearB?1:-1,DUR=.9;   // 從對面燒向發動的玩家
   // 燒焦的地面（火線經過後留下焦黑）
   const cm=new T.ShaderMaterial({vertexShader:'varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
@@ -3159,7 +3239,7 @@ function b2Act(st,seat,a){
   const cb=b2Combo(cards);if(!cb)return'這幾張牌不能一起出（可出：單張、對子、順子、同花、葫蘆、鐵支、同花順）';
   if(st.first&&!cards.includes(8))return'第一手要包含梅花 3';
   if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張`:'壓不過上一手';
-  st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.lead={seat,cards:b2sort(cards.slice()),combo:cb};st.passes=0;
+  st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.pn=(st.pn||0)+1;st.lead={seat,cards:b2sort(cards.slice()),combo:cb,pn:st.pn};st.passes=0;
   st.log.push({seat,cards:st.lead.cards,name:cb.name});
   if(!st.hands[seat].length){st.over={winner:seat,left:st.hands.map(x=>x.length)};}else st.turn=pkNext(seat);
   st.seq++;return null;
@@ -3295,7 +3375,7 @@ const PK_RULES={b2:'4 人各 13 張，梅花 3 先出。可出單張、對子，
 const pkPos=s=>(s-PK.me+4)%4;            // 0 下（自己）1 右 2 上 3 左
 const pkSeatEl=s=>$('pkS'+pkPos(s));
 function pkClear(){PK.timers.forEach(clearTimeout);PK.timers=[];}
-function pkLater(ms,f){PK.timers.push(setTimeout(f,ms));}
+function pkLater(ms,f){PK.timers.push(setTimeout(()=>{if(fxBusy||bombing||flipping){pkLater(400,f);return;}f();},ms));}
 function pkNote(t,ms){PK.note=t;clearTimeout(PK.noteT);const el=$('pkMsg');if(el){el.textContent=t;el.classList.toggle('on',!!t);}
   if(t&&ms!==0)PK.noteT=setTimeout(()=>{PK.note='';const e=$('pkMsg');if(e)e.classList.remove('on');},ms||1800);}
 function pkShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=false;}
@@ -3305,7 +3385,7 @@ function pkExit(){pkClear();if(PK.net){try{PK.net.close();}catch(e){}PK.net=null
 function pkStartAI(){PK.role='solo';PK.me=0;PK.code=null;PK.seats=[{kind:'me',name:'你'},{kind:'ai',name:'電腦 A'},{kind:'ai',name:'電腦 B'},{kind:'ai',name:'電腦 C'}];
   pkShow();pkNewGame();}
 function pkNames(){return PK.seats.map(s=>s.name);}
-function pkNewGame(){pkClear();PK.phase='play';PK.st=PK_GAMES[PK.g].neu();PK.sel.clear();PK.slapMt=PK.resMt=-1;pkNote('');pkAfter();}
+function pkNewGame(){pkClear();PK.gameId=(PK.gameId||0)+1;PK.pileKey='';PK.phase='play';PK.st=PK_GAMES[PK.g].neu();PK.sel.clear();PK.slapMt=PK.resMt=-1;pkNote('');pkAfter();}
 function pkDo(seat,a){if(!PK.st)return'還沒開始';const err=PK_GAMES[PK.st.g].act(PK.st,seat,a);if(!err)pkAfter();return err;}
 function pkAfter(){pkPush();PK.view=pkView(PK.st,PK.me);PK.names=pkNames();pkRender();pkSchedule();}
 function pkPush(){if(PK.role!=='host'||!PK.net)return;PK.seats.forEach((s,i)=>{if(s.kind==='net')PK.net.sendTo(s.peer,{k:'view',v:pkView(PK.st,i),names:pkNames(),game:PK.g});});}
@@ -3329,12 +3409,156 @@ function pkMine(a){
 }
 
 /* ---------- 畫面 ---------- */
-const pkCard=(c,cls='')=>c===52?`<div class="pkc joker ${cls}"><span class="cr">鬼</span><span class="cm">★</span></div>`
-  :`<div class="pkc${pkRed(c)?' red':''} ${cls}" data-c="${c}"><span class="cr">${PK_RN[pkR(c)]}</span><span class="cs">${PK_SU[pkS(c)]}</span><span class="cm">${PK_SU[pkS(c)]}</span></div>`;
+/* ---------- 牌面與牌背（燙金風格，原創花紋） ---------- */
+const PK_SUV=['♣︎','♦︎','♥︎','♠︎'];
+// 點數 2～10 的花色排列（x%, y%, 是否倒放）
+const PK_PIPS={2:[[50,21],[50,79,1]],3:[[50,21],[50,50],[50,79,1]],4:[[31,21],[69,21],[31,79,1],[69,79,1]],
+  5:[[31,21],[69,21],[50,50],[31,79,1],[69,79,1]],6:[[31,21],[69,21],[31,50],[69,50],[31,79,1],[69,79,1]],
+  7:[[31,21],[69,21],[50,35.5],[31,50],[69,50],[31,79,1],[69,79,1]],8:[[31,21],[69,21],[50,35.5],[31,50],[69,50],[50,64.5,1],[31,79,1],[69,79,1]],
+  9:[[31,19],[69,19],[31,39.5],[69,39.5],[50,50],[31,60.5,1],[69,60.5,1],[31,81,1],[69,81,1]],
+  10:[[31,19],[69,19],[50,29.5],[31,39.5],[69,39.5],[31,60.5,1],[69,60.5,1],[50,70.5,1],[31,81,1],[69,81,1]]};
+const PK_CROWN={11:'⚜︎',12:'♛︎',13:'♚︎'};
+function pkCard(c,cls=''){
+  if(c===52)return`<div class="pkc joker ${cls}"><span class="ix tl"><b>J<br>O<br>K<br>E<br>R</b></span><span class="ix br"><b>J<br>O<br>K<br>E<br>R</b></span><div class="jk"><span>★</span></div></div>`;
+  const r=pkR(c),s=pkS(c),su=PK_SUV[s],rn=PK_RN[r],red=s===1||s===2;
+  const ix=`<b>${rn}</b><i>${su}</i>`;let mid='';
+  if(r===1)mid=`<div class="ace${s===3?' acesp':''}"><span>${su}</span></div>`;
+  else if(r>=11){const h=`<div class="ch"><b>${rn}</b><u>${PK_CROWN[r]}</u><i>${su}</i></div>`;mid=`<div class="court">${h}${h.replace('class="ch"','class="ch rv"')}</div>`;}
+  else mid=PK_PIPS[r].map(([x,y,rv])=>`<i class="pp${rv?' rv':''}" style="left:${x}%;top:${y}%">${su}</i>`).join('');
+  return`<div class="pkc face${red?' red':''} ${cls}" data-c="${c}"><span class="ix tl">${ix}</span><span class="ix br">${ix}</span>${mid}</div>`;
+}
 const pkBack=(cls='')=>`<div class="pkc back ${cls}"></div>`;
+// 牌背：黑底燙金的原創花紋（雙框、菱格、中央徽章、四角扇形）
+function pkBackSVG(){const g='#d4af5a',G='#a8842f';let d='';
+  for(let i=-350;i<600;i+=22)d+=`<path d="M${i} 0 L${i+350} 350 M${i+350} 0 L${i} 350" stroke="${G}" stroke-width=".7" opacity=".55"/>`;
+  let petals='';for(let k=0;k<16;k++){const a=k*22.5;petals+=`<path d="M125 175 m0 -46 q8 22 0 40 q-8 -18 0 -40z" fill="${k%2?G:g}" transform="rotate(${a} 125 175)" opacity="${k%2?.75:1}"/>`;}
+  let corners='';for(const[x,y,r]of[[24,24,0],[226,24,90],[226,326,180],[24,326,270]]){corners+=`<g transform="translate(${x} ${y}) rotate(${r})"><path d="M0 0 h26 M0 0 v26 M0 0 q18 4 22 22" stroke="${g}" stroke-width="1.6" fill="none"/><circle cx="8" cy="8" r="2.4" fill="${g}"/></g>`;}
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350"><defs><linearGradient id="f" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a1c22"/><stop offset=".5" stop-color="#0d0e12"/><stop offset="1" stop-color="#1b1d24"/></linearGradient><clipPath id="c"><rect x="22" y="22" width="206" height="306" rx="8"/></clipPath></defs>
+<rect width="250" height="350" rx="16" fill="url(#f)"/><rect x="10" y="10" width="230" height="330" rx="12" fill="none" stroke="${g}" stroke-width="2.2"/><rect x="16" y="16" width="218" height="318" rx="10" fill="none" stroke="${G}" stroke-width=".9"/>
+<g clip-path="url(#c)">${d}</g><rect x="22" y="22" width="206" height="306" rx="8" fill="none" stroke="${g}" stroke-width="1.2"/>
+<circle cx="125" cy="175" r="62" fill="#0d0e12" stroke="${g}" stroke-width="2"/><circle cx="125" cy="175" r="55" fill="none" stroke="${G}" stroke-width=".8"/>${petals}
+<circle cx="125" cy="175" r="13" fill="#0d0e12" stroke="${g}" stroke-width="1.6"/><path d="M125 166 l6 9 l-6 9 l-6 -9z" fill="${g}"/>${corners}
+<path d="M125 98 l7 10 l-7 10 l-7 -10z M125 232 l7 10 l-7 10 l-7 -10z" fill="${g}"/></svg>`;
+  return'url("data:image/svg+xml,'+encodeURIComponent(svg)+'")';}
+document.documentElement.style.setProperty('--pkback',pkBackSVG());
 function pkFan(n,max){const k=Math.min(n,max||7);let h='';for(let i=0;i<k;i++)h+=pkBack('mini');return`<div class="pkfan">${h}</div>`;}
+
+/* ---------- 弧形手牌 ---------- */
+function pkHand(cards,selectable){
+  const box=$('pkHand'),aw=box.clientWidth||340,n=cards.length;
+  const spread=n>1?Math.min(46,8+n*3):0,rad=Math.PI/180,sh=Math.sin(spread/2*rad);
+  // 牌寬：整把扇形（含最外側兩張轉斜後多出來的寬度）要放得進手牌區
+  const cw=Math.min(66,Math.max(36,(aw-12)/(1+2*5.6*sh+1.4*sh))),R=cw*5.6;
+  box.style.setProperty('--cw',cw+'px');box.style.height=(cw*1.4+R*(1-Math.cos(spread/2*rad))+22)+'px';
+  const cx=aw/2;
+  box.innerHTML=cards.map((c,i)=>{const a=n>1?-spread/2+spread*i/(n-1):0,x=cx+R*Math.sin(a*rad)-cw/2,y=14+R*(1-Math.cos(a*rad));
+    return`<button class="pkslot arc${PK.sel.has(c)?' sel':''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;--a:${a.toFixed(2)}deg;z-index:${i+1}" data-act="${selectable?'pkSel':''}" data-c="${c}" ${selectable?'':'tabindex="-1"'} aria-label="${pkName(c)}${PK.sel.has(c)?'（已選）':''}">${pkCard(c)}</button>`;}).join('');
+  if(!box.querySelector('.slap'))box.insertAdjacentHTML('beforeend','');
+}
+
+/* ---------- 桌上的牌堆：每次出牌疊上去、越疊越亂，舊的被蓋在下面 ---------- */
+PK.pile=[];PK.pileKey='';PK.fresh=null;
+function pkPileReset(){PK.pile=[];PK.fresh=null;}
+function pkPileAdd(cards,seat,face=true){const g={cards,seat,face,dx:(Math.random()-.5)*46,dy:(Math.random()-.5)*30,rot:(Math.random()-.5)*44,id:Math.random()};
+  PK.pile.push(g);PK.fresh=g;pkFlick();return g;}
+function pkPileHTML(){const n=PK.pile.length;
+  return PK.pile.map((g,i)=>{const old=n-1-i,cards=g.cards.map(c=>g.face&&c!=null?pkCard(c):pkBack()).join('');
+    return`<div class="pkgrp${g===PK.fresh?' fresh':''}" data-id="${g.id}" style="--dx:${g.dx.toFixed(1)}px;--dy:${g.dy.toFixed(1)}px;--rot:${g.rot.toFixed(1)}deg;--shade:${Math.min(.45,old*.07).toFixed(2)};z-index:${i+1}">${cards}</div>`;}).join('');}
+// 出牌的動作：從出牌的人那裡旋轉著丟到牌堆上
+function pkThrowFresh(){
+  const g=PK.fresh;if(!g)return;PK.fresh=null;const el=document.querySelector(`.pkgrp[data-id="${g.id}"]`);if(!el)return;
+  const pos=pkPos(g.seat),src=pos===0?$('pkHand'):$('pkS'+pos);if(!src)return;
+  const a=src.getBoundingClientRect(),b=el.getBoundingClientRect(),sx=a.left+a.width/2-(b.left+b.width/2),sy=(pos===0?a.top+a.height*.35:a.top+a.height/2)-(b.top+b.height/2);
+  const spin=(Math.random()<.5?-1:1)*(300+Math.random()*160);
+  el.animate([{translate:`calc(-50% + var(--dx) + ${sx}px) calc(-50% + var(--dy) + ${sy}px)`,rotate:`calc(var(--rot) + ${spin}deg)`,scale:1.25,opacity:.4},
+    {offset:.75,translate:'calc(-50% + var(--dx)) calc(-50% + var(--dy))',rotate:'calc(var(--rot) + 4deg)',scale:.97,opacity:1},
+    {translate:'calc(-50% + var(--dx)) calc(-50% + var(--dy))',rotate:'var(--rot)',scale:1,opacity:1}],{duration:430,easing:'cubic-bezier(.2,.75,.3,1)'});
+}
+function pkFlick(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const t=actx.currentTime,sr=actx.sampleRate,n=Math.floor(sr*.09),bf=actx.createBuffer(1,n,sr),d=bf.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=actx.createBufferSource(),f=actx.createBiquadFilter(),g=actx.createGain();s.buffer=bf;f.type='bandpass';f.frequency.value=2400;f.Q.value=.8;g.gain.value=.5;
+  s.connect(f).connect(g).connect(actx.destination);s.start(t);}catch(e){}}
+// 依畫面資料更新牌堆（房主、加入者都用同一套，所以各自的亂度不同但都會越疊越多）
+function pkSyncPile(v){
+  const key=PK.code+'|'+v.g+'|'+(PK.gameId||0);if(PK.pileKey!==key){PK.pileKey=key;pkPileReset();PK.lastPn=0;PK.lastCenter=0;PK.lastDis=null;}
+  if(v.g==='b2'){if(v.lead&&v.lead.pn&&v.lead.pn!==PK.lastPn){if(v.lead.pn<PK.lastPn)pkPileReset();PK.lastPn=v.lead.pn;pkPileAdd(v.lead.cards,v.lead.seat);}}
+  else if(v.g==='hh'){if(v.center>PK.lastCenter&&v.top!=null){pkPileAdd([v.top],v.shown?v.shown.seat:v.turn);}
+    else if(v.center<PK.lastCenter){PK.sweep={to:v.taken?v.taken.seat:null,html:pkPileHTML()};pkPileReset();}PK.lastCenter=v.center;}
+  else{const pairs=v.discards/2|0;if(PK.lastDis===null){for(let i=0;i<pairs;i++){const g=pkPileAdd([null,null],0,false);}PK.fresh=null;}
+    else if(pairs>PK.lastDis){const L=v.last;pkPileAdd(L&&L.c!=null?[L.c,null]:[null,null],L?L.seat:v.turn,true);}PK.lastDis=pairs;}
+}
+// 心臟病：收牌時整疊滑向收牌的人
+function pkSweep(){const sw=PK.sweep;PK.sweep=null;if(!sw||sw.to==null)return;const pile=$('pkPile');if(!pile)return;
+  const tmp=document.createElement('div');tmp.className='pkpile ghostpile';tmp.innerHTML=sw.html;pile.parentNode.insertBefore(tmp,pile);
+  const r=tmp.getBoundingClientRect(),pos=pkPos(sw.to),dst=(pos===0?$('pkHand'):$('pkS'+pos)).getBoundingClientRect();
+  tmp.style.position='absolute';tmp.style.left=pile.offsetLeft+'px';tmp.style.top=pile.offsetTop+'px';
+  tmp.animate([{translate:'0 0',scale:1,opacity:1},{translate:`${dst.left+dst.width/2-(r.left+r.width/2)}px ${dst.top+dst.height/2-(r.top+r.height/2)}px`,scale:.4,opacity:0}],{duration:520,easing:'cubic-bezier(.5,0,.7,1)'}).onfinish=()=>tmp.remove();}
+
+/* ---------- 各遊戲的牌桌 ---------- */
+function pkSlapZone(){const z=$('pkS0');if(z&&!z.querySelector('.slap'))z.insertAdjacentHTML('beforeend','<button class="slap" data-act="slap" data-s="B" aria-label="拍桌"></button>');}
+function pkRenderB2(v,names){
+  const my=!v.over&&v.turn===v.me;[...PK.sel].forEach(c=>{if(!v.hand.includes(c))PK.sel.delete(c);});
+  const sel=[...PK.sel],cb=sel.length?b2Combo(sel):null,ok=my&&cb&&(!v.lead||b2Beats(cb,v.lead.combo))&&(!v.first||sel.includes(8));
+  const label=v.lead?`${names[v.lead.seat]}・${v.lead.combo.name}`:(v.first?'梅花 3 先出':`${names[v.turn]} 自由出牌`);
+  $('pkTable').innerHTML=`<div class="pkpile${ok?' ready':''}" id="pkPile" data-act="pkTablePlay" role="button" aria-label="${ok?'點這裡出牌':'牌堆'}">${pkPileHTML()}${ok?'<span class="pkdrop">點這裡出 '+cb.name+'</span>':''}</div><p class="pklabel">${label}</p>`;
+  pkHand(v.hand,true);
+  $('pkBtns').innerHTML=`<button data-act="pkHint"${my?'':' disabled'}>提示</button><button data-act="pkPass"${my&&v.lead?'':' disabled'}>過</button>`
+    +`<button class="go" data-act="pkPlay"${my&&cb?'':' disabled'}>${cb?'出 '+cb.name:'出牌'}</button>`;
+  $('pkMe').classList.toggle('myturn',my);pkSlapZone();pkThrowFresh();
+}
+function pkRenderHH(v,names){
+  const said=v.shown?v.shown.said:null;
+  $('pkTable').innerHTML=`<div class="hhcall">${said?`<small>${names[v.shown.seat]} 喊</small><b>${said}</b>`:'<small>準備開始</small>'}</div>`
+    +`<div class="pkpile hh${v.match?' hot':''}" id="pkPile" data-act="pkSlap" role="button" aria-label="拍！">${pkPileHTML()||'<div class="pkempty">桌上沒有牌</div>'}</div>`
+    +`<div class="hhnext">桌上 ${v.center} 張・下一張喊 <b>${v.call}</b></div>`;
+  $('pkHand').style.height='';$('pkHand').innerHTML=`<div class="hhmine">${v.counts[v.me]?`<div class="hhstack" style="--n:${Math.min(6,Math.ceil(v.counts[v.me]/5))}">${pkBack('big')}</div>`:'<div class="pkempty">沒牌了</div>'}<span>${v.counts[v.me]} 張</span></div>`;
+  const my=!v.over&&v.turn===v.me&&!v.match;
+  $('pkBtns').innerHTML=`<button data-act="pkFlip"${my?'':' disabled'}>翻牌</button><button class="slapbtn${v.match?' hot':''}" data-act="pkSlap">拍！</button>`;
+  $('pkMe').classList.toggle('myturn',my);pkSlapZone();pkThrowFresh();pkSweep();
+}
+function pkRenderOM(v,names){
+  const my=!v.over&&v.turn===v.me,from=v.from;let t='';
+  t+=`<div class="pkpile om" id="pkPile">${pkPileHTML()}</div>`;
+  if(my&&from!=null){const n=v.counts[from];let h='';for(let i=0;i<n;i++){const a=n>1?-22+44*i/(n-1):0;h+=`<button class="pkslot omback" style="--a:${a.toFixed(1)}deg" data-act="pkDraw" data-i="${i}" aria-label="抽第 ${i+1} 張">${pkBack()}</button>`;}
+    t+=`<p class="omtip">從 <b>${names[from]}</b> 手中抽一張</p><div class="omfan">${h}</div>`;}
+  else if(!v.over)t+=`<p class="omtip">${names[v.turn]} 正在抽 ${names[from]} 的牌…</p>`;
+  if(v.last){const L=v.last;t+=`<p class="omlast">${names[L.seat]} 抽到${L.c!=null?' '+pkName(L.c):'一張牌'}${L.paired?'，湊成一對丟掉':''}</p>`;}
+  $('pkTable').innerHTML=t;pkHand(v.hand,false);$('pkBtns').innerHTML='';
+  $('pkMe').classList.toggle('myturn',my);pkSlapZone();pkThrowFresh();
+}
+
+/* ---------- 撲克牌專用招式 ---------- */
+// 旋轉牌（連點三下）：牌面朝下丟出去，繞一圈飛回來；有選牌就把選的牌一起丟
+function spinFx(side){return new Promise(res=>{
+  const host=$('pk');if(!host||host.hidden){res();return;}
+  let src=[];const mine=side!=='T';
+  if(mine){const sel=[...document.querySelectorAll('#pkHand .pkslot.sel')];src=sel.length?sel:[...document.querySelectorAll('#pkHand .pkslot')].slice(-1);
+    if(!src.length){const st=document.querySelector('#pkHand .hhstack');if(st)src=[st];}}
+  else{const s=$('pkS2');if(s)src=[s];}
+  if(!src.length){res();return;}
+  const layer=document.createElement('div');layer.className='pkspin';host.appendChild(layer);
+  const W=innerWidth,H=innerHeight,items=src.map((el,i)=>{const r=el.getBoundingClientRect(),cw=parseFloat(getComputedStyle($('pkHand')).getPropertyValue('--cw'))||56;
+    const d=document.createElement('div');d.className='pkspinc';d.style.setProperty('--cw',cw+'px');d.innerHTML=pkBack();layer.appendChild(d);if(mine)el.style.visibility='hidden';
+    const ox=r.left+r.width/2,oy=r.top+r.height/2;return{d,el,ox,oy,cw,delay:i*.12,dir:(i%2?-1:1)*(Math.random()<.5?-1:1),rx:W*(.28+Math.random()*.12),ry:(mine?oy-H*.12:H*.75-oy)*(.85+Math.random()*.2),spin:1080+Math.random()*360};});
+  fxNoise(1.1,'bandpass',1800,600,.25,3);try{navigator.vibrate&&navigator.vibrate([20,30,20]);}catch(e){}
+  const t0=performance.now(),DUR=1.35;
+  (function f(now){const t=(now-t0)/1000;let busy=false;
+    for(const o of items){const k=Math.max(0,Math.min(1,(t-o.delay)/DUR));if(k<1)busy=true;const a=k*2*Math.PI,e=k;
+      const x=o.ox+o.dir*o.rx*Math.sin(a),y=o.oy+(mine?-1:1)*o.ry*(1-Math.cos(a))/2,sc=1+.35*Math.sin(Math.PI*k);
+      o.d.style.transform=`translate(${(x-o.cw/2).toFixed(1)}px,${(y-o.cw*.7).toFixed(1)}px) rotate(${(o.spin*e).toFixed(1)}deg) scale(${sc.toFixed(3)})`;}
+    if(busy)requestAnimationFrame(f);else{items.forEach(o=>{if(mine)o.el.style.visibility='';});layer.remove();res();}})(t0);});}
+// 翻桌（撲克牌）：桌上和手上的牌全部往對面飛散，再落回原位
+function pkTableFlip(side){if(flipping)return;flipping=true;thump();setTimeout(thump,120);bombShake(1);try{navigator.vibrate&&navigator.vibrate([60,40,90]);}catch(e){}
+  const r=$('pk').getBoundingClientRect();bombBlast2D(r.left+r.width/2,side==='T'?r.top-200:r.bottom+200);setTimeout(()=>{flipping=false;},2700);}
+// 牌友之間同步招式：加入者送給房主，房主播放並轉給其他人
+function pkFxSend(kind){if(!inPk()||!PK.net)return;if(PK.role==='guest')PK.net.sendHost({k:'fx',kind});
+  else PK.seats.forEach(s=>{if(s&&s.kind==='net')PK.net.sendTo(s.peer,{k:'fx',kind});});}
+function pkFxRecv(kind,fromPeer){
+  if(PK.role==='host')PK.seats.forEach(s=>{if(s&&s.kind==='net'&&s.peer!==fromPeer)PK.net.sendTo(s.peer,{k:'fx',kind});});
+  if(kind==='slap')slapFx('T');else if(kind==='bomb')bombFx();else if(kind==='flip')pkTableFlip('T');
+  else if(['wave','tornado','fire','spin'].includes(kind))bigFx(kind,'T');}
+
 function pkRender(){
-  const v=PK.view;if(!v)return;$('pkTitle').textContent=PK_GAMES[v.g].n;$('pkCode').textContent=PK.code?`房號 ${PK.code}`:'';
+  const v=PK.view;if(!v)return;if(v!==PK.syncedView){PK.syncedView=v;if(v.seq<(PK.lastSeq||0))PK.pileKey='';PK.lastSeq=v.seq;pkSyncPile(v);}$('pkTitle').textContent=PK_GAMES[v.g].n;$('pkCode').textContent=PK.code?`房號 ${PK.code}`:'';
   const names=PK.names.length?PK.names:['你','電腦 A','電腦 B','電腦 C'];
   // 四個座位
   for(let s=0;s<4;s++){const el=pkSeatEl(s),pos=pkPos(s),act=!v.over&&v.turn===s&&!(v.g==='hh'&&v.match);
@@ -3348,49 +3572,6 @@ function pkRender(){
     el.innerHTML=`<div class="pkname"><b>${names[s]}</b><span class="pkcnt">${cnt}</span></div>${cnt?pkFan(cnt,pos===2?9:6):''}${st?`<i class="pkst">${st}</i>`:''}`;}
   if(v.g==='b2')pkRenderB2(v,names);else if(v.g==='hh')pkRenderHH(v,names);else pkRenderOM(v,names);
   pkRenderOver(v,names);
-}
-function pkHand(cards,selectable){
-  const box=$('pkHand'),aw=box.clientWidth||340,n=cards.length,cw=Math.min(62,Math.max(40,aw/5.6)),step=n>1?Math.min(cw*.68,(aw-cw)/(n-1)):0,w=cw+step*(n-1);
-  box.style.setProperty('--cw',cw+'px');
-  box.innerHTML=cards.map((c,i)=>`<button class="pkslot${PK.sel.has(c)?' sel':''}" style="left:${(aw-w)/2+i*step}px" data-act="${selectable?'pkSel':''}" data-c="${c}" ${selectable?'':'tabindex="-1"'} aria-label="${pkName(c)}${PK.sel.has(c)?'（已選）':''}">${pkCard(c)}</button>`).join('');
-}
-function pkRenderB2(v,names){
-  const my=!v.over&&v.turn===v.me;
-  [...PK.sel].forEach(c=>{if(!v.hand.includes(c))PK.sel.delete(c);});
-  let t='';
-  if(v.lead){t=`<div class="pklead"><div class="pkplay">${v.lead.cards.map(c=>pkCard(c)).join('')}</div><p>${names[v.lead.seat]}・${v.lead.combo.name}</p></div>`;}
-  else t=`<div class="pkfree">${v.first?'梅花 3 先出':`${names[v.turn]} 自由出牌`}</div>`;
-  $('pkTable').innerHTML=t;
-  pkHand(v.hand,true);
-  const sel=[...PK.sel],cb=sel.length?b2Combo(sel):null;
-  $('pkBtns').innerHTML=`<button data-act="pkHint"${my?'':' disabled'}>提示</button><button data-act="pkPass"${my&&v.lead?'':' disabled'}>過</button>`
-    +`<button class="go" data-act="pkPlay"${my&&cb?'':' disabled'}>${cb?'出 '+cb.name:'出牌'}</button>`;
-  if(my&&!PK.note)$('pkMsg').textContent='';
-  $('pkMe').classList.toggle('myturn',my);
-}
-function pkRenderHH(v,names){
-  const top=v.top!=null?pkCard(v.top,'big'):'<div class="pkempty">桌上沒有牌</div>';
-  const said=v.shown?v.shown.said:null;
-  $('pkTable').innerHTML=`<div class="hhcall">${said?`<small>${names[v.shown.seat]} 喊</small><b>${said}</b>`:'<small>準備開始</small>'}</div>`
-    +`<button class="hhpile${v.match?' hot':''}" data-act="pkSlap" aria-label="拍！">${top}<span class="hhn">${v.center} 張</span></button>`
-    +`<div class="hhnext">下一張喊 <b>${v.call}</b></div>`;
-  $('pkHand').innerHTML=`<div class="hhmine">${v.counts[v.me]?pkBack('big'):'<div class="pkempty">沒牌了</div>'}<span>${v.counts[v.me]} 張</span></div>`;
-  const my=!v.over&&v.turn===v.me&&!v.match;
-  $('pkBtns').innerHTML=`<button data-act="pkFlip"${my?'':' disabled'}>翻牌</button><button class="slapbtn${v.match?' hot':''}" data-act="pkSlap">拍！</button>`;
-  $('pkMe').classList.toggle('myturn',my);
-  if(v.taken&&v.taken.seq!==PK._tk){PK._tk=v.seq;}
-}
-function pkRenderOM(v,names){
-  const my=!v.over&&v.turn===v.me,from=v.from;let t='';
-  if(my&&from!=null){const n=v.counts[from];let h='';for(let i=0;i<n;i++)h+=`<button class="pkslot omback" data-act="pkDraw" data-i="${i}" aria-label="抽第 ${i+1} 張">${pkBack()}</button>`;
-    t=`<p class="omtip">從 <b>${names[from]}</b> 手中抽一張</p><div class="omfan" style="--n:${n}">${h}</div>`;}
-  else if(!v.over)t=`<p class="omtip">${names[v.turn]} 正在抽 ${names[from]} 的牌…</p>`;
-  if(v.last){const L=v.last;t+=`<p class="omlast">${names[L.seat]} 抽到${L.c!=null?' '+pkName(L.c):'一張牌'}${L.paired?'，湊成一對丟掉':''}</p>`;}
-  t+=`<p class="omdis">已丟掉 ${v.discards/2|0} 對</p>`;
-  $('pkTable').innerHTML=t;
-  pkHand(v.hand,false);
-  $('pkBtns').innerHTML='';
-  $('pkMe').classList.toggle('myturn',my);
 }
 function pkRenderOver(v,names){
   const o=$('pkOver');if(!v.over){o.hidden=true;return;}
@@ -3430,6 +3611,7 @@ function pkHostMsg(peer,m){
     if(i<0){if(PK.phase!=='lobby'){PK.net.sendTo(peer,{k:'full',why:'這局已經開始了'});return;}i=PK.seats.findIndex(s=>!s);
       if(i<0){PK.net.sendTo(peer,{k:'full',why:'房間已經滿 4 人'});return;}PK.seats[i]={kind:'net',peer,name:'玩家 '+(i+1)};}
     if(PK.phase==='lobby')pkHostLobby();else PK.net.sendTo(peer,{k:'view',v:pkView(PK.st,i),names:pkNames(),game:PK.g});return;}
+  if(m.k==='fx'&&typeof m.kind==='string'){if(PK.seats.some(s=>s&&s.peer===peer))pkFxRecv(m.kind,peer);return;}
   if(m.k==='act'){const i=PK.seats.findIndex(s=>s&&s.peer===peer);if(i<0||!PK.st)return;const err=pkDo(i,m.a||{});if(err)PK.net.sendTo(peer,{k:'err',m:err});}
 }
 function pkGo(){for(let i=0;i<4;i++)if(!PK.seats[i])PK.seats[i]={kind:'ai',name:'電腦 '+'ABC'[i-1]};pkNewGame();}
@@ -3446,6 +3628,7 @@ async function pkJoin(c){
     if(m.k==='lobby'){PK.g=m.game;PK.lobby=m.seats;PK.phase='lobby';if($('pk').hidden){pkShow();pkMenuMsg('');}pkLobby();return;}
     if(m.k==='view'){PK.g=m.game;PK.phase='play';PK.view=m.v;PK.me=m.v.me;PK.names=m.names||[];if($('pk').hidden){pkShow();pkMenuMsg('');}
       if(PK.view.g==='b2'&&PK._seq!==m.v.seq){PK._seq=m.v.seq;}pkRender();return;}
+    if(m.k==='fx'&&typeof m.kind==='string'){pkFxRecv(m.kind);return;}
     if(m.k==='err'){pkNote(m.m);}});
   net.onLeave(()=>{if(PK.role==='guest'){pkExit();pkMenuMsg('房主離開了，連線中斷',true);}});
   for(let i=0;i<8&&!got&&PK.net===net;i++){net.sendHost({k:'join'});await sleep(1200);}
@@ -3467,6 +3650,7 @@ function pkClick(b){
     case 'pkSel':{if(!v||v.g!=='b2')return true;const c=+b.dataset.c;PK.sel.has(c)?PK.sel.delete(c):PK.sel.add(c);pkRender();return true;}
     case 'pkHint':{if(!v||v.g!=='b2')return true;if(PK.role==='guest'){const h=b2HintView(v);PK.sel=new Set(h||[]);if(!h)pkNote('沒有壓得過的牌，只能過');pkRender();return true;}
       const h=b2Hint(PK.st,PK.me);PK.sel=new Set(h||[]);if(!h)pkNote('沒有壓得過的牌，只能過');pkRender();return true;}
+    case 'pkTablePlay':{if(!v||v.g!=='b2')return true;if(!PK.sel.size){pkNote('先點手牌選好要出的牌');return true;}const cards=[...PK.sel];PK.sel.clear();pkMine({type:'play',cards});return true;}
     case 'pkPass':PK.sel.clear();pkMine({type:'pass'});return true;
     case 'pkPlay':{const cards=[...PK.sel];PK.sel.clear();pkMine({type:'play',cards});return true;}
     case 'pkFlip':pkMine({type:'flip'});return true;
@@ -3483,10 +3667,10 @@ addEventListener('resize',()=>{if(!$('pk').hidden&&PK.view)pkRender();});
 
 /* ---------- 電腦版隱藏快捷鍵（畫面上不顯示）：1 拍桌 2 弓箭 3 炸彈 4 翻桌 5 海嘯 6 龍捲風 7 火燒 ---------- */
 const FX_KEYS=['slap','arrow','bomb','flip','wave','tornado','fire'];
-function fxGo(kind,side){if(mode==='menu')return;
+function fxGo(kind,side){if(fxIdle())return;
   if(kind==='slap')slap(side);else if(kind==='flip')flipSend(side);else if(kind==='bomb')bombSend(side);else bigSend(kind,side);}
 document.addEventListener('keydown',e=>{
-  if(mode==='menu'||$('app').hidden||e.ctrlKey||e.metaKey||e.altKey||e.repeat||e.target.closest('input,textarea'))return;
+  if(fxIdle()||($('app').hidden&&!inPk())||e.ctrlKey||e.metaKey||e.altKey||e.repeat||e.target.closest('input,textarea'))return;
   if(!$('skinSheet').hidden||!$('setSheet').hidden)return;
   const i='1234567'.indexOf(e.key);if(i<0)return;e.preventDefault();fxGo(FX_KEYS[i],'B');});
 // 點一下＝拍桌；每下間隔 0.42 秒內連點三下＝弓箭
@@ -3494,14 +3678,14 @@ let tapN=0,tapT=null,tapSide='B';const TAP_GAP=420;   // 兩下之間 0.42 秒�
 function tapSlap(side){if(tapSide!==side)tapN=0;tapSide=side;tapN++;clearTimeout(tapT);
   if(tapN>=3){tapN=0;bigSend('arrow',side);return;}
   tapT=setTimeout(()=>{tapN=0;slap(side);},TAP_GAP);}
-function flipSend(side){if(flipping)return;tableFlip(side);if(mode==='online'&&room)room.emit('tf',{s:side}).catch(()=>{});}
+function flipSend(side){if(flipping)return;tableFlip(side);pkFxSend('flip');if(mode==='online'&&room)room.emit('tf',{s:side}).catch(()=>{});}
 function onTflip(m){if(m.isMe||mode!=='online')return;tableFlip(m.data&&m.data.s==='T'?'B':'T');}
 document.addEventListener('touchmove',e=>{if(!$('app').hidden&&!e.target.closest('.sheetbody,.menu'))e.preventDefault();},{passive:false});
 document.addEventListener('pointerdown',e=>{const el=e.target.closest('.slap');if(!el)return;
   slapPtr={id:e.pointerId,x:e.clientX,y:e.clientY,t:Date.now(),side:el.dataset.s==='T'?'T':'B'};try{el.setPointerCapture(e.pointerId);}catch(_){}
   clearTimeout(bombHoldT);const hx=e.clientX,hy=e.clientY;bombHoldT=setTimeout(()=>{if(!slapPtr)return;slapPtr.bomb=true;skipClick=Date.now();bombSend(slapPtr.side);},BOMB_HOLD);});   // 按滿 3 秒直接掉炸彈
 document.addEventListener('pointerup',e=>{if(!slapPtr||e.pointerId!==slapPtr.id)return;const p=slapPtr;slapPtr=null;
-  const r=$('board').getBoundingClientRect(),vx=r.left+r.width/2-p.x,vy=r.top+r.height/2-p.y,vl=Math.hypot(vx,vy)||1;
+  const r=fxBoard().getBoundingClientRect(),vx=r.left+r.width/2-p.x,vy=r.top+r.height/2-p.y,vl=Math.hypot(vx,vy)||1;
   const toward=((e.clientX-p.x)*vx+(e.clientY-p.y)*vy)/vl;
   clearTimeout(bombHoldT);bombHint(false);
   if(p.bomb){skipClick=Date.now();return;}
