@@ -7,9 +7,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#d9dde0">
 <title>對坐象棋</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cactus+Classical+Serif&family=Chiron+GoRound+TC:wght@300;700&family=Chiron+Hei+HK:wght@300;800&family=Huninn&family=Iansui&family=LXGW+WenKai+Mono+TC:wght@700&family=LXGW+WenKai+TC:wght@300;700&family=Noto+Sans+HK:wght@700&family=Noto+Sans+TC:wght@300;900&family=Noto+Serif+HK:wght@700&family=Noto+Serif+TC:wght@200;500;700;900&text=%E5%B8%A5%E4%BB%95%E7%9B%B8%E4%BF%A5%E5%82%8C%E7%82%AE%E5%85%B5%E5%B0%87%E5%A3%AB%E8%B1%A1%E8%BB%8A%E9%A6%AC%E7%A0%B2%E5%8D%92%E6%A5%9A%E6%B2%B3%E6%BC%A2%E7%95%8C%E8%B1%A1%E6%A3%8B%E6%9A%97%E8%A5%BF%E6%B4%8B%E4%BA%94%E5%AD%90%E5%9C%8D%E5%B0%87%E8%BB%8D%E6%AD%BB%EF%BC%81%E5%92%8C%E5%8B%9D%E7%B4%85%E9%BB%91%E7%99%BD%E6%96%B9%E7%BF%BB%E6%A1%8C%E6%95%B8%E8%99%9B%E6%89%8B%E5%9B%B0%E6%96%83&display=swap">
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-title" content="對坐象棋">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="lib/peerjs.min.js"></script>
 <style>
 /* Layout: one-screen portrait table — opponent's bar on top (rotated in local play), wooden board in the middle, your bar on the bottom */
 :root{
@@ -2248,7 +2252,7 @@ let threeP=null,gl3OK=null;
 function load3D(){
   if(window.THREE)return Promise.resolve(true);
   if(!threeP)threeP=new Promise(res=>{const sc=document.createElement('script');
-    sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    sc.src='lib/three.min.js';
     sc.onload=()=>{res(!!window.THREE);if(mode!=='menu')render();};sc.onerror=()=>{threeP=null;res(false);};document.head.appendChild(sc);});
   return threeP;
 }
@@ -2865,7 +2869,7 @@ let handGLB=null;
 function loadHumanHand(){
   if(handGLB)return handGLB;
   handGLB=new Promise(res=>{const go=()=>{try{new THREE.GLTFLoader().parse(b64buf(HAND_GLB),'',gl=>res(gl.scene),()=>res(null));}catch(e){res(null);}};
-    if(THREE.GLTFLoader)go();else{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';sc.onload=go;sc.onerror=()=>res(null);document.head.appendChild(sc);}});
+    if(THREE.GLTFLoader)go();else{const sc=document.createElement('script');sc.src='lib/GLTFLoader.js';sc.onload=go;sc.onerror=()=>res(null);document.head.appendChild(sc);}});
   return handGLB;
 }
 function b64buf(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer;}
@@ -3232,7 +3236,7 @@ const glbCache=new Map();
 function gltfReady(){
   if(window.THREE&&THREE.GLTFLoader)return Promise.resolve(true);
   if(!gltfReady.p)gltfReady.p=load3D().then(ok=>ok&&new Promise(res=>{if(THREE.GLTFLoader)return res(true);const sc=document.createElement('script');
-    sc.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js';sc.onload=()=>res(!!THREE.GLTFLoader);sc.onerror=()=>{gltfReady.p=null;res(false);};document.head.appendChild(sc);}));
+    sc.src='lib/GLTFLoader.js';sc.onload=()=>res(!!THREE.GLTFLoader);sc.onerror=()=>{gltfReady.p=null;res(false);};document.head.appendChild(sc);}));
   return gltfReady.p;
 }
 function glbBuf(name){const el=document.getElementById('glb-'+name);if(el)return Promise.resolve(b64buf(el.textContent.trim()));
@@ -3694,9 +3698,9 @@ function fit(){if(mode==='menu')return;const st=$('stage'),W=st.clientWidth,dk=v
   bd.style.width=w+'px';{const bw=Math.max(w,Math.min(W,560))+'px';$('barT').style.maxWidth=$('barM').style.maxWidth=bw;}$('infoT').style.width=$('infoM').style.width=w+'px';if(d3)requestAnimationFrame(()=>{try{d3Sync(true);}catch(e){}});bd.style.setProperty('--pf',(w*(dk?0.105:ch?0.068:0.066)).toFixed(1)+'px');}
 addEventListener('resize',fit);
 
-R=typeof Peer!=='undefined';
-setOnlineButtons();
-menuMsg(R?'':'連線元件載入失敗，請檢查網路；仍可玩單機或 AI 對戰',!R);
+function netState(){R=typeof Peer!=='undefined'&&navigator.onLine!==false;setOnlineButtons();
+  menuMsg(R?'':'目前離線：單機與 AI 對戰照常可玩，線上對戰需要網路',!R);}
+netState();addEventListener('online',netState);addEventListener('offline',netState);
 
 function start(saved){
   init();
@@ -3704,6 +3708,32 @@ function start(saved){
   else showMenu();
 }
 start({});
+</script>
+<div id="pwaBar" hidden style="position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9999;background:#2b2f33;color:#fff;border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.3);font:14px/1.4 system-ui,sans-serif;max-width:calc(100vw - 32px)">
+  <span id="pwaTxt">安裝成 App，離線也能玩</span>
+  <button id="pwaGo" style="border:0;border-radius:10px;padding:6px 12px;background:#c8372d;color:#fff;font:inherit;font-weight:700">安裝</button>
+  <button id="pwaX" aria-label="關閉" style="border:0;background:none;color:#aaa;font:18px/1 system-ui;padding:4px">×</button>
+</div>
+<script>
+(function(){
+  if('serviceWorker' in navigator&&location.protocol!=='file:'){
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      reg.addEventListener('updatefound',()=>{const w=reg.installing;w&&w.addEventListener('statechange',()=>{
+        if(w.state==='installed'&&navigator.serviceWorker.controller)showBar('有新版本，重新開啟即可更新','重新整理',()=>location.reload());});});
+    }).catch(()=>{});
+  }
+  const bar=document.getElementById('pwaBar'),txt=document.getElementById('pwaTxt'),go=document.getElementById('pwaGo');
+  let act=null;function showBar(t,b,f){txt.textContent=t;go.textContent=b;act=f;go.hidden=!f;bar.hidden=false;}
+  go.onclick=()=>{bar.hidden=true;act&&act();};
+  document.getElementById('pwaX').onclick=()=>{bar.hidden=true;try{localStorage.setItem('xq-pwa-x',Date.now());}catch(e){}};
+  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  let dismissed=0;try{dismissed=+localStorage.getItem('xq-pwa-x')||0;}catch(e){}
+  const quiet=standalone||Date.now()-dismissed<7*864e5;
+  let ev=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;if(!quiet)showBar('安裝成 App，離線也能玩','安裝',()=>{ev.prompt();ev=null;});});
+  addEventListener('appinstalled',()=>{bar.hidden=true;});
+  const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios&&!quiet)setTimeout(()=>showBar('iPhone/iPad：點 Safari 的「分享」→「加入主畫面」，就能離線玩',null,null),1500);
+})();
 </script>
 </body>
 </html>
