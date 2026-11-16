@@ -496,7 +496,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   box-shadow:0 0 0 8px rgba(212,175,90,.06),inset 0 0 40px rgba(0,0,0,.25)}
 .pkhead b{font-family:Georgia,"Noto Serif TC",serif;color:#e8cf8c}
 /* 牌面 */
-.pkc{border-radius:calc(var(--cw,56px)*.085);font-size:calc(var(--cw,56px)*.1);overflow:hidden}
+.pkc{border-radius:calc(var(--cw,56px)*.085);font-size:calc(var(--cw,56px)*.1);overflow:hidden;isolation:isolate}
 .pkc.face{background:linear-gradient(160deg,#fffdf7,#f6f0e2);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 2px 5px rgba(0,0,0,.4);color:#16171b}
 .pkc.face::after{content:"";position:absolute;inset:4.5%;border:1px solid rgba(176,138,52,.55);border-radius:calc(var(--cw,56px)*.05);pointer-events:none}
 .pkc.face.red{color:#b3141d}
@@ -510,9 +510,9 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .pkc .ace span{font-size:5.6em;line-height:1}
 .pkc .ace.acesp span{font-size:6.4em;filter:drop-shadow(0 0 0 #c9a14a)}
 .pkc .ace.acesp::before{content:"";position:absolute;width:62%;aspect-ratio:1;border-radius:50%;border:1.5px solid #c9a14a;box-shadow:0 0 0 3px rgba(201,161,74,.25),inset 0 0 0 4px rgba(201,161,74,.15)}
-.pkc .court{position:absolute;left:19%;right:19%;top:15%;bottom:15%;border:1.5px solid #b08a34;border-radius:.6em;background:linear-gradient(180deg,#fbf3dc,#efdcae 50%,#fbf3dc);display:flex;flex-direction:column;overflow:hidden;
+.pkc .court{position:absolute;left:25%;right:25%;top:8%;bottom:8%;border:1.5px solid #b08a34;border-radius:.45em;background:linear-gradient(180deg,#fbf3dc,#efdcae 50%,#fbf3dc);display:flex;flex-direction:column;overflow:hidden;
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),inset 0 0 0 3px rgba(176,138,52,.4)}
-.pkc .court::after{content:"";position:absolute;left:8%;right:8%;top:50%;border-top:1px solid rgba(176,138,52,.6)}
+.pkc .court svg{display:block;width:100%;height:100%}
 .pkc .ch{flex:1;display:flex;align-items:center;justify-content:center;gap:.15em;position:relative}
 .pkc .ch.rv{transform:rotate(180deg)}
 .pkc .ch b{font:700 3.3em/1 Georgia,serif}.pkc .ch u{text-decoration:none;font-size:2.4em;color:#b08a34;line-height:1}.pkc .ch i{font-style:normal;font-size:2em}
@@ -560,7 +560,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.8.0">v0.8.0</span>
+  <span class="ver" aria-label="版本 0.8.1">v0.8.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -3418,12 +3418,36 @@ const PK_PIPS={2:[[50,21],[50,79,1]],3:[[50,21],[50,50],[50,79,1]],4:[[31,21],[6
   9:[[31,19],[69,19],[31,39.5],[69,39.5],[50,50],[31,60.5,1],[69,60.5,1],[31,81,1],[69,81,1]],
   10:[[31,19],[69,19],[50,29.5],[31,39.5],[69,39.5],[31,60.5,1],[69,60.5,1],[50,70.5,1],[31,81,1],[69,81,1]]};
 const PK_CROWN={11:'⚜︎',12:'♛︎',13:'♚︎'};
+// 人頭牌：原創的雙頭人像（上下對稱，像真實撲克牌），K 國王、Q 皇后、J 騎士
+const PK_COURT={};
+function pkCourtSVG(r,s){const k=r*4+s;if(PK_COURT[k])return PK_COURT[k];
+  const red=s===1||s===2,ink=red?'#9e1219':'#17181c',robe=red?'#b3141d':'#1d2433',robe2=red?'#7a0d13':'#0e1320',gold='#c9a14a',gold2='#e6c873',skin='#f6e1c3';
+  const su=['M0-4c2 3 5 4 5 7a3 3 0 0 1-5 2a3 3 0 0 1-5-2c0-3 3-4 5-7z','M0-6l4.5 6-4.5 6-4.5-6z','M0 5c-6-4-6-9-3-10 1.5-.5 2.6.3 3 1.5.4-1.2 1.5-2 3-1.5 3 1 3 6-3 10z','M0-6c4 4 6 6 6 8.5a3 3 0 0 1-5.2 1.8l1 3.2h-3.6l1-3.2A3 3 0 0 1-6 2.5C-6 0-4-2 0-6z'][s];
+  let hat='',hair='',face='',acc='',beard='';
+  if(r===13){hat=`<path d="M19 17l1-11 5 6 4-9 3 8 3-8 4 9 5-6 1 11z" fill="${gold}" stroke="${ink}" stroke-width=".9" stroke-linejoin="round"/><circle cx="20" cy="6" r="1.6" fill="${gold2}" stroke="${ink}" stroke-width=".6"/><circle cx="29" cy="3" r="1.6" fill="${gold2}" stroke="${ink}" stroke-width=".6"/><circle cx="35" cy="3" r="1.6" fill="${gold2}" stroke="${ink}" stroke-width=".6"/><circle cx="44" cy="6" r="1.6" fill="${gold2}" stroke="${ink}" stroke-width=".6"/><rect x="19" y="14" width="26" height="4" fill="${robe}" stroke="${ink}" stroke-width=".7"/><circle cx="32" cy="16" r="1.2" fill="${gold2}"/>`;
+    beard=`<path d="M25 26c0 7 3 12 7 13 4-1 7-6 7-13-2 3-4 3-7 3s-5 0-7-3z" fill="${ink}" opacity=".88"/><path d="M28.5 29.5q3.5 2 7 0" stroke="${skin}" stroke-width=".8" fill="none"/>`;
+    acc=`<path d="M52 13v36" stroke="${gold}" stroke-width="1.8"/><circle cx="52" cy="11" r="3" fill="${gold}" stroke="${ink}" stroke-width=".7"/><path d="M52 7.5v-3M50.5 6h3" stroke="${ink}" stroke-width=".8"/>`;}
+  else if(r===12){hat=`<path d="M21 17q1-7 5-8 3 4 6-1 3 5 6 1 4 1 5 8z" fill="${gold}" stroke="${ink}" stroke-width=".9" stroke-linejoin="round"/><circle cx="32" cy="7.5" r="2" fill="${robe}" stroke="${ink}" stroke-width=".6"/><circle cx="26" cy="9" r="1.1" fill="${gold2}"/><circle cx="38" cy="9" r="1.1" fill="${gold2}"/>`;
+    hair=`<path d="M23.5 19c-4 8-3 17-6 23 4 0 7-3 8-6 0-5-1-11 1-15zM40.5 19c4 8 3 17 6 23-4 0-7-3-8-6 0-5 1-11-1-15z" fill="${ink}" opacity=".85"/>`;
+    acc=`<g transform="translate(13 30)"><circle r="3.2" fill="${robe}" stroke="${ink}" stroke-width=".6"/><circle r="1.3" fill="${gold2}"/><path d="M0 3v16" stroke="#3d6b35" stroke-width="1.2"/><path d="M0 10q-4-1-5-4 4 0 5 4z" fill="#3d6b35"/></g>`;}
+  else{hat=`<path d="M18 17q2-9 14-9 11 0 14 7z" fill="${robe}" stroke="${ink}" stroke-width=".9"/><path d="M18 17h28" stroke="${gold}" stroke-width="2"/><path d="M40 9q7-8 13-6-5 2-8 8" fill="${gold2}" stroke="${ink}" stroke-width=".7"/>`;
+    hair=`<path d="M24 18q-2 6 0 10M40 18q2 6 0 10" stroke="${ink}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+    acc=`<path d="M11 6v44" stroke="${gold}" stroke-width="1.6"/><path d="M11 6l-3 5 3 2 3-2z" fill="#cfd3d9" stroke="${ink}" stroke-width=".6"/><path d="M11 12q-6 1-7 6 4-1 7-2" fill="#cfd3d9" stroke="${ink}" stroke-width=".6"/>`;}
+  face=`<ellipse cx="32" cy="24" rx="7.2" ry="8.4" fill="${skin}" stroke="${ink}" stroke-width=".8"/>${hair}<circle cx="29.3" cy="22.5" r=".9" fill="${ink}"/><circle cx="34.7" cy="22.5" r=".9" fill="${ink}"/><path d="M32 23.5v3.2l-1 .6" stroke="${ink}" stroke-width=".6" fill="none"/>${r===13?'':`<path d="M30 29.3q2 1.2 4 0" stroke="${red?'#b3141d':'#8a2b2b'}" stroke-width=".8" fill="none"/>`}`;
+  const body=`<path d="M10 52q2-14 12-17 5 4 10 4t10-4q10 3 12 17z" fill="${robe}" stroke="${ink}" stroke-width=".9"/><path d="M15 52q2-10 8-13M49 52q-2-10-8-13" stroke="${robe2}" stroke-width="1.4" fill="none"/>
+<path d="M22 35q5 5 10 5t10-5l2 3q-6 6-12 6t-12-6z" fill="${gold}" stroke="${ink}" stroke-width=".6"/>${[24,28,32,36,40].map(x=>`<circle cx="${x}" cy="${x===32?42.6:41.6-(Math.abs(x-32)>6?1.2:0)}" r=".7" fill="${ink}"/>`).join('')}
+<circle cx="32" cy="47.5" r="4.6" fill="${gold}" stroke="${ink}" stroke-width=".6"/><path d="${su}" transform="translate(32 47.6) scale(.55)" fill="${red?'#b3141d':'#17181c'}"/>`;
+  const half=`<g>${acc}${body}${beard}${face}${hat}</g>`;
+  const svg=`<svg viewBox="0 0 64 104" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="0" width="64" height="104" fill="#fbf4e2"/><path d="M0 0h64v104H0z" fill="url(#cg${k})" opacity=".0"/>
+<clipPath id="ch${k}"><rect x="0" y="0" width="64" height="52"/></clipPath><g clip-path="url(#ch${k})">${half}</g><g transform="rotate(180 32 52)" clip-path="url(#ch${k})">${half}</g>
+<path d="M2 52h60" stroke="${gold}" stroke-width="1.1"/><path d="M2 50.6h60M2 53.4h60" stroke="${gold}" stroke-width=".4" opacity=".7"/></svg>`;
+  return PK_COURT[k]=svg;}
 function pkCard(c,cls=''){
   if(c===52)return`<div class="pkc joker ${cls}"><span class="ix tl"><b>J<br>O<br>K<br>E<br>R</b></span><span class="ix br"><b>J<br>O<br>K<br>E<br>R</b></span><div class="jk"><span>★</span></div></div>`;
   const r=pkR(c),s=pkS(c),su=PK_SUV[s],rn=PK_RN[r],red=s===1||s===2;
   const ix=`<b>${rn}</b><i>${su}</i>`;let mid='';
   if(r===1)mid=`<div class="ace${s===3?' acesp':''}"><span>${su}</span></div>`;
-  else if(r>=11){const h=`<div class="ch"><b>${rn}</b><u>${PK_CROWN[r]}</u><i>${su}</i></div>`;mid=`<div class="court">${h}${h.replace('class="ch"','class="ch rv"')}</div>`;}
+  else if(r>=11)mid=`<div class="court">${pkCourtSVG(r,s)}</div>`;
   else mid=PK_PIPS[r].map(([x,y,rv])=>`<i class="pp${rv?' rv':''}" style="left:${x}%;top:${y}%">${su}</i>`).join('');
   return`<div class="pkc face${red?' red':''} ${cls}" data-c="${c}"><span class="ix tl">${ix}</span><span class="ix br">${ix}</span>${mid}</div>`;
 }
@@ -3462,8 +3486,8 @@ function pkPileReset(){PK.pile=[];PK.fresh=null;}
 function pkPileAdd(cards,seat,face=true){const g={cards,seat,face,dx:(Math.random()-.5)*46,dy:(Math.random()-.5)*30,rot:(Math.random()-.5)*44,id:Math.random()};
   PK.pile.push(g);PK.fresh=g;pkFlick();return g;}
 function pkPileHTML(){const n=PK.pile.length;
-  return PK.pile.map((g,i)=>{const old=n-1-i,cards=g.cards.map(c=>g.face&&c!=null?pkCard(c):pkBack()).join('');
-    return`<div class="pkgrp${g===PK.fresh?' fresh':''}" data-id="${g.id}" style="--dx:${g.dx.toFixed(1)}px;--dy:${g.dy.toFixed(1)}px;--rot:${g.rot.toFixed(1)}deg;--shade:${Math.min(.45,old*.07).toFixed(2)};z-index:${i+1}">${cards}</div>`;}).join('');}
+  return PK.pile.map((g,i)=>{const old=n-1-i,up=old===0&&g.face,cards=g.cards.map(c=>up&&c!=null?pkCard(c):pkBack()).join('');
+    return`<div class="pkgrp${g===PK.fresh?' fresh':''}" data-id="${g.id}" style="--dx:${g.dx.toFixed(1)}px;--dy:${g.dy.toFixed(1)}px;--rot:${g.rot.toFixed(1)}deg;--shade:${old?Math.min(.35,.08+old*.03).toFixed(2):0};z-index:${i+1}">${cards}</div>`;}).join('');}
 // 出牌的動作：從出牌的人那裡旋轉著丟到牌堆上
 function pkThrowFresh(){
   const g=PK.fresh;if(!g)return;PK.fresh=null;const el=document.querySelector(`.pkgrp[data-id="${g.id}"]`);if(!el)return;
