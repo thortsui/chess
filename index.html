@@ -501,16 +501,16 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .pkc.face::after{content:"";position:absolute;inset:4.5%;border:1px solid rgba(176,138,52,.55);border-radius:calc(var(--cw,56px)*.05);pointer-events:none}
 .pkc.face.red{color:#b3141d}
 .pkc .ix{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:.95;z-index:2}
-.pkc .ix.tl{left:7%;top:6%}.pkc .ix.br{right:7%;bottom:6%;transform:rotate(180deg)}
-.pkc .ix b{font:700 2.9em/1 Georgia,"Times New Roman",serif;letter-spacing:-.06em}
-.pkc .ix i{font-style:normal;font-size:2.1em;line-height:1}
-.pkc .pp{position:absolute;font-style:normal;font-size:2.5em;line-height:1;transform:translate(-50%,-50%)}
+.pkc .ix.tl{left:6%;top:5%}.pkc .ix.br{right:6%;bottom:5%;transform:rotate(180deg)}
+.pkc .ix b{font:700 2.55em/1 Georgia,"Times New Roman",serif;letter-spacing:-.06em}
+.pkc .ix i{font-style:normal;font-size:1.75em;line-height:1}.pkc .ix b.t10{letter-spacing:-.16em;transform:scaleX(.82);transform-origin:0 50%;display:inline-block;margin-left:-.05em}
+.pkc .pp{position:absolute;font-style:normal;font-size:2.15em;line-height:1;transform:translate(-50%,-50%)}
 .pkc .pp.rv{transform:translate(-50%,-50%) rotate(180deg)}
 .pkc .ace{position:absolute;inset:0;display:grid;place-items:center}
-.pkc .ace span{font-size:5.6em;line-height:1}
+.pkc .ace span{font-size:5em;line-height:1}
 .pkc .ace.acesp span{font-size:6.4em;filter:drop-shadow(0 0 0 #c9a14a)}
 .pkc .ace.acesp::before{content:"";position:absolute;width:62%;aspect-ratio:1;border-radius:50%;border:1.5px solid #c9a14a;box-shadow:0 0 0 3px rgba(201,161,74,.25),inset 0 0 0 4px rgba(201,161,74,.15)}
-.pkc .court{position:absolute;left:25%;right:25%;top:8%;bottom:8%;border:1.5px solid #b08a34;border-radius:.45em;background:linear-gradient(180deg,#fbf3dc,#efdcae 50%,#fbf3dc);display:flex;flex-direction:column;overflow:hidden;
+.pkc .court{position:absolute;left:30%;right:30%;top:9%;bottom:9%;border:1.5px solid #b08a34;border-radius:.45em;background:linear-gradient(180deg,#fbf3dc,#efdcae 50%,#fbf3dc);display:flex;flex-direction:column;overflow:hidden;
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),inset 0 0 0 3px rgba(176,138,52,.4)}
 .pkc .court svg{display:block;width:100%;height:100%}
 .pkc .ch{flex:1;display:flex;align-items:center;justify-content:center;gap:.15em;position:relative}
@@ -560,7 +560,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.8.1">v0.8.1</span>
+  <span class="ver" aria-label="版本 0.8.2">v0.8.2</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -3445,10 +3445,10 @@ function pkCourtSVG(r,s){const k=r*4+s;if(PK_COURT[k])return PK_COURT[k];
 function pkCard(c,cls=''){
   if(c===52)return`<div class="pkc joker ${cls}"><span class="ix tl"><b>J<br>O<br>K<br>E<br>R</b></span><span class="ix br"><b>J<br>O<br>K<br>E<br>R</b></span><div class="jk"><span>★</span></div></div>`;
   const r=pkR(c),s=pkS(c),su=PK_SUV[s],rn=PK_RN[r],red=s===1||s===2;
-  const ix=`<b>${rn}</b><i>${su}</i>`;let mid='';
+  const ix=`<b${r===10?' class="t10"':''}>${rn}</b><i>${su}</i>`;let mid='';
   if(r===1)mid=`<div class="ace${s===3?' acesp':''}"><span>${su}</span></div>`;
   else if(r>=11)mid=`<div class="court">${pkCourtSVG(r,s)}</div>`;
-  else mid=PK_PIPS[r].map(([x,y,rv])=>`<i class="pp${rv?' rv':''}" style="left:${x}%;top:${y}%">${su}</i>`).join('');
+  else mid=PK_PIPS[r].map(([x,y,rv])=>`<i class="pp${rv?' rv':''}" style="left:${(50+(x-50)*.74).toFixed(1)}%;top:${(50+(y-50)*.84).toFixed(1)}%;font-size:${r<4?2:r<9?1.75:1.55}em">${su}</i>`).join('');   // 和牌角點數保持距離
   return`<div class="pkc face${red?' red':''} ${cls}" data-c="${c}"><span class="ix tl">${ix}</span><span class="ix br">${ix}</span>${mid}</div>`;
 }
 const pkBack=(cls='')=>`<div class="pkc back ${cls}"></div>`;
