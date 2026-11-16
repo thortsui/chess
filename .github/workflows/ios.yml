@@ -1,0 +1,63 @@
+# iOS App：每次推送都在雲端 Mac 上檢查能否編譯；手動執行並勾選「上傳」時，簽章後送到 App Store Connect（TestFlight）
+name: iOS App
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'lib/**', 'fonts/**', 'models/**', 'app/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: '上傳到 App Store Connect（TestFlight）'
+        type: boolean
+        default: true
+jobs:
+  ios:
+    runs-on: macos-26
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Xcode 版本
+        run: xcodebuild -version
+      - name: 準備網頁與 iOS 專案
+        run: |
+          npm ci
+          node build-www.mjs
+          npx cap sync ios
+      - name: 編譯檢查（模擬器，不簽章）
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build | tail -n 30
+      - name: 簽章並上傳到 App Store Connect
+        if: github.event_name == 'workflow_dispatch' && inputs.upload && env.ASC_KEY_ID != ''
+        run: |
+          mkdir -p ~/private_keys
+          echo "$ASC_KEY_P8" > ~/private_keys/AuthKey_$ASC_KEY_ID.p8
+          KEY=~/private_keys/AuthKey_$ASC_KEY_ID.p8
+          BUILD=$(( 100 + ${{ github.run_number }} ))
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath $RUNNER_TEMP/App.xcarchive \
+            DEVELOPMENT_TEAM=$APPLE_TEAM_ID CODE_SIGN_STYLE=Automatic CURRENT_PROJECT_VERSION=$BUILD \
+            -allowProvisioningUpdates -authenticationKeyPath $KEY \
+            -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID \
+            archive | tail -n 30
+          xcodebuild -exportArchive -archivePath $RUNNER_TEMP/App.xcarchive \
+            -exportOptionsPlist ExportOptions.plist -exportPath $RUNNER_TEMP/export \
+            -allowProvisioningUpdates -authenticationKeyPath $KEY \
+            -authenticationKeyID $ASC_KEY_ID -authenticationKeyIssuerID $ASC_ISSUER_ID
+          echo "已上傳 build $BUILD，約 10–30 分鐘後會出現在 App Store Connect 的 TestFlight" >> $GITHUB_STEP_SUMMARY
+      - name: 缺少金鑰提示
+        if: github.event_name == 'workflow_dispatch' && inputs.upload && env.ASC_KEY_ID == ''
+        run: |
+          echo "::warning::尚未設定 ASC_KEY_ID 等 4 個 Secrets，只做了編譯檢查。設定方式見 docs/上架App Store.md"

@@ -1,0 +1,12 @@
+{
+  "appId": "com.haoaifuture.xiangqi",
+  "appName": "對坐象棋",
+  "webDir": "www",
+  "backgroundColor": "#d9dde0",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#d9dde0",
+    "scrollEnabled": false,
+    "allowsLinkPreview": false
+  }
+}
