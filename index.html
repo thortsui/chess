@@ -313,6 +313,86 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .board.d3 .pc .acc{display:none}
 .capghost{pointer-events:none;animation:capout .32s ease-in both}
 @keyframes capout{to{opacity:0;scale:.35}}
+
+/* ---------- 撲克牌 ---------- */
+.vseg button{font-size:13px}
+.pkmenu{display:flex;flex-direction:column;gap:12px}
+.pkrule{margin:0;padding:10px 14px;border-radius:12px;background:var(--bar);font-size:13px;line-height:1.6;color:var(--muted)}
+.logo.pkl .duo span{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",sans-serif;font-size:30px;background:#fff;border-radius:10px;width:44px;height:58px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.logo.pkl .duo span:first-child{color:#c62828}.logo.pkl .duo span:last-child{color:#111;transform:rotate(12deg);margin-left:-10px}
+.pk{position:fixed;inset:0;display:grid;grid-template-rows:auto auto 1fr auto auto;gap:6px;background:radial-gradient(ellipse at 50% 45%,#1f7a4c,#0f4a2c 75%);color:#f4f7f2;
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));touch-action:manipulation;overflow:hidden}
+.pkhead{display:flex;align-items:center;gap:10px}
+.pkhead button{border:0;border-radius:10px;padding:7px 12px;background:rgba(255,255,255,.14);color:#fff;font-size:14px;cursor:pointer}
+.pkhead b{font-size:17px;letter-spacing:.08em}.pkhead span{margin-left:auto;font-size:13px;opacity:.8;font-variant-numeric:tabular-nums}
+.pkmid{display:grid;grid-template-columns:72px 1fr 72px;gap:6px;min-height:0;align-items:center}
+.pkseat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border-radius:12px;transition:background .2s,box-shadow .2s;min-width:0}
+.pkseat.p2{justify-self:center;min-width:160px}
+.pkseat.act,.pkinfo.act{background:rgba(255,236,150,.16);box-shadow:0 0 0 2px #ffd54a}
+.pkseat.done{opacity:.55}
+.pkname{display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}
+.pkname b{max-width:6.5em;overflow:hidden;text-overflow:ellipsis}
+.pkcnt{min-width:22px;padding:1px 6px;border-radius:9px;background:rgba(0,0,0,.35);font-size:12px;text-align:center;font-variant-numeric:tabular-nums}
+.pkst{font-style:normal;font-size:12px;color:#ffd54a;font-weight:700}
+.pkfan{display:flex;justify-content:center}
+.pkfan .pkc{margin-left:-15px}.pkfan .pkc:first-child{margin-left:0}
+.p1 .pkfan,.p3 .pkfan{flex-direction:column;align-items:center}.p1 .pkfan .pkc,.p3 .pkfan .pkc{margin:-30px 0 0}.p1 .pkfan .pkc:first-child,.p3 .pkfan .pkc:first-child{margin-top:0}
+.pkc{position:relative;width:var(--cw,56px);aspect-ratio:5/7;border-radius:calc(var(--cw,56px)*.1);background:#fff;color:#1b1b1b;box-shadow:0 2px 4px rgba(0,0,0,.35);flex:none;
+  font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",system-ui,sans-serif;user-select:none}
+.pkc.red{color:#c62828}
+.pkc .cr{position:absolute;left:8%;top:4%;font-weight:800;font-size:calc(var(--cw,56px)*.3);line-height:1;font-family:system-ui,sans-serif;letter-spacing:-.04em}
+.pkc .cs{position:absolute;left:8%;top:34%;font-size:calc(var(--cw,56px)*.26);line-height:1}
+.pkc .cm{position:absolute;right:7%;bottom:4%;font-size:calc(var(--cw,56px)*.55);line-height:1}
+.pkc.joker{background:linear-gradient(135deg,#fff,#ffe9b3)}.pkc.joker .cr{color:#6a1b9a;font-family:var(--serif)}.pkc.joker .cm{color:#e65100}
+.pkc.back{background:repeating-linear-gradient(45deg,#b71c1c 0 5px,#d32f2f 5px 10px);border:3px solid #fff}
+.pkc.mini{--cw:26px;border-width:2px;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.pkc.big{--cw:84px}
+.pktable{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:0;text-align:center}
+.pkplay{display:flex;justify-content:center;--cw:52px}.pkplay .pkc{margin-left:-14px}.pkplay .pkc:first-child{margin-left:0}
+.pklead p,.pkfree{margin:0;font-size:14px;opacity:.9}
+.pkfree{padding:10px 16px;border:2px dashed rgba(255,255,255,.35);border-radius:14px}
+.pkme{display:flex;flex-direction:column;gap:6px;padding:6px;border-radius:16px;transition:box-shadow .2s}
+.pkme.myturn{box-shadow:0 0 0 2px #ffd54a,0 0 18px rgba(255,213,74,.35)}
+.pkinfo{display:flex;align-items:center;gap:10px;font-size:14px;padding:4px 8px;border-radius:10px}
+.pkinfo span{opacity:.8;font-size:13px}.pkinfo i{font-style:normal;color:#ffd54a;font-weight:700;font-size:13px}
+.pkhand{position:relative;height:calc(var(--cw,56px)*1.4 + 16px);min-height:60px}
+.pkslot{position:absolute;bottom:0;border:0;padding:0;background:none;cursor:pointer;transition:transform .12s}
+.pkslot.sel{transform:translateY(-16px)}.pkslot.sel .pkc{box-shadow:0 0 0 3px #ffd54a,0 4px 8px rgba(0,0,0,.4)}
+.pkbtns{display:flex;gap:8px;justify-content:center}
+.pkbtns button,.pkobtn button,.pklobby button{border:0;border-radius:12px;padding:11px 18px;background:rgba(255,255,255,.16);color:#fff;font-size:15px;font-weight:700;cursor:pointer;min-width:84px}
+.pkbtns button.go,.pkobtn .go,.pklobby .go{background:#ffd54a;color:#3a2a00}
+.pkbtns button:disabled{opacity:.35;cursor:default}
+.pkmsg{margin:0;min-height:1.3em;text-align:center;font-size:14px;color:#ffe082;opacity:0;transition:opacity .2s}.pkmsg.on{opacity:1}
+/* 心臟病 */
+.hhcall{display:flex;flex-direction:column;align-items:center;line-height:1}.hhcall small{font-size:13px;opacity:.85}.hhcall b{font-size:54px;color:#ffd54a;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+.hhpile{position:relative;border:0;background:none;padding:6px;border-radius:14px;cursor:pointer}
+.hhpile.hot{animation:hhhot .5s ease-in-out infinite alternate}
+@keyframes hhhot{to{box-shadow:0 0 0 4px #ff5252,0 0 24px #ff1744}}
+.hhn{display:block;margin-top:6px;font-size:13px;opacity:.85}
+.hhnext{font-size:13px;opacity:.85}.hhnext b{color:#ffd54a;font-size:16px}
+.hhmine{display:flex;align-items:center;justify-content:center;gap:12px;height:100%}.hhmine .pkc{--cw:56px}
+.pkbtns .slapbtn{background:#e53935;min-width:140px;font-size:20px}.pkbtns .slapbtn.hot{animation:hhhot .4s ease-in-out infinite alternate}
+.pk.slapfx .pktable{animation:shake .3s ease-out}
+.pkempty{padding:20px;opacity:.7;font-size:14px}
+/* 抽鬼牌 */
+.omtip{margin:0;font-size:14px}.omtip b{color:#ffd54a}
+.omfan{position:relative;display:flex;justify-content:center;--cw:46px;flex-wrap:wrap;max-width:100%;gap:0}
+.omfan .pkslot{position:relative;margin-left:-18px;transition:transform .12s}.omfan .pkslot:first-child{margin-left:0}
+.omfan .pkslot:hover,.omfan .pkslot:focus-visible{transform:translateY(-10px)}
+.omlast,.omdis{margin:0;font-size:13px;opacity:.85}
+/* 結算與等待室 */
+.pkover{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);padding:16px}
+.pkobox{width:100%;max-width:340px;background:#fff;color:#222;border-radius:18px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.pkobox h2{margin:0 0 10px;font-size:22px;text-align:center}
+.pkobox ol{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.pkobox li{display:flex;justify-content:space-between;padding:8px 12px;border-radius:10px;background:#f2f4f3}.pkobox li.lose{background:#ffebee;color:#b71c1c}
+.pkobtn{display:flex;gap:8px;justify-content:center;align-items:center}.pkobtn button{background:#e8ecea;color:#222}.pkobtn p{margin:0;font-size:13px;color:#666}
+.pklobby{display:flex;flex-direction:column;align-items:center;gap:8px}.pklobby p{margin:0;font-size:13px;opacity:.85}
+.pklobby .code{font-size:44px;letter-spacing:.2em;color:#ffd54a;font-variant-numeric:tabular-nums}
+.pklobby ul{margin:4px 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;width:min(280px,90%)}
+.pklobby li{padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:14px;opacity:.7}.pklobby li.in{opacity:1;background:rgba(255,213,74,.2)}
+.pklobby .wait{font-size:14px;opacity:1}
+@media (min-width:700px){.pkmid{grid-template-columns:120px 1fr 120px}.pkc.mini{--cw:30px}.pkplay{--cw:64px}}
 .aimret{position:absolute;border-radius:50%;pointer-events:none;z-index:31;border:2.5px solid #ff2a2a;box-shadow:0 0 8px rgba(255,30,30,.8),inset 0 0 6px rgba(255,30,30,.5);
   animation:aimin .35s cubic-bezier(.2,1.4,.4,1) both,aimspin 1.2s linear infinite}
 .aimret::before,.aimret::after{content:"";position:absolute;background:#ff2a2a;left:50%;top:-18%;width:2px;height:136%;transform:translateX(-50%);
@@ -409,13 +489,21 @@ html,body{overflow:hidden;overscroll-behavior:none}
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.6.0">v0.6.0</span>
+  <span class="ver" aria-label="版本 0.7.0">v0.7.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
-    <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button></div>
+    <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button></div>
+    <div class="pkmenu" id="pkMenu" hidden>
+      <div class="seg" id="pkGameSeg"><button data-act="pkGame" data-v="b2">大老二</button><button data-act="pkGame" data-v="hh">心臟病</button><button data-act="pkGame" data-v="om">抽鬼牌</button></div>
+      <p class="pkrule" id="pkRule"></p>
+      <button class="big" data-act="pkAI">和電腦對戰<small>你和 3 位電腦玩家</small></button>
+      <button class="big" data-act="pkCreate" id="pkCreateBtn">創建房間<small>最多 4 人，空位由電腦補上</small></button>
+      <div class="join"><input id="pkCodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="撲克牌房號"><button data-act="pkJoin" id="pkJoinBtn">加入</button></div>
+      <p class="msg" id="pkMenuMsg"></p>
+    </div>
     <button class="big" data-act="local" id="localBtn">單機對戰<small>同一台手機或電腦，兩人輪流下</small></button>
     <div class="aibox">
       <div class="aihead"><b>和 AI 對戰</b><span id="lvHint"></span></div>
@@ -459,6 +547,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
 </div>
 <div class="cutin" id="cutin" hidden aria-hidden="true"></div>
 <style id="skinCss"></style>
+<div class="pk" id="pk" hidden>
+  <div class="pkhead"><button data-act="pkExit" aria-label="回選單">‹ 選單</button><b id="pkTitle">撲克牌</b><span id="pkCode"></span></div>
+  <div class="pkseat p2" id="pkS2"></div>
+  <div class="pkmid"><div class="pkseat p3" id="pkS3"></div><div class="pktable" id="pkTable"></div><div class="pkseat p1" id="pkS1"></div></div>
+  <div class="pkme" id="pkMe"><div class="pkinfo" id="pkS0"></div><div class="pkhand" id="pkHand"></div><div class="pkbtns" id="pkBtns"></div></div>
+  <p class="pkmsg" id="pkMsg" aria-live="polite"></p>
+  <div class="pkover" id="pkOver" hidden></div>
+</div>
 <div class="app" id="app" hidden>
   <div class="bar" id="barT"></div>
   <div class="stage" id="stage">
@@ -1735,7 +1831,7 @@ function dkOnMv(d){
   dkApply(a);
 }
 function syncVariant(){
-  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4}[v],T=(...a)=>a[i];
+  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5}[v],T=(...a)=>a[i]??'';
   document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   $('ttl').textContent=T('象棋','暗棋','西洋棋','五子棋','圍棋');
   $('skinBtn').hidden=v==='ch';
@@ -1745,6 +1841,9 @@ function syncVariant(){
   $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）');
   $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白');
   $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下')+'，取得 4 位數房號給朋友';
+  const pk=v==='pk';$('pkMenu').hidden=!pk;['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=pk);
+  document.querySelector('.card>.aibox').hidden=pk;document.querySelector('.card>.join').hidden=pk;lg.classList.toggle('pkl',pk);
+  if(pk){$('skinBtn').hidden=true;$('ttl').textContent='撲克牌';$('logoA').textContent='♥';$('logoB').textContent='♠';pkSyncMenu();}
 }
 
 /* ---------- 西洋棋 ---------- */
@@ -3012,6 +3111,375 @@ function fireFx(side){return new Promise(res=>{
     if(t<DUR+1.3)requestAnimationFrame(f);
     else{ps.forEach(p=>{pc.hide(p.o);if(!pc.three){p.o.el.style.filter='';p.o.el.style.scale='';}});st.R.render(st.sc,st.cam);st.done();pc.restore();setTimeout(res,700);}
   })(t0);});}
+/* ===== 撲克牌：規則引擎（大老二、心臟病、抽鬼牌）＋電腦玩家。全部在房主（或單機）端運算 ===== */
+// 牌：0..51，花色 s=c%4（0♣ 1♦ 2♥ 3♠），點數 r=(c>>2)+1（1=A … 13=K）；52＝鬼牌
+const PK_SU=['♣','♦','♥','♠'],PK_RN=['','A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const pkS=c=>c%4,pkR=c=>(c>>2)+1,pkRed=c=>c!==52&&(c%4===1||c%4===2);
+const pkName=c=>c===52?'鬼牌':PK_SU[pkS(c)]+PK_RN[pkR(c)];
+function pkShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pkDeck(joker){const d=[];for(let i=0;i<52;i++)d.push(i);if(joker)d.push(52);return pkShuffle(d);}
+const pkNext=s=>(s+1)%4;
+
+/* ---------- 大老二 ---------- */
+// 大小：3 < 4 < … < K < A < 2；同點數 ♠ > ♥ > ♦ > ♣
+const b2v=c=>((pkR(c)+10)%13)*4+pkS(c);
+const b2sort=h=>h.sort((a,b)=>b2v(a)-b2v(b));
+const B2_KIND=['','順子','同花','葫蘆','鐵支','同花順'];
+// 順子大小（台灣常見）：34567 最小 … 10JQKA，再來 A2345，最大 23456
+const B2_STR=(()=>{const m={};const key=a=>a.slice().sort((x,y)=>x-y).join(',');
+  for(let lo=3;lo<=9;lo++)m[key([lo,lo+1,lo+2,lo+3,lo+4])]=lo-3;m[key([10,11,12,13,1])]=7;m[key([1,2,3,4,5])]=8;m[key([2,3,4,5,6])]=9;return{m,key};})();
+function b2Combo(cards){
+  const n=cards.length;if(!n)return null;const cs=cards.slice().sort((a,b)=>b2v(a)-b2v(b)),top=b2v(cs[n-1]);
+  if(n===1)return{n,k:0,v:top,name:'單張'};
+  if(n===2)return pkR(cs[0])===pkR(cs[1])?{n,k:0,v:top,name:'對子'}:null;
+  if(n!==5)return null;
+  const rs=cs.map(pkR),cnt={};rs.forEach(r=>cnt[r]=(cnt[r]||0)+1);const groups=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const flush=cs.every(c=>pkS(c)===pkS(cs[0])),so=B2_STR.m[B2_STR.key(rs)];
+  const rIdx=r=>(+r+10)%13;
+  if(so!==undefined&&flush)return{n,k:5,v:so*4+pkS(cs[4]),name:'同花順'};
+  if(groups[0][1]===4)return{n,k:4,v:rIdx(groups[0][0]),name:'鐵支'};
+  if(groups[0][1]===3&&groups[1][1]===2)return{n,k:3,v:rIdx(groups[0][0]),name:'葫蘆'};
+  if(flush)return{n,k:2,v:top,name:'同花'};
+  if(so!==undefined)return{n,k:1,v:so*4+pkS(cs[4]),name:'順子'};
+  return null;
+}
+function b2Beats(a,b){if(!b)return true;if(a.n!==b.n)return false;if(a.n===5&&a.k!==b.k)return a.k>b.k;return a.v>b.v;}
+function b2New(){const d=pkDeck(false),hands=[[],[],[],[]];d.forEach((c,i)=>hands[i%4].push(c));hands.forEach(b2sort);
+  const turn=hands.findIndex(h=>h.includes(8));   // 梅花 3（點數 3、花色 ♣ → 牌 8）
+  return{g:'b2',hands,turn,lead:null,passes:0,first:true,over:null,log:[],seq:0};}
+// 檢查並套用動作；回傳錯誤訊息字串（合法則回傳 null）
+function b2Act(st,seat,a){
+  if(st.over)return'這局已經結束';if(seat!==st.turn)return'還沒輪到你';
+  if(a.type==='pass'){if(!st.lead)return'你是這一輪第一個出牌的，不能過';
+    st.passes++;st.log.push({seat,pass:true});st.turn=pkNext(seat);
+    if(st.passes>=3){st.turn=st.lead.seat;st.lead=null;st.passes=0;}st.seq++;return null;}
+  const cards=Array.isArray(a.cards)?a.cards:[];const h=st.hands[seat];
+  if(!cards.length||new Set(cards).size!==cards.length||!cards.every(c=>h.includes(c)))return'選的牌不在手上';
+  const cb=b2Combo(cards);if(!cb)return'這幾張牌不能一起出（可出：單張、對子、順子、同花、葫蘆、鐵支、同花順）';
+  if(st.first&&!cards.includes(8))return'第一手要包含梅花 3';
+  if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張`:'壓不過上一手';
+  st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.lead={seat,cards:b2sort(cards.slice()),combo:cb};st.passes=0;
+  st.log.push({seat,cards:st.lead.cards,name:cb.name});
+  if(!st.hands[seat].length){st.over={winner:seat,left:st.hands.map(x=>x.length)};}else st.turn=pkNext(seat);
+  st.seq++;return null;
+}
+// 列出手上所有可出的牌型
+function b2All(h){
+  const out=[];h=b2sort(h.slice());h.forEach(c=>out.push([c]));
+  for(let i=0;i<h.length;i++)for(let j=i+1;j<h.length;j++)if(pkR(h[i])===pkR(h[j]))out.push([h[i],h[j]]);
+  const n=h.length;if(n>=5)for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)for(let c=b+1;c<n;c++)for(let d=c+1;d<n;d++)for(let e=d+1;e<n;e++){const x=[h[a],h[b],h[c],h[d],h[e]];if(b2Combo(x))out.push(x);}
+  return out.map(cards=>({cards,cb:b2Combo(cards)}));
+}
+// 電腦：先手出最小的多張牌型（能一次清掉多張），跟牌出剛好壓得過的最小牌；對手快沒牌時改出大牌
+function b2AI(st,seat){
+  const h=st.hands[seat],all=b2All(h),danger=st.hands.some((x,i)=>i!==seat&&x.length<=2);
+  const score=o=>o.cb.n===5?o.cb.k*100+o.cb.v:o.cb.v;
+  if(!st.lead){let c=all;if(st.first)c=c.filter(o=>o.cards.includes(8));
+    const five=c.filter(o=>o.cb.n===5),two=c.filter(o=>o.cb.n===2),one=c.filter(o=>o.cb.n===1);
+    const pick=five.length?five.sort((a,b)=>score(a)-score(b))[0]:two.length?two.sort((a,b)=>score(a)-score(b))[0]:one.sort((a,b)=>(danger?score(b)-score(a):score(a)-score(b)))[0];
+    return{type:'play',cards:pick.cards};}
+  const ok=all.filter(o=>b2Beats(o.cb,st.lead.combo)).sort((a,b)=>score(a)-score(b));
+  if(!ok.length)return{type:'pass'};
+  // 不急著拆掉 2：手牌還多、對手也沒威脅時，有一定機率保留大牌
+  const pick=danger?ok[ok.length-1]:ok[0];
+  if(!danger&&h.length>6&&pick.cb.n===1&&pkR(pick.cards[0])===2&&Math.random()<.5)return{type:'pass'};
+  return{type:'play',cards:pick.cards};
+}
+// 提示：給玩家一組可出的牌
+function b2Hint(st,seat){const all=b2All(st.hands[seat]);let c=all;if(st.first)c=c.filter(o=>o.cards.includes(8));
+  if(st.lead)c=c.filter(o=>b2Beats(o.cb,st.lead.combo));const sc=o=>o.cb.n===5?o.cb.k*100+o.cb.v:o.cb.v;
+  c.sort((a,b)=>(st.lead?0:b.cb.n-a.cb.n)||sc(a)-sc(b));return c.length?c[0].cards:null;}
+
+/* ---------- 心臟病 ---------- */
+// 輪流翻牌並依序喊 1～13；翻出的牌和喊的數字一樣時大家搶著拍，最後拍的（或拍錯的人）收走整疊；先把自己的牌出完的人贏
+function hhNew(){const d=pkDeck(false),piles=[[],[],[],[]];d.forEach((c,i)=>piles[i%4].push(c));
+  return{g:'hh',piles,center:[],turn:Math.floor(Math.random()*4),call:1,shown:null,match:false,slaps:[],over:null,log:[],seq:0,mt:0};}
+function hhActive(st){return[0,1,2,3].filter(i=>st.piles[i].length||!st.over);}
+function hhNextTurn(st,s){for(let k=1;k<=4;k++){const n=(s+k)%4;if(st.piles[n].length)return n;}return s;}
+function hhAct(st,seat,a){
+  if(st.over)return'這局已經結束';
+  if(a.type==='flip'){if(st.match)return'先拍！';if(seat!==st.turn)return'還沒輪到你';if(!st.piles[seat].length)return'你沒有牌了';
+    const c=st.piles[seat].shift();st.center.push(c);const said=st.call;st.call=st.call%13+1;st.shown={c,said,seat};
+    st.match=pkR(c)===said;st.slaps=[];st.mt=st.match?Date.now():0;st.log.push({seat,c,said});
+    if(!st.match&&!st.piles[seat].length){st.over={winner:seat};}else if(!st.match)st.turn=hhNextTurn(st,seat);
+    st.seq++;return null;}
+  if(a.type==='slap'){if(st.slaps.includes(seat))return'已經拍過了';
+    if(!st.match){if(!st.center.length)return'桌上沒有牌';hhTake(st,seat,'拍錯了');st.seq++;return null;}
+    st.slaps.push(seat);if(st.slaps.length>=4)hhResolve(st);st.seq++;return null;}
+  return'不認得的動作';
+}
+// 時間到還沒拍的人收牌；都拍了就由最後一個拍的收
+function hhResolve(st){if(!st.match)return;const miss=[0,1,2,3].filter(i=>!st.slaps.includes(i));
+  const loser=miss.length?miss[Math.floor(Math.random()*miss.length)]:st.slaps[st.slaps.length-1];
+  const why=miss.length?'沒拍到':'最後一個拍';hhTake(st,loser,why);}
+function hhTake(st,seat,why){const n=st.center.length;st.piles[seat].push(...st.center);st.center=[];st.match=false;st.taken={seat,n,why};
+  const flipper=st.shown?st.shown.seat:seat;
+  // 剛把牌翻完的人如果沒有收到牌就贏了
+  const w=[0,1,2,3].find(i=>!st.piles[i].length);if(w!==undefined)st.over={winner:w};
+  else st.turn=hhNextTurn(st,flipper);}   // 繼續由翻牌者的下一位翻
+
+/* ---------- 抽鬼牌 ---------- */
+// 52 張加一張鬼牌，湊成同點數的一對就丟掉；輪流從下一位玩家手中抽一張；最後拿著鬼牌的人輸
+function omPairs(h){const by={},keep=[],out=[];h.forEach(c=>{if(c===52){keep.push(c);return;}const r=pkR(c);(by[r]=by[r]||[]).push(c);});
+  for(const r in by){const a=by[r];while(a.length>=2)out.push(a.splice(0,2));keep.push(...a);}return{keep:pkShuffle(keep),out};}
+function omNew(){const d=pkDeck(true),hands=[[],[],[],[]];d.forEach((c,i)=>hands[i%4].push(c));const discards=[];
+  for(let i=0;i<4;i++){const r=omPairs(hands[i]);hands[i]=r.keep;discards.push(...r.out.flat());}
+  const st={g:'om',hands,turn:Math.floor(Math.random()*4),out:[false,false,false,false],place:[],over:null,discards,last:null,log:[],seq:0};
+  omCheckOut(st);if(!st.over&&!st.hands[st.turn].length)st.turn=omNextActive(st,st.turn);return st;}
+function omNextActive(st,s){for(let k=1;k<=4;k++){const n=(s+k)%4;if(!st.out[n])return n;}return s;}
+const omFrom=(st,s)=>omNextActive(st,s);   // 從下一位還有牌的玩家手中抽
+function omCheckOut(st){for(let i=0;i<4;i++)if(!st.out[i]&&!st.hands[i].length){st.out[i]=true;st.place.push(i);}
+  const left=[0,1,2,3].filter(i=>!st.out[i]);if(left.length<=1){st.over={loser:left.length?left[0]:st.hands.findIndex(h=>h.includes(52)),place:st.place.slice()};}}
+function omAct(st,seat,a){
+  if(st.over)return'這局已經結束';if(a.type!=='draw')return'不認得的動作';if(seat!==st.turn)return'還沒輪到你';
+  const from=omFrom(st,seat);if(from===seat)return'沒有人可以抽';const fh=st.hands[from],i=a.i|0;if(i<0||i>=fh.length)return'選的牌不存在';
+  const c=fh.splice(i,1)[0],mh=st.hands[seat];let paired=null;
+  if(c!==52){const j=mh.findIndex(x=>x!==52&&pkR(x)===pkR(c));if(j>=0){paired=[mh[j],c];mh.splice(j,1);st.discards.push(...paired);}}
+  if(!paired)mh.push(c);
+  st.last={seat,from,c,paired:!!paired};st.log.push(st.last);
+  // 被抽的人如果是電腦會重新洗手牌，抽的人把牌插回去也打亂
+  pkShuffle(st.hands[from]);
+  omCheckOut(st);if(!st.over)st.turn=st.out[seat]?omNextActive(st,seat):omNextActive(st,seat);
+  st.seq++;return null;
+}
+function omAI(st,seat){const from=omFrom(st,seat);return{type:'draw',i:Math.floor(Math.random()*st.hands[from].length)};}
+
+/* ---------- 共用：給每位玩家看的畫面資料（只含自己的手牌） ---------- */
+function pkView(st,seat){
+  if(st.g==='b2')return{g:'b2',seq:st.seq,me:seat,hand:st.hands[seat].slice(),counts:st.hands.map(h=>h.length),turn:st.turn,lead:st.lead,passes:st.passes,first:st.first,over:st.over,
+    last:st.log.slice(-4),reveal:st.over?st.hands.map(h=>h.slice()):null};
+  if(st.g==='hh')return{g:'hh',seq:st.seq,me:seat,counts:st.piles.map(p=>p.length),center:st.center.length,top:st.center[st.center.length-1]??null,turn:st.turn,call:st.call,
+    shown:st.shown,match:st.match,slapped:st.slaps.slice(),taken:st.taken||null,over:st.over};
+  return{g:'om',seq:st.seq,me:seat,hand:st.hands[seat].slice(),counts:st.hands.map(h=>h.length),turn:st.turn,from:st.over?null:omFrom(st,st.turn),out:st.out.slice(),
+    last:st.last?{seat:st.last.seat,from:st.last.from,paired:st.last.paired,c:(st.last.seat===seat||st.last.from===seat||st.last.paired)?st.last.c:null}:null,
+    discards:st.discards.length,over:st.over,place:st.place.slice(),reveal:st.over?st.hands.map(h=>h.slice()):null};
+}
+const PK_GAMES={b2:{n:'大老二',neu:b2New,act:b2Act},hh:{n:'心臟病',neu:hhNew,act:hhAct},om:{n:'抽鬼牌',neu:omNew,act:omAct}};
+
+/* ---------- pk-net:peer ---------- */
+// 撲克牌連線（GitHub／App 版：PeerJS）。房主的 Peer ID 是固定前綴＋房號，最多接受 3 位加入者
+const PK_PREFIX='thortsui-xiangqi-pk-';
+function pkOpenPeer(id){return new Promise(res=>{let p,done=false;const fin=v=>{if(done)return;done=true;clearTimeout(t);res(v);};
+  try{p=id?new Peer(id):new Peer();}catch(e){res(null);return;}
+  const t=setTimeout(()=>{try{p.destroy()}catch(e){}fin(null);},12000);
+  p.on('open',()=>fin(p));p.on('error',()=>{if(done)return;try{p.destroy()}catch(x){}fin(null);});});}
+const pkNet={
+  async host(){
+    for(let i=0;i<4;i++){const code=String(Math.floor(Math.random()*10000)).padStart(4,'0');const peer=await pkOpenPeer(PK_PREFIX+code);if(!peer)continue;
+      const conns={};let msgFn=()=>{},leaveFn=()=>{};
+      peer.on('connection',c=>{
+        if(Object.keys(conns).length>=3&&!conns[c.peer]){c.on('open',()=>{try{c.send({m:{k:'full',why:'房間已經滿 4 人'}});}catch(e){}setTimeout(()=>{try{c.close()}catch(e){}},600);});return;}
+        conns[c.peer]=c;c.on('data',d=>{if(d&&typeof d==='object')msgFn(c.peer,d.m);});
+        c.on('close',()=>{if(conns[c.peer]===c){delete conns[c.peer];leaveFn(c.peer);}});c.on('error',()=>{});});
+      return{code,sendTo(to,m){const c=conns[to];try{if(c&&c.open)c.send({m});}catch(e){}},sendHost(){},onMsg(fn){msgFn=fn;},onLeave(fn){leaveFn=fn;},
+        close(){Object.values(conns).forEach(c=>{try{c.close()}catch(e){}});try{peer.destroy()}catch(e){}}};}
+    return null;},
+  async join(code){
+    const peer=await pkOpenPeer(null);if(!peer)return null;
+    const c=peer.connect(PK_PREFIX+code,{reliable:true});
+    const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);c.on('open',()=>{clearTimeout(t);res(true);});c.on('error',()=>{clearTimeout(t);res(false);});peer.on('error',()=>{clearTimeout(t);res(false);});});
+    if(!ok){try{peer.destroy()}catch(e){}return null;}
+    let msgFn=()=>{},leaveFn=()=>{};c.on('data',d=>{if(d&&typeof d==='object')msgFn('host',d.m);});c.on('close',()=>leaveFn('host'));
+    return{code,sendTo(){},sendHost(m){try{if(c.open)c.send({m});}catch(e){}},onMsg(fn){msgFn=fn;},onLeave(fn){leaveFn=fn;},close(){try{c.close()}catch(e){}try{peer.destroy()}catch(e){}}};}
+};
+/* ---------- pk-net:end ---------- */
+
+/* ===== 撲克牌：控制流程、畫面 ===== */
+// 座位 0..3，順序為逆時針（自己在下 → 右 → 上 → 左）；房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料
+const PK={g:'b2',role:null,phase:null,st:null,view:null,me:0,seats:[],names:[],net:null,code:null,timers:[],slapMt:-1,resMt:-1,sel:new Set(),note:'',noteT:null};
+try{const g=localStorage.getItem('xq-pkg');if(PK_GAMES[g])PK.g=g;}catch(e){}
+const PK_RULES={b2:'4 人各 13 張，梅花 3 先出。可出單張、對子，或五張的順子＜同花＜葫蘆＜鐵支＜同花順；2 最大，同點數比花色 ♠＞♥＞♦＞♣。最先出完的人贏。',
+  hh:'4 人平分整副牌。輪流翻牌並依序喊 1、2…13（A＝1，J Q K＝11 12 13）。翻出的牌和喊的數字一樣時大家搶著「拍！」，最後拍或沒拍到的人收走整疊；拍錯的人也要收。先把牌翻完的人贏。',
+  om:'52 張加一張鬼牌發給 4 人，同點數的兩張先丟掉。輪流從下一位玩家手中抽一張，湊成一對就丟掉。手牌先清空的人過關，最後拿著鬼牌的人輸。'};
+const pkPos=s=>(s-PK.me+4)%4;            // 0 下（自己）1 右 2 上 3 左
+const pkSeatEl=s=>$('pkS'+pkPos(s));
+function pkClear(){PK.timers.forEach(clearTimeout);PK.timers=[];}
+function pkLater(ms,f){PK.timers.push(setTimeout(f,ms));}
+function pkNote(t,ms){PK.note=t;clearTimeout(PK.noteT);const el=$('pkMsg');if(el){el.textContent=t;el.classList.toggle('on',!!t);}
+  if(t&&ms!==0)PK.noteT=setTimeout(()=>{PK.note='';const e=$('pkMsg');if(e)e.classList.remove('on');},ms||1800);}
+function pkShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=false;}
+function pkExit(){pkClear();if(PK.net){try{PK.net.close();}catch(e){}PK.net=null;}PK.role=null;PK.phase=null;$('pk').hidden=true;showMenu('');}
+
+/* ---------- 開局 ---------- */
+function pkStartAI(){PK.role='solo';PK.me=0;PK.code=null;PK.seats=[{kind:'me',name:'你'},{kind:'ai',name:'電腦 A'},{kind:'ai',name:'電腦 B'},{kind:'ai',name:'電腦 C'}];
+  pkShow();pkNewGame();}
+function pkNames(){return PK.seats.map(s=>s.name);}
+function pkNewGame(){pkClear();PK.phase='play';PK.st=PK_GAMES[PK.g].neu();PK.sel.clear();PK.slapMt=PK.resMt=-1;pkNote('');pkAfter();}
+function pkDo(seat,a){if(!PK.st)return'還沒開始';const err=PK_GAMES[PK.st.g].act(PK.st,seat,a);if(!err)pkAfter();return err;}
+function pkAfter(){pkPush();PK.view=pkView(PK.st,PK.me);PK.names=pkNames();pkRender();pkSchedule();}
+function pkPush(){if(PK.role!=='host'||!PK.net)return;PK.seats.forEach((s,i)=>{if(s.kind==='net')PK.net.sendTo(s.peer,{k:'view',v:pkView(PK.st,i),names:pkNames(),game:PK.g});});}
+// 電腦玩家
+function pkSchedule(){
+  const st=PK.st;if(!st||st.over||PK.role==='guest')return;const ai=s=>PK.seats[s].kind==='ai';
+  if(st.g==='hh'){
+    if(st.match){if(PK.slapMt!==st.mt){PK.slapMt=st.mt;const mt=st.mt;
+        [0,1,2,3].filter(ai).forEach(s=>pkLater(380+Math.random()*900,()=>{if(PK.st===st&&st.match&&st.mt===mt&&!st.slaps.includes(s))pkDo(s,{type:'slap'});}));}
+      if(PK.resMt!==st.mt){PK.resMt=st.mt;const mt=st.mt;pkLater(2300,()=>{if(PK.st===st&&st.match&&st.mt===mt){hhResolve(st);st.seq++;pkAfter();}});}
+      return;}
+    if(ai(st.turn)){const seq=st.seq;pkLater(st.taken&&st.seq<3?900:700+Math.random()*300,()=>{if(PK.st===st&&st.seq===seq)pkDo(st.turn,{type:'flip'});});}
+    return;}
+  if(ai(st.turn)){const seq=st.seq,t=st.turn;pkLater(st.g==='om'?900+Math.random()*500:750+Math.random()*700,()=>{if(PK.st!==st||st.seq!==seq)return;
+    const a=st.g==='b2'?b2AI(st,t):omAI(st,t);const e=pkDo(t,a);if(e&&st.g==='b2')pkDo(t,{type:'pass'});});}
+}
+// 自己的動作：單機／房主直接套用，加入者送給房主
+function pkMine(a){
+  if(PK.role==='guest'){if(PK.net)PK.net.sendHost({k:'act',a});return;}
+  const err=pkDo(PK.me,a);if(err)pkNote(err);
+}
+
+/* ---------- 畫面 ---------- */
+const pkCard=(c,cls='')=>c===52?`<div class="pkc joker ${cls}"><span class="cr">鬼</span><span class="cm">★</span></div>`
+  :`<div class="pkc${pkRed(c)?' red':''} ${cls}" data-c="${c}"><span class="cr">${PK_RN[pkR(c)]}</span><span class="cs">${PK_SU[pkS(c)]}</span><span class="cm">${PK_SU[pkS(c)]}</span></div>`;
+const pkBack=(cls='')=>`<div class="pkc back ${cls}"></div>`;
+function pkFan(n,max){const k=Math.min(n,max||7);let h='';for(let i=0;i<k;i++)h+=pkBack('mini');return`<div class="pkfan">${h}</div>`;}
+function pkRender(){
+  const v=PK.view;if(!v)return;$('pkTitle').textContent=PK_GAMES[v.g].n;$('pkCode').textContent=PK.code?`房號 ${PK.code}`:'';
+  const names=PK.names.length?PK.names:['你','電腦 A','電腦 B','電腦 C'];
+  // 四個座位
+  for(let s=0;s<4;s++){const el=pkSeatEl(s),pos=pkPos(s),act=!v.over&&v.turn===s&&!(v.g==='hh'&&v.match);
+    let st='';
+    if(v.g==='b2'){const lastAct=[...(v.last||[])].reverse().find(x=>x.seat===s);if(v.lead&&lastAct&&lastAct.pass&&v.passes>0)st='過';}
+    if(v.g==='om'&&v.out[s])st=`過關 第 ${v.place.indexOf(s)+1} 名`;
+    if(v.g==='hh'&&v.match&&v.slapped.includes(s))st=`拍！第 ${v.slapped.indexOf(s)+1}`;
+    const cnt=v.counts[s];
+    if(pos===0){el.className='pkinfo'+(act?' act':'');el.innerHTML=`<b>${names[s]}</b><span>${v.g==='hh'?`牌堆 ${cnt} 張`:`${cnt} 張`}</span>${st?`<i>${st}</i>`:''}`;continue;}
+    el.className='pkseat p'+pos+(act?' act':'')+(v.g==='om'&&v.out[s]?' done':'');
+    el.innerHTML=`<div class="pkname"><b>${names[s]}</b><span class="pkcnt">${cnt}</span></div>${cnt?pkFan(cnt,pos===2?9:6):''}${st?`<i class="pkst">${st}</i>`:''}`;}
+  if(v.g==='b2')pkRenderB2(v,names);else if(v.g==='hh')pkRenderHH(v,names);else pkRenderOM(v,names);
+  pkRenderOver(v,names);
+}
+function pkHand(cards,selectable){
+  const box=$('pkHand'),aw=box.clientWidth||340,n=cards.length,cw=Math.min(62,Math.max(40,aw/5.6)),step=n>1?Math.min(cw*.68,(aw-cw)/(n-1)):0,w=cw+step*(n-1);
+  box.style.setProperty('--cw',cw+'px');
+  box.innerHTML=cards.map((c,i)=>`<button class="pkslot${PK.sel.has(c)?' sel':''}" style="left:${(aw-w)/2+i*step}px" data-act="${selectable?'pkSel':''}" data-c="${c}" ${selectable?'':'tabindex="-1"'} aria-label="${pkName(c)}${PK.sel.has(c)?'（已選）':''}">${pkCard(c)}</button>`).join('');
+}
+function pkRenderB2(v,names){
+  const my=!v.over&&v.turn===v.me;
+  [...PK.sel].forEach(c=>{if(!v.hand.includes(c))PK.sel.delete(c);});
+  let t='';
+  if(v.lead){t=`<div class="pklead"><div class="pkplay">${v.lead.cards.map(c=>pkCard(c)).join('')}</div><p>${names[v.lead.seat]}・${v.lead.combo.name}</p></div>`;}
+  else t=`<div class="pkfree">${v.first?'梅花 3 先出':`${names[v.turn]} 自由出牌`}</div>`;
+  $('pkTable').innerHTML=t;
+  pkHand(v.hand,true);
+  const sel=[...PK.sel],cb=sel.length?b2Combo(sel):null;
+  $('pkBtns').innerHTML=`<button data-act="pkHint"${my?'':' disabled'}>提示</button><button data-act="pkPass"${my&&v.lead?'':' disabled'}>過</button>`
+    +`<button class="go" data-act="pkPlay"${my&&cb?'':' disabled'}>${cb?'出 '+cb.name:'出牌'}</button>`;
+  if(my&&!PK.note)$('pkMsg').textContent='';
+  $('pkMe').classList.toggle('myturn',my);
+}
+function pkRenderHH(v,names){
+  const top=v.top!=null?pkCard(v.top,'big'):'<div class="pkempty">桌上沒有牌</div>';
+  const said=v.shown?v.shown.said:null;
+  $('pkTable').innerHTML=`<div class="hhcall">${said?`<small>${names[v.shown.seat]} 喊</small><b>${said}</b>`:'<small>準備開始</small>'}</div>`
+    +`<button class="hhpile${v.match?' hot':''}" data-act="pkSlap" aria-label="拍！">${top}<span class="hhn">${v.center} 張</span></button>`
+    +`<div class="hhnext">下一張喊 <b>${v.call}</b></div>`;
+  $('pkHand').innerHTML=`<div class="hhmine">${v.counts[v.me]?pkBack('big'):'<div class="pkempty">沒牌了</div>'}<span>${v.counts[v.me]} 張</span></div>`;
+  const my=!v.over&&v.turn===v.me&&!v.match;
+  $('pkBtns').innerHTML=`<button data-act="pkFlip"${my?'':' disabled'}>翻牌</button><button class="slapbtn${v.match?' hot':''}" data-act="pkSlap">拍！</button>`;
+  $('pkMe').classList.toggle('myturn',my);
+  if(v.taken&&v.taken.seq!==PK._tk){PK._tk=v.seq;}
+}
+function pkRenderOM(v,names){
+  const my=!v.over&&v.turn===v.me,from=v.from;let t='';
+  if(my&&from!=null){const n=v.counts[from];let h='';for(let i=0;i<n;i++)h+=`<button class="pkslot omback" data-act="pkDraw" data-i="${i}" aria-label="抽第 ${i+1} 張">${pkBack()}</button>`;
+    t=`<p class="omtip">從 <b>${names[from]}</b> 手中抽一張</p><div class="omfan" style="--n:${n}">${h}</div>`;}
+  else if(!v.over)t=`<p class="omtip">${names[v.turn]} 正在抽 ${names[from]} 的牌…</p>`;
+  if(v.last){const L=v.last;t+=`<p class="omlast">${names[L.seat]} 抽到${L.c!=null?' '+pkName(L.c):'一張牌'}${L.paired?'，湊成一對丟掉':''}</p>`;}
+  t+=`<p class="omdis">已丟掉 ${v.discards/2|0} 對</p>`;
+  $('pkTable').innerHTML=t;
+  pkHand(v.hand,false);
+  $('pkBtns').innerHTML='';
+  $('pkMe').classList.toggle('myturn',my);
+}
+function pkRenderOver(v,names){
+  const o=$('pkOver');if(!v.over){o.hidden=true;return;}
+  let h='';
+  if(v.g==='b2'){const w=v.over.winner;const rank=[0,1,2,3].sort((a,b)=>v.over.left[a]-v.over.left[b]);
+    h=`<h2>${w===v.me?'你贏了！':names[w]+' 贏了'}</h2><ol>${rank.map(s=>`<li><b>${names[s]}</b><span>剩 ${v.over.left[s]} 張</span></li>`).join('')}</ol>`;}
+  else if(v.g==='hh'){const w=v.over.winner;h=`<h2>${w===v.me?'你贏了！':names[w]+' 贏了'}</h2><ol>${[0,1,2,3].sort((a,b)=>v.counts[a]-v.counts[b]).map(s=>`<li><b>${names[s]}</b><span>剩 ${v.counts[s]} 張</span></li>`).join('')}</ol>`;}
+  else{const L=v.over.loser;h=`<h2>${L===v.me?'你拿到鬼牌，輸了':names[L]+' 拿到鬼牌'}</h2><ol>${v.over.place.map(s=>`<li><b>${names[s]}</b><span>過關</span></li>`).join('')}<li class="lose"><b>${names[L]}</b><span>鬼牌</span></li></ol>`;}
+  const can=PK.role!=='guest';
+  h+=`<div class="pkobtn">${can?'<button class="go" data-act="pkAgain">再來一局</button>':'<p>等房主開新的一局</p>'}<button data-act="pkExit">回選單</button></div>`;
+  o.innerHTML=`<div class="pkobox">${h}</div>`;o.hidden=false;
+}
+function pkLobby(){
+  const host=PK.role==='host';$('pkTitle').textContent=PK_GAMES[PK.g].n;$('pkCode').textContent=PK.code?`房號 ${PK.code}`:'';
+  for(let p=1;p<4;p++){const el=$('pkS'+p);el.className='pkseat p'+p;el.innerHTML='';}$('pkS0').innerHTML='';$('pkHand').innerHTML='';$('pkBtns').innerHTML='';$('pkOver').hidden=true;
+  const seats=host?PK.seats:(PK.lobby||[]);
+  $('pkTable').innerHTML=`<div class="pklobby"><p>房號</p><b class="code">${PK.code||'----'}</b><p>把房號給朋友，在「撲克牌」選單輸入後加入</p>`
+    +`<ul>${[0,1,2,3].map(i=>{const s=seats[i];return`<li class="${s&&s.kind!=='ai'?'in':''}">${s&&s.kind!=='ai'?s.name:'（空位，開始時由電腦補上）'}</li>`;}).join('')}</ul>`
+    +(host?`<button class="go" data-act="pkGo">開始${PK_GAMES[PK.g].n}</button>`:'<p class="wait">等房主開始…</p>')+`</div>`;
+}
+
+/* ---------- 線上：房主 ---------- */
+async function pkCreate(){
+  if(!R){pkMenuMsg('連線元件還沒準備好',true);return;}pkMenuMsg('建立房間中…');
+  let net;try{net=await pkNet.host();}catch(e){net=null;}
+  if(!net){pkMenuMsg('無法建立房間，請稍後再試',true);return;}
+  PK.net=net;PK.role='host';PK.code=net.code;PK.me=0;PK.phase='lobby';PK.seats=[{kind:'me',name:'房主（你）'},null,null,null];
+  net.onMsg((peer,m)=>pkHostMsg(peer,m));net.onLeave(peer=>{const i=PK.seats.findIndex(s=>s&&s.peer===peer);if(i<0)return;
+    if(PK.phase==='lobby'){PK.seats[i]=null;pkHostLobby();}else{PK.seats[i]={kind:'ai',name:PK.seats[i].name+'（離線，電腦接手）'};pkNote(PK.seats[i].name,2500);pkAfter();}});
+  pkShow();pkHostLobby();pkMenuMsg('');
+}
+function pkHostLobby(){pkLobby();const lob=PK.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind,name:s.name}:null);
+  PK.seats.forEach(s=>{if(s&&s.kind==='net')PK.net.sendTo(s.peer,{k:'lobby',seats:lob,game:PK.g,code:PK.code});});}
+function pkHostMsg(peer,m){
+  if(!m||typeof m!=='object')return;
+  if(m.k==='join'){let i=PK.seats.findIndex(s=>s&&s.peer===peer);
+    if(i<0){if(PK.phase!=='lobby'){PK.net.sendTo(peer,{k:'full',why:'這局已經開始了'});return;}i=PK.seats.findIndex(s=>!s);
+      if(i<0){PK.net.sendTo(peer,{k:'full',why:'房間已經滿 4 人'});return;}PK.seats[i]={kind:'net',peer,name:'玩家 '+(i+1)};}
+    if(PK.phase==='lobby')pkHostLobby();else PK.net.sendTo(peer,{k:'view',v:pkView(PK.st,i),names:pkNames(),game:PK.g});return;}
+  if(m.k==='act'){const i=PK.seats.findIndex(s=>s&&s.peer===peer);if(i<0||!PK.st)return;const err=pkDo(i,m.a||{});if(err)PK.net.sendTo(peer,{k:'err',m:err});}
+}
+function pkGo(){for(let i=0;i<4;i++)if(!PK.seats[i])PK.seats[i]={kind:'ai',name:'電腦 '+'ABC'[i-1]};pkNewGame();}
+
+/* ---------- 線上：加入者 ---------- */
+async function pkJoin(c){
+  if(!/^\d{4}$/.test(c)){pkMenuMsg('請輸入 4 位數字房號',true);return;}if(!R){pkMenuMsg('連線元件還沒準備好',true);return;}
+  pkMenuMsg(`尋找房間 ${c}…`);let net;try{net=await pkNet.join(c);}catch(e){net=null;}
+  if(!net){pkMenuMsg(`找不到房號 ${c} 的撲克牌房間`,true);return;}
+  PK.net=net;PK.role='guest';PK.code=c;PK.phase='lobby';PK.view=null;PK.lobby=null;
+  let got=false;
+  net.onMsg((peer,m)=>{if(!m||typeof m!=='object')return;got=true;
+    if(m.k==='full'){pkExit();pkMenuMsg(m.why||'房間已滿',true);return;}
+    if(m.k==='lobby'){PK.g=m.game;PK.lobby=m.seats;PK.phase='lobby';if($('pk').hidden){pkShow();pkMenuMsg('');}pkLobby();return;}
+    if(m.k==='view'){PK.g=m.game;PK.phase='play';PK.view=m.v;PK.me=m.v.me;PK.names=m.names||[];if($('pk').hidden){pkShow();pkMenuMsg('');}
+      if(PK.view.g==='b2'&&PK._seq!==m.v.seq){PK._seq=m.v.seq;}pkRender();return;}
+    if(m.k==='err'){pkNote(m.m);}});
+  net.onLeave(()=>{if(PK.role==='guest'){pkExit();pkMenuMsg('房主離開了，連線中斷',true);}});
+  for(let i=0;i<8&&!got&&PK.net===net;i++){net.sendHost({k:'join'});await sleep(1200);}
+  if(!got&&PK.net===net){try{net.close();}catch(e){}PK.net=null;PK.role=null;pkMenuMsg('房主沒有回應，請確認房號',true);}
+}
+function pkMenuMsg(t,err){const m=$('pkMenuMsg');if(m){m.textContent=t;m.classList.toggle('err',!!err);}}
+
+/* ---------- 點擊 ---------- */
+function pkClick(b){
+  const act=b.dataset.act,v=PK.view;
+  switch(act){
+    case 'pkGame':PK.g=b.dataset.v;try{localStorage.setItem('xq-pkg',PK.g);}catch(e){}pkSyncMenu();return true;
+    case 'pkAI':pkStartAI();return true;
+    case 'pkCreate':pkCreate();return true;
+    case 'pkJoin':pkJoin($('pkCodeIn').value.trim());return true;
+    case 'pkExit':pkExit();return true;
+    case 'pkGo':if(PK.role==='host')pkGo();return true;
+    case 'pkAgain':if(PK.role!=='guest')pkNewGame();return true;
+    case 'pkSel':{if(!v||v.g!=='b2')return true;const c=+b.dataset.c;PK.sel.has(c)?PK.sel.delete(c):PK.sel.add(c);pkRender();return true;}
+    case 'pkHint':{if(!v||v.g!=='b2')return true;if(PK.role==='guest'){const h=b2HintView(v);PK.sel=new Set(h||[]);if(!h)pkNote('沒有壓得過的牌，只能過');pkRender();return true;}
+      const h=b2Hint(PK.st,PK.me);PK.sel=new Set(h||[]);if(!h)pkNote('沒有壓得過的牌，只能過');pkRender();return true;}
+    case 'pkPass':PK.sel.clear();pkMine({type:'pass'});return true;
+    case 'pkPlay':{const cards=[...PK.sel];PK.sel.clear();pkMine({type:'play',cards});return true;}
+    case 'pkFlip':pkMine({type:'flip'});return true;
+    case 'pkSlap':if(v&&v.g==='hh'&&!v.over){pkMine({type:'slap'});const P=$('pk');P.classList.remove('slapfx');void P.offsetWidth;P.classList.add('slapfx');try{navigator.vibrate&&navigator.vibrate(30);}catch(e){}}return true;
+    case 'pkDraw':pkMine({type:'draw',i:+b.dataset.i});return true;
+  }
+  return false;
+}
+// 加入者的提示：用自己的手牌與畫面資料計算
+function b2HintView(v){const fake={hands:[],first:v.first,lead:v.lead};fake.hands[v.me]=v.hand;return b2Hint(fake,v.me);}
+function pkSyncMenu(){document.querySelectorAll('#pkGameSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===PK.g));$('pkRule').textContent=PK_RULES[PK.g];
+  const ok=!!R;$('pkCreateBtn').disabled=!ok;$('pkJoinBtn').disabled=!ok;}
+addEventListener('resize',()=>{if(!$('pk').hidden&&PK.view)pkRender();});
+
 /* ---------- 電腦版隱藏快捷鍵（畫面上不顯示）：1 拍桌 2 弓箭 3 炸彈 4 翻桌 5 海嘯 6 龍捲風 7 火燒 ---------- */
 const FX_KEYS=['slap','arrow','bomb','flip','wave','tornado','fire'];
 function fxGo(kind,side){if(mode==='menu')return;
@@ -4182,6 +4650,7 @@ const CONFIRM=new Set(['reset','menu','leave']);
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const act=b.dataset.act;
+  if(act.startsWith('pk')&&pkClick(b))return;
   if(CONFIRM.has(act)&&armed!==act){armed=act;clearTimeout(armTimer);armTimer=setTimeout(()=>{armed=null;render();},2500);render();return;}
   armed=null;clearTimeout(armTimer);
   switch(act){
@@ -4239,6 +4708,7 @@ $('lvIn').addEventListener('input',e=>{aiLevel=+e.target.value;syncLv();});
 syncLv();
 $('codeIn').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
 $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&R&&!busy)joinRoom(e.target.value.trim());});
+$('pkCodeIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&R)pkJoin(e.target.value.trim());});
 
 function fit(){if(mode==='menu')return;const st=$('stage'),W=st.clientWidth,dk=variant==='dk',ch=variant==='ch'||variant==='gm'||variant==='go';
   const H=st.clientHeight-[$('infoT'),$('infoM')].reduce((a,x)=>a+(x.hidden?0:x.offsetHeight+6),0);
