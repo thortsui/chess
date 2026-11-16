@@ -2730,12 +2730,12 @@ function onTflip(m){if(m.isMe||mode!=='online')return;tableFlip(m.data&&m.data.s
 document.addEventListener('touchmove',e=>{if(!$('app').hidden&&!e.target.closest('.sheetbody,.menu'))e.preventDefault();},{passive:false});
 document.addEventListener('pointerdown',e=>{const el=e.target.closest('.slap');if(!el)return;
   slapPtr={id:e.pointerId,x:e.clientX,y:e.clientY,t:Date.now(),side:el.dataset.s==='T'?'T':'B'};try{el.setPointerCapture(e.pointerId);}catch(_){}
-  clearTimeout(bombHoldT);const hx=e.clientX,hy=e.clientY;bombHoldT=setTimeout(()=>{if(!slapPtr)return;slapPtr.bomb=true;bombHint(true,hx,hy);try{navigator.vibrate&&navigator.vibrate(30);}catch(_){}},BOMB_HOLD);});
+  clearTimeout(bombHoldT);const hx=e.clientX,hy=e.clientY;bombHoldT=setTimeout(()=>{if(!slapPtr)return;slapPtr.bomb=true;skipClick=Date.now();bombSend(slapPtr.side);},BOMB_HOLD);});   // 按滿 3 秒直接掉炸彈
 document.addEventListener('pointerup',e=>{if(!slapPtr||e.pointerId!==slapPtr.id)return;const p=slapPtr;slapPtr=null;
   const r=$('board').getBoundingClientRect(),vx=r.left+r.width/2-p.x,vy=r.top+r.height/2-p.y,vl=Math.hypot(vx,vy)||1;
   const toward=((e.clientX-p.x)*vx+(e.clientY-p.y)*vy)/vl;
   clearTimeout(bombHoldT);bombHint(false);
-  if(p.bomb){skipClick=Date.now();bombSend(p.side);return;}
+  if(p.bomb){skipClick=Date.now();return;}
   if(toward>45&&Date.now()-p.t<500){skipClick=Date.now();flipSend(p.side);}});
 document.addEventListener('pointercancel',()=>{slapPtr=null;clearTimeout(bombHoldT);bombHint(false);});
 function onSlap(m){if(m.isMe||mode!=='online')return;if(m.data&&m.data.b){bombFx();return;}slapFx(m.data&&m.data.s==='T'?'B':'T');}
