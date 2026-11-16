@@ -208,7 +208,10 @@ body.nowarn .glow{display:none!important}
 .flyfx{position:fixed;inset:0;pointer-events:none;z-index:30}
 .fx3d{position:fixed;inset:0;z-index:30;pointer-events:none}
 .d3cv{position:absolute;left:-60px;top:-60px;pointer-events:none}
-html,body{overflow-x:hidden;overflow-x:clip}
+html,body{overflow:hidden;overscroll-behavior:none}
+/* 對局畫面整頁不能被手指拖動（避免上下滑動打斷拍桌、翻桌手勢）；只有設定面板內部可捲動 */
+#app{touch-action:none;overscroll-behavior:none}
+.sheetbody{touch-action:pan-y}
 .board.d3 #grid{visibility:hidden}
 .board.d3 .pc .face{background:none!important;box-shadow:none!important;color:transparent!important}
 .board.d3 .pc .face::before,.board.d3 .pc.hid .face::after{display:none}
@@ -2580,6 +2583,7 @@ function tableFlip(side){
 }
 function flipSend(side){if(flipping)return;tableFlip(side);if(mode==='online'&&room)room.emit('tf',{s:side}).catch(()=>{});}
 function onTflip(m){if(m.isMe||mode!=='online')return;tableFlip(m.data&&m.data.s==='T'?'B':'T');}
+document.addEventListener('touchmove',e=>{if(!$('app').hidden&&!e.target.closest('.sheetbody,.menu'))e.preventDefault();},{passive:false});
 document.addEventListener('pointerdown',e=>{const el=e.target.closest('.slap');if(!el)return;
   slapPtr={id:e.pointerId,x:e.clientX,y:e.clientY,t:Date.now(),side:el.dataset.s==='T'?'T':'B'};try{el.setPointerCapture(e.pointerId);}catch(_){}});
 document.addEventListener('pointerup',e=>{if(!slapPtr||e.pointerId!==slapPtr.id)return;const p=slapPtr;slapPtr=null;
