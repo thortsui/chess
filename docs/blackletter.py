@@ -1,5 +1,6 @@
 # 中文哥德體（blackletter）：以漢字筆畫中心線（Make Me a Hanzi / hanzi-writer-data, Arphic PL）
-# 模擬寬頭鵝毛筆以固定斜角書寫：曲線折成直角段、粗細對比、筆畫起訖加菱形頓點。輸出 1024 方格（y 向下）的 SVG path。
+# 以西洋大寫哥德字（Old English / Textura 大寫）為參考：寬頭筆粗細對比、弧線收尖、起筆分叉、菱形頓點、
+# 字框空白中的細直線與菱形、首筆捲曲髮絲花飾、末筆甩尾。輸出 1024 方格（y 向下）的 SVG path。
 import json, math, sys
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.ops import unary_union
@@ -9,7 +10,7 @@ BASE = float(sys.argv[1]) if len(sys.argv) > 1 else 150   # 筆頭寬（9 畫以
 NIB = BASE
 DECO = True
 ANG = math.radians(float(sys.argv[3]) if len(sys.argv) > 3 else 25)                                      # 筆頭角度
-TOL = 30                                                    # 折角化的容許誤差
+TOL = 16                                                    # 折角化的容許誤差
 
 CX = float(sys.argv[4]) if len(sys.argv) > 4 else .7   # 左右壓窄比例（瘦長）
 def raw(ch):
@@ -34,9 +35,18 @@ def rdp(pts, tol):
     if dm > tol: return rdp(pts[:i + 1], tol)[:-1] + rdp(pts[i:], tol)
     return [pts[0], pts[-1]]
 
+def chaikin(p, n=2):
+    for _ in range(n):
+        q = [p[0]]
+        for (ax, ay), (bx, by) in zip(p, p[1:]):
+            q += [(ax * .75 + bx * .25, ay * .75 + by * .25), (ax * .25 + bx * .75, ay * .25 + by * .75)]
+        q.append(p[-1]); p = q
+    return p
+
 def stroke_poly(m):
     p = rdp(m, TOL)
     if len(p) < 2: p = [m[0], m[-1]]
+    if len(p) > 2: p = chaikin(p, 2)        # 大寫哥德字的弧線：圓潤但收在尖點
     # 收筆往內縮一點、起筆略延伸，讓菱形頓點自然
     nx, ny = math.cos(ANG) * NIB / 2, -math.sin(ANG) * NIB / 2
     parts = []
@@ -63,8 +73,8 @@ def stroke_poly(m):
     d0x, d0y = p[1][0] - p[0][0], p[1][1] - p[0][1]; l0 = math.hypot(d0x, d0y) or 1; d0x, d0y = d0x / l0, d0y / l0
     d1x, d1y = dx / (math.hypot(dx, dy) or 1), dy / (math.hypot(dx, dy) or 1)
     # 起筆：往後上方伸出一根尖刺
-    tx, ty = rot(-d0x, -d0y, 28); parts.append(thorn(sx, sy, tx, ty, NIB * 1.05, NIB * .16))
-    tx, ty = rot(-d0x, -d0y, -55); parts.append(thorn(sx, sy, tx, ty, NIB * .7, NIB * .13))
+    for a_, L_ in ((32, .95), (-32, .8)):   # 起筆分叉成兩個尖角
+        tx, ty = rot(-d0x, -d0y, a_); parts.append(thorn(sx, sy, tx, ty, NIB * L_, NIB * .2))
     # 收筆：豎畫往左下長髮絲尖刺、橫畫往右上翹尖刺、其他斜畫拉出細長髮絲
     if 65 < ang < 115:
         parts.append(thorn(ex, ey, *rot(d1x, d1y, 35), NIB * 1.0, NIB * .14))
@@ -78,29 +88,55 @@ def stroke_poly(m):
         u1x, u1y = bx - ax, by - ay; u2x, u2y = cx2 - bx, cy2 - by; n1 = math.hypot(u1x, u1y) or 1; n2 = math.hypot(u2x, u2y) or 1
         u1x, u1y, u2x, u2y = u1x / n1, u1y / n1, u2x / n2, u2y / n2
         ox, oy = u1x - u2x, u1y - u2y; on = math.hypot(ox, oy)
-        if on > .6: parts.append(thorn(bx, by, ox / on, oy / on, NIB * .75, NIB * .14))
-    # 鏤空裝飾：長豎畫中段刻一道白色細線，中間一顆菱形；長橫畫刻一顆菱形
-    for (ax, ay), (bx, by) in zip(p, p[1:]):
-        L = math.hypot(bx - ax, by - ay); g_ = math.degrees(math.atan2(by - ay, bx - ax)) % 180
-        if L > 300 and 75 < g_ < 105:
-            y1, y2 = ay + (by - ay) * .22, ay + (by - ay) * .78; x1 = ax + (bx - ax) * .22; x2 = ax + (bx - ax) * .78
-            mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-            CUTS.append(unary_union([Polygon([(x1 - 6, y1), (x1 + 6, y1), (x2 + 6, y2), (x2 - 6, y2)]),
-                                     Polygon([(mx, my - 34), (mx + 17, my), (mx, my + 34), (mx - 17, my)])]))
-        elif L > 360 and (g_ < 12 or g_ > 168):
-            mx, my = (ax + bx) / 2, (ay + by) / 2
-            CUTS.append(Polygon([(mx - 26, my), (mx, my - 13), (mx + 26, my), (mx, my + 13)]))
+        if on > 1.0: parts.append(thorn(bx, by, ox / on, oy / on, NIB * .75, NIB * .14))
+    START.append((sx, sy, d0x, d0y)); END.append((ex, ey, d1x, d1y))
     return unary_union(parts)
 
+def hair(pts, w):
+    """細髮絲線（兩端尖）"""
+    from shapely.geometry import LineString
+    return LineString(pts).buffer(w / 2, cap_style=1, join_style=1)
+
+def bez(p0, p1, p2, n=24):
+    return [((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]) for t in [i / n for i in range(n + 1)]]
+
+def dia(x, y, rx, ry):
+    return Polygon([(x, y - ry), (x + rx, y), (x, y + ry), (x - rx, y)])
+
 def glyph(meds):
-    global NIB, DECO
-    n = len(meds); DECO = n <= 10; NIB = BASE * max(.6, min(1, 1 - .05 * (n - 8)))   # 筆畫越多筆頭越細，避免糊成一團
-    global CUTS
-    CUTS = []
+    global NIB, START, END
+    n = len(meds); NIB = BASE * max(.6, min(1, 1 - .05 * (n - 8)))   # 筆畫越多筆頭越細，避免糊成一團
+    START, END = [], []
     body = unary_union([stroke_poly(m) for m in meds])
-    g = body
-    for c in CUTS:                       # 只在刻痕完全落在筆畫裡面時才刻，避免把筆畫切斷
-        if body.buffer(-10).contains(c): g = g.difference(c).buffer(6, join_style=2).buffer(-6, join_style=2).simplify(1.5)
+    deco = []
+    HW_ = 20                                # 髮絲線粗細（1024 方格）
+    # 1) 字框裡的空白：中間一條細直線，正中一顆菱形（像 𝔈 𝔊 ℭ 裡面那條線）
+    polys = [body] if isinstance(body, Polygon) else list(body.geoms)
+    for P in polys:
+        for ring in P.interiors:
+            H = Polygon(ring)
+            if H.area < 9000: continue
+            minx, miny, maxx, maxy = H.bounds; cx = (minx + maxx) / 2; h = maxy - miny; w = maxx - minx
+            if h >= w * .7 and w > 55:
+                line = hair([(cx, miny + h * .12), (cx, maxy - h * .12)], HW_)
+                d_ = dia(cx, (miny + maxy) / 2, min(26, w * .22), min(40, h * .25))
+            elif w > 70:
+                cy = (miny + maxy) / 2; line = hair([(minx + w * .14, cy), (maxx - w * .14, cy)], HW_)
+                d_ = dia((minx + maxx) / 2, cy, min(40, w * .25), min(24, h * .3))
+            else: continue
+            item = unary_union([line, d_]).intersection(H.buffer(-14))
+            if not item.is_empty: deco.append(item)
+    # 2) 首筆起點：往左下捲出一道髮絲花飾，末端一顆小菱形
+    sx, sy, dx0, dy0 = min(START, key=lambda t: t[0] + t[1] * .3)
+    R = NIB * 1.6
+    c1 = bez((sx, sy), (sx - R * 1.1, sy - R * .15), (sx - R * .75, sy + R * 1.0))
+    c2 = bez(c1[-1], (sx - R * .45, sy + R * 1.6), (sx - R * .05, sy + R * 1.15), 12)
+    deco += [hair(c1 + c2[1:], HW_), dia(*c2[-1], 18, 26)]
+    # 3) 最右下的收筆：往右上甩一道髮絲尾
+    ex, ey, dx1, dy1 = max(END, key=lambda t: t[0] + t[1])
+    t1 = bez((ex, ey), (ex + R * .9, ey + R * .25), (ex + R * 1.05, ey - R * .7))
+    deco += [hair(t1, HW_ * .9), dia(*t1[-1], 16, 22)]
+    g = unary_union([body] + deco).buffer(4, join_style=2).buffer(-4, join_style=2).simplify(1.2)
     polys = [g] if isinstance(g, Polygon) else list(g.geoms)
     d = []
     for P in polys:
