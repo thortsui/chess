@@ -2642,12 +2642,12 @@ function bombBlast2D(cx,cy){
 }
 function bomb2D(cx,cy,sq){return new Promise(res=>{
   const b=document.createElement('div');b.className='bomb2d';b.style.cssText=`left:${cx}px;top:${cy}px;width:${sq*1.3}px;height:${sq*1.3}px`;document.body.appendChild(b);
-  b.animate([{transform:'translate(-50%,-50%) scale(3)',opacity:0},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.7},{transform:'translate(-50%,-50%) scale(1.12,.9)',offset:.8},{transform:'translate(-50%,-50%) scale(1)'}],{duration:700,easing:'ease-in'});
-  setTimeout(()=>{thump();bombHiss(1.1);},500);
+  b.animate([{transform:'translate(-50%,-50%) scale(3)',opacity:0},{transform:'translate(-50%,-50%) scale(1)',opacity:1,offset:.7},{transform:'translate(-50%,-50%) scale(1.12,.9)',offset:.8},{transform:'translate(-50%,-50%) scale(1)'}],{duration:640,easing:'ease-in'});
+  setTimeout(()=>{thump();bombHiss(.5);},450);
   setTimeout(()=>{b.remove();boom();bombFlash();bombShake(1.2);try{navigator.vibrate&&navigator.vibrate([120,40,200]);}catch(e){}
     const x=document.createElement('div');x.className='boom2d';x.style.cssText=`left:${cx}px;top:${cy}px;width:${sq*8}px;height:${sq*8}px`;document.body.appendChild(x);
     x.animate([{transform:'translate(-50%,-50%) scale(.1)',opacity:1},{transform:'translate(-50%,-50%) scale(1)',opacity:.9,offset:.35},{transform:'translate(-50%,-50%) scale(1.3)',opacity:0}],{duration:900,easing:'ease-out'}).onfinish=()=>x.remove();
-    bombBlast2D(cx,cy);setTimeout(res,2700);},1650);});}
+    bombBlast2D(cx,cy);setTimeout(res,2700);},950);});}
 function bombTex(stops){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);
   stops.forEach(([o,col])=>gr.addColorStop(o,col));g.fillStyle=gr;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);}
 function bomb3D(cx,cy,sq){return new Promise(res=>{
@@ -2687,13 +2687,14 @@ function bomb3D(cx,cy,sq){return new Promise(res=>{
     const t=(now-t0)/1000,dt=Math.min(.033,(now-prev)/1000);prev=now;
     if(!exploded){
       vy-=G*dt;by+=vy*dt;
-      if(by<r){by=r;if(landed<3&&Math.abs(vy)>2){if(!landed){thump();bombShake(.5);const Bd=$('board');Bd.classList.remove('shake');void Bd.offsetWidth;Bd.classList.add('shake');setTimeout(()=>Bd.classList.remove('shake'),700);try{navigator.vibrate&&navigator.vibrate(50);}catch(e){}}
-        vy=-vy*.28;landed++;body.scale.set(1.12,.86,1.12);}else{vy=0;if(tLand===null){tLand=t;bombHiss(1.25);}}}
+      if(by<r){by=r;if(landed<3&&Math.abs(vy)>2){if(!landed){thump();bombShake(.5);tLand=t;bombHiss(.5);const Bd=$('board');Bd.classList.remove('shake');void Bd.offsetWidth;Bd.classList.add('shake');setTimeout(()=>Bd.classList.remove('shake'),700);try{navigator.vibrate&&navigator.vibrate(50);}catch(e){}}
+        vy=-vy*.28;landed++;body.scale.set(1.12,.86,1.12);}else{vy=0;}}
       body.scale.lerp(new T.Vector3(1,1,1),Math.min(1,dt*10));bomb.position.set(X,by,Z);
       const sh=Math.max(.25,1-by/(D*.72));shadow.scale.setScalar(.6+sh*.6);shM.opacity=sh;
       spark.scale.setScalar(r*(.7+Math.random()*.6));spark.material.rotation=Math.random()*6;
       if(Math.random()<.6){const w=new T.Vector3().copy(tip).applyMatrix4(body.matrixWorld);mk(S.tx.spark,1,w.x,w.y,w.z,(Math.random()-.5)*3,1+Math.random()*2.5,(Math.random()-.5)*3,r*.25,r*.05,.35);}
-      if(tLand!==null){const k=(t-tLand)/1.25;mat.emissive.setRGB(.5*Math.max(0,Math.sin(t*(8+k*30)))*k,0,0);if(k>=1){exploded=true;tBoom=t;
+      if(tLand!==null){const k=(t-tLand)/.5;   // 落地後 0.5 秒爆炸
+        mat.emissive.setRGB(.5*Math.max(0,Math.sin(t*(8+k*30)))*k,0,0);if(k>=1){exploded=true;tBoom=t;
         bomb.visible=false;shadow.visible=false;boom();bombFlash();bombShake(1.4);flashL.intensity=9;try{navigator.vibrate&&navigator.vibrate([120,40,200]);}catch(e){}
         for(let i=0;i<46;i++){const a=Math.random()*6.283,sp=2+Math.random()*7,up=1+Math.random()*6;mk(S.tx.fire,1,X,r,Z,Math.cos(a)*sp,up,Math.sin(a)*sp,r*1.4,r*(4+Math.random()*3),.55+Math.random()*.4);}
         for(let i=0;i<22;i++){const a=Math.random()*6.283,sp=.6+Math.random()*2.2;mk(S.tx.smoke,0,X+(Math.random()-.5)*r,r,Z+(Math.random()-.5)*r,Math.cos(a)*sp,1.2+Math.random()*1.5,Math.sin(a)*sp,r*2,r*(6+Math.random()*3),1.6+Math.random()*.8);}
@@ -2796,7 +2797,7 @@ function bigFx(kind,side){
   if(fxBusy||bombing||flipping||mode==='menu')return;
   if(!fx3dOK()){if(webglOK()){load3D().then(ok=>{if(ok)bigFx(kind,side);else slapFx(side);});}else slapFx(side);return;}
   fxBusy=true;const fin=()=>{fxBusy=false;};
-  const run=kind==='wave'?tsunamiFx:kind==='tornado'?tornadoFx:arrowFx;
+  const run=kind==='wave'?tsunamiFx:kind==='tornado'?tornadoFx:kind==='fire'?fireFx:arrowFx;
   try{run(side).then(fin,e=>{fin();try{bombR.r.domElement.style.display='none';}catch(_){}if(d3){d3.grp.visible=true;d3Draw();}});}catch(e){fin();}
 }
 function bigSend(kind,side){if(fxBusy||bombing||flipping||mode==='menu')return;bigFx(kind,side);if(mode==='online'&&room)room.emit('sl',{s:side,fx:kind}).catch(()=>{});}
@@ -2950,6 +2951,59 @@ function arrowFx(side){return new Promise(res=>{
           h.w.style.opacity=Math.max(0,1-Math.max(0,e-.6)*1.6);});},done(){halves.forEach(h=>h.w.remove());}};}
   }
 });}
+/* 火燒（往棋盤反方向拉）：火線從對面那一側燒過來，速度很快；火線經過的棋子著火、燒成焦黑、碎成灰消失，之後落回原位 */
+const CHAR_FS=`
+uniform float uT,uFront,uDir,uH;varying vec2 vUv;varying vec3 vW;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+void main(){float z=vW.z,x=vW.x;float n=vn(vec2(x*2.2,uT*1.5))*.35+vn(vec2(x*6.,z*3.))*.15;
+  float d=(uFront-z)*uDir+n;                  // >0：火線已經燒過的區域
+  if(d<0.)discard;
+  float glow=1.-smoothstep(0.,.35,d);
+  vec3 c=mix(vec3(.08,.05,.03),vec3(1.,.45,.08),glow);
+  float a=mix(.55,.95,glow)*uH*(.85+.15*vn(vec2(x*9.,z*9.)));
+  gl_FragColor=vec4(c,a);}`;
+function fireFx(side){return new Promise(res=>{
+  const st=fxStage(),T=st.T,pc=fxGrab(st),pt=fxParticles(st);
+  const bc=st.bc,top=(bc.top-st.H/2)/st.u,bot=(bc.bottom-st.H/2)/st.u,left=(bc.left-st.W/2)/st.u,right=(bc.right-st.W/2)/st.u;
+  const nearB=side==='B',z0=nearB?top-.3:bot+.3,z1=nearB?bot+.4:top-.4,dir=nearB?1:-1,DUR=.9;   // 從對面燒向發動的玩家
+  // 燒焦的地面（火線經過後留下焦黑）
+  const cm=new T.ShaderMaterial({vertexShader:'varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
+    fragmentShader:CHAR_FS,uniforms:{uT:{value:0},uFront:{value:z0},uDir:{value:dir},uH:{value:1}},transparent:true,depthWrite:false});cm.userData.fx=1;
+  const ch=new T.Mesh(new T.PlaneGeometry(right-left+.2,bot-top+.2),cm);ch.userData.fxGeo=1;ch.rotation.x=-Math.PI/2;ch.position.set((left+right)/2,.02,(top+bot)/2);st.sc.add(ch);
+  const flashL=new T.PointLight(0xff7a20,2.5,10,1.5);st.sc.add(flashL);
+  const ps=pc.list.map(o=>{let mats=null;
+    if(pc.three){const src=Array.isArray(o.c.material)?o.c.material:[o.c.material];mats=src.map(m=>{const mm=m.clone();mm.userData.fx=1;mm.transparent=true;mm.userData.c0=mm.color.clone();return mm;});o.c.material=Array.isArray(o.c.material)?mats:mats[0];}
+    return{o,mats,lit:null,gone:false};});
+  fxNoise(1.6,'bandpass',900,300,.6,.7);setTimeout(()=>fxNoise(1.2,'highpass',2500,4000,.18,.5),150);
+  try{navigator.vibrate&&navigator.vibrate([30,20,30,20,30,20,60]);}catch(e){}
+  const black=new T.Color(0x0b0705),ember=new T.Color(0xff5a10);
+  const t0=performance.now();let prev=t0;
+  (function f(now){
+    const t=(now-t0)/1000,dt=Math.min(.033,(now-prev)/1000);prev=now;
+    const k=Math.min(1,t/DUR),front=z0+(z1-z0)*(1-Math.pow(1-k,1.6));
+    cm.uniforms.uT.value=t;cm.uniforms.uFront.value=front;if(t>DUR+.6)cm.uniforms.uH.value=Math.max(0,1-(t-DUR-.6)/.6);
+    flashL.position.set((left+right)/2,.8,front);flashL.intensity=t<DUR?2.5+Math.random():Math.max(0,flashL.intensity-dt*4);
+    // 火線：一整排火焰往上竄，後面冒黑煙、火星
+    if(t<DUR+.1)for(let i=0;i<9;i++){const x=left+Math.random()*(right-left);
+      pt.add(st.tx.fire,1,x,.1,front+(Math.random()-.3)*.25*dir,(Math.random()-.5)*.6,2.5+Math.random()*3,-dir*(.3+Math.random()*.8),.22+Math.random()*.15,.5+Math.random()*.5,.35+Math.random()*.3,0xffffff,.3);
+      if(i%3==0)pt.add(st.tx.smoke,0,x,.3,front-dir*.3,(Math.random()-.5)*.5,1.5+Math.random(),-dir*.4,.4,1.4+Math.random(),1.1+Math.random()*.6,0x2a2522,.6);
+      if(i%2==0)pt.add(st.tx.spark,1,x,.2,front,(Math.random()-.5)*2,3+Math.random()*4,-dir*(.5+Math.random()*2),.07,.03,.6+Math.random()*.4,0xffc060,.5);}
+    for(const p of ps){const o=p.o;
+      if(!p.lit&&(front-o.z0)*dir>=-.05)p.lit=t;
+      if(p.lit===null||p.gone)continue;const a=t-p.lit;
+      if(a<.55){if(Math.random()<.7)pt.add(st.tx.fire,1,o.x0+(Math.random()-.5)*st.sq*.6,o.y0+.15,o.z0+(Math.random()-.5)*st.sq*.6,(Math.random()-.5)*.4,2+Math.random()*2,(Math.random()-.5)*.4,.18,.42,.3+Math.random()*.2,0xffffff,.3);}
+      const burn=Math.min(1,a/.45),crumble=Math.max(0,(a-.45)/.3);
+      if(pc.three){p.mats.forEach(m=>{m.color.copy(m.userData.c0).lerp(black,burn);if(m.emissive)m.emissive.copy(ember).multiplyScalar(burn*(1-crumble)*(.4+.3*Math.sin(t*30)));m.opacity=1-crumble;});
+        o.c.scale.setScalar(1-crumble*.35);o.c.position.y=o.y0+crumble*.1;}
+      else{const s=o.el.style;s.filter=`sepia(${burn}) brightness(${(1-burn*.92).toFixed(3)}) drop-shadow(0 0 ${(6*burn*(1-crumble)).toFixed(1)}px #ff6a10)`;s.opacity=1-crumble;s.scale=1-crumble*.35;s.zIndex=7;}
+      if(crumble>0&&Math.random()<.5)pt.add(st.tx.smoke,0,o.x0+(Math.random()-.5)*st.sq*.4,o.y0+.2,o.z0+(Math.random()-.5)*st.sq*.4,(Math.random()-.5)*.3,.8+Math.random(),(Math.random()-.5)*.3,.12,.4,.8,0x6a6460,.6);
+      if(crumble>=1){p.gone=true;pc.hide(o);}}
+    pt.step(dt);
+    st.R.render(st.sc,st.cam);
+    if(t<DUR+1.3)requestAnimationFrame(f);
+    else{ps.forEach(p=>{pc.hide(p.o);if(!pc.three){p.o.el.style.filter='';p.o.el.style.scale='';}});st.R.render(st.sc,st.cam);st.done();pc.restore();setTimeout(res,700);}
+  })(t0);});}
 // 點一下＝拍桌；0.32 秒內連點三下＝弓箭
 let tapN=0,tapT=null,tapSide='B';
 function tapSlap(side){if(tapSide!==side)tapN=0;tapSide=side;tapN++;clearTimeout(tapT);
@@ -2968,7 +3022,8 @@ document.addEventListener('pointerup',e=>{if(!slapPtr||e.pointerId!==slapPtr.id)
   if(p.bomb){skipClick=Date.now();return;}
   const dx=e.clientX-p.x,dy=e.clientY-p.y,dxl=fxSide(p.side)?-dx:dx;
   if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.2&&Date.now()-p.t<900){skipClick=Date.now();bigSend(dxl<0?'wave':'tornado',p.side);return;}   // 右往左＝海嘯，左往右＝龍捲風
-  if(toward>45&&Date.now()-p.t<500){skipClick=Date.now();flipSend(p.side);}});
+  if(toward>45&&Date.now()-p.t<500){skipClick=Date.now();flipSend(p.side);return;}
+  if(toward<-45&&Math.abs(dy)>Math.abs(dx)&&Date.now()-p.t<900){skipClick=Date.now();bigSend('fire',p.side);}});   // 往棋盤反方向拉＝火燒
 document.addEventListener('pointercancel',()=>{slapPtr=null;clearTimeout(bombHoldT);bombHint(false);});
 function onSlap(m){if(m.isMe||mode!=='online')return;if(m.data&&m.data.b){bombFx();return;}if(m.data&&m.data.fx){bigFx(m.data.fx,m.data.s==='T'?'B':'T');return;}slapFx(m.data&&m.data.s==='T'?'B':'T');}
 
