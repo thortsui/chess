@@ -64,6 +64,26 @@ pwa_js = r'''
   const bar=document.getElementById('pwaBar'),txt=document.getElementById('pwaTxt'),go=document.getElementById('pwaGo');
   let act=null;function showBar(t,b,f){txt.textContent=t;go.textContent=b;act=f;go.hidden=!f;bar.hidden=false;}
   go.onclick=()=>{bar.hidden=true;act&&act();};
+  // 選單右上角：手動檢查更新（比對伺服器上 sw.js 記錄的版本號；有新版就清掉離線快取重新載入）
+  if('serviceWorker' in navigator&&location.protocol!=='file:'){
+    const ver=document.querySelector('.menu .ver'),menu=document.getElementById('menu');
+    const st=document.createElement('style');st.textContent='.updbtn{position:absolute;z-index:3;top:calc(5px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));border:1px solid var(--sc-line,rgba(0,0,0,.15));border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;background:var(--bar);color:var(--bar-fg);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}.updbtn:disabled{opacity:.85}.updbtn b{font-weight:500;opacity:.75;margin-right:6px;font-variant-numeric:tabular-nums}.menu .ver{display:none}';
+    document.head.appendChild(st);
+    const b=document.createElement('button');b.className='updbtn';b.type='button';b.setAttribute('aria-label','檢查有沒有新版本');menu.appendChild(b);
+    const cur=()=>((ver&&ver.textContent.match(/\d+\.\d+\.\d+/))||[''])[0];
+    const idle=()=>{b.innerHTML='<b>v'+cur()+'</b>⟳ 檢查更新';};idle();
+    const done=(t,ms)=>{b.textContent=t;setTimeout(()=>{idle();b.disabled=false;},ms||2500);};
+    b.onclick=async()=>{if(b.disabled)return;b.disabled=true;b.textContent='檢查中…';
+      try{const r=await fetch('sw.js?fresh='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const t=await r.text();const m=t.match(/APPV='([\d.]+)'/),remote=m&&m[1];
+        if(remote&&remote!==cur()){b.textContent='下載 v'+remote+'…';
+          try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(x=>x.unregister()));}catch(e){}
+          try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(e){}
+          location.replace(location.pathname+'?v='+remote);return;}
+        try{const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update();}catch(e){}
+        done('✓ 已是最新版 v'+cur());}
+      catch(e){done(navigator.onLine===false?'沒有網路，連上網再試':'連不到伺服器，稍後再試',3000);}};
+    if(/[?&]v=/.test(location.search))history.replaceState(null,'',location.pathname);
+  }
   document.getElementById('pwaX').onclick=()=>{bar.hidden=true;try{localStorage.setItem('xq-pwa-x',Date.now());}catch(e){}};
   const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
   let dismissed=0;try{dismissed=+localStorage.getItem('xq-pwa-x')||0;}catch(e){}
@@ -100,15 +120,17 @@ h = hashlib.sha1()
 for f in files[1:]:
     if os.path.exists(OUT + '/' + f): h.update(open(OUT + '/' + f, 'rb').read())
 ver = h.hexdigest()[:10]
+import re as _re
+appv = _re.search(r'<span class="ver"[^>]*>v([\d.]+)<', s).group(1)
 sw = '''// 對坐象棋 offline cache (generated)
-const V='dzxq-%s',FILES=%s;
+const APPV='%s',V='dzxq-%s',FILES=%s;
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',e=>{
-  const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);if(u.origin!==location.origin)return;
+  const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);if(u.origin!==location.origin||u.searchParams.has('fresh'))return;
   if(r.mode==='navigate'){e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(V).then(c=>c.put('index.html',cp));return res;}).catch(()=>caches.match('index.html')));return;}
   e.respondWith(caches.match(r,{ignoreSearch:true}).then(hit=>hit||fetch(r).then(res=>{if(res.ok){const cp=res.clone();caches.open(V).then(c=>c.put(r,cp));}return res;})));
 });
-''' % (ver, json.dumps(files))
+''' % (appv, ver, json.dumps(files))
 open(OUT + '/sw.js', 'w').write(sw)
 print('pwa built', ver, len(files), 'files')
