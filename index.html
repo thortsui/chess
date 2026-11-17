@@ -677,6 +677,13 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .menu[data-th="pk"] .seg button.on,.menu[data-th="ww"] .seg button.on{color:#1d1406}
 /* ---------- 清法戰爭 ---------- */
 .qfon #app:not(.xqskin) .pc.b:is([data-k="bT"],[data-k="bH"],[data-k="bF"],[data-k="bD"],[data-k="bY"],[data-k="bI"]) .face{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-weight:400;color:#14213d;background:radial-gradient(circle at 35% 30%,#ffffff,#e8edf6 60%,#c7d1e3);box-shadow:inset 0 0 0 3px #1f3a8a,inset 0 0 0 5px #fff,inset 0 0 0 7px #c62828,0 2px 0 #23306b,0 3px 8px rgba(0,0,0,.3)}
+.qfrf{position:absolute;z-index:6;transform:translate(-50%,0);margin-top:4.2%;border:0;border-radius:999px;padding:3px 10px;font:700 12px/1.3 var(--ui);letter-spacing:.1em;color:#fff;
+  background:linear-gradient(#d9442f,#a8281a);box-shadow:0 2px 0 #6e140b,0 3px 8px rgba(0,0,0,.35);white-space:nowrap;cursor:pointer;animation:qfPulse 1.6s ease-in-out infinite}
+.qfrf.off{animation:none;opacity:.55;filter:grayscale(.3);cursor:default}
+@keyframes qfPulse{50%{box-shadow:0 2px 0 #6e140b,0 0 0 6px rgba(217,68,47,.25),0 3px 8px rgba(0,0,0,.35)}}
+.pc.rfin .face{animation:rfIn .55s cubic-bezier(.2,.8,.3,1) both}
+@keyframes rfIn{from{transform:translateY(120%);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.qfrf{animation:none}.pc.rfin .face{animation:none}}
 .dot.qfdot{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",sans-serif;background:radial-gradient(circle at 35% 30%,#fff,#dbe2ef);color:#14213d;box-shadow:inset 0 0 0 2px #1f3a8a}
 .logo.qfl .duo span:last-child{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",sans-serif;font-weight:400;transform:none;color:#14213d;background:radial-gradient(circle at 35% 30%,#fff,#dbe2ef 60%,#b7c3da);box-shadow:inset 0 0 0 3px #1f3a8a,0 3px 8px rgba(0,0,0,.25)}
 .qfrule{margin:0}
@@ -688,14 +695,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
 
 <div class="menu" id="menu">
   <div class="scene" id="scene" aria-hidden="true"></div>
-  <span class="ver" aria-label="版本 0.12.1">v0.12.1</span>
+  <span class="ver" aria-label="版本 0.13.0">v0.13.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
     <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
-    <p class="pkrule qfrule" id="qfRule" hidden>1884 年清法戰爭：清軍用象棋（紅方，先走），法軍用西洋棋（黑方），照真正的西洋棋佈局：底線城堡、騎士、主教、皇后、國王、主教、騎士、城堡，前一排 8 個士兵。法軍在交叉點上照西洋棋走法：城堡直走、主教斜走、皇后直斜都能走、騎士走日字而且不會被拐腳、國王八方向走一步（不受九宮限制）、士兵往前一步（第一步可走兩步）、斜前方吃子，走到底升變成皇后。法軍沒有過河限制，雙方的王（將與國王）一樣不能照面。把對方將死或困死就贏。</p>
+    <p class="pkrule qfrule" id="qfRule" hidden>1884 年清法戰爭：法軍用西洋棋（黑方，先走），清軍用象棋（紅方，後走）。法軍照西洋棋佈局擴成九路：底線城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。清軍有一次「增援」：按帥正下方的按鈕，從底線推出一整排新的俥傌相仕俥仕相傌俥（底線上原有的棋子整串往前推一格），算走一步。法軍在交叉點上照西洋棋走法：城堡直走、主教斜走、皇后直斜都能走、騎士走日字而且不會被拐腳、國王八方向走一步（不受九宮限制）、士兵往前一步（第一步可走兩步）、斜前方吃子，走到底升變成皇后。法軍沒有過河限制，雙方的王（將與國王）一樣不能照面。把對方將死或困死就贏。</p>
     <div class="pkmenu" id="pkMenu" hidden>
       <div class="seg" id="pkGameSeg"><button data-act="pkGame" data-v="b2">大老二</button><button data-act="pkGame" data-v="hh">心臟病</button><button data-act="pkGame" data-v="om">抽鬼牌</button></div>
       <p class="pkrule" id="pkRule"></p>
@@ -1731,12 +1738,12 @@ function init(){
   if(variant==='gm'){gmInit();return;}
   if(variant==='go'){goInit();return;}
   board=Array.from({length:10},()=>Array(9).fill(null));
-  if(qf){const top='THFDYFHT.',back='RNBAKABNR';
+  if(qf){const top='THFDYDFHT',back='RNBAKABNR';qfRf=false;qfRfAt=0;
     for(let c=0;c<9;c++){if(top[c]!=='.')board[0][c]={t:top[c],s:'b'};board[9][c]={t:back[c],s:'r'};}
     [1,7].forEach(c=>{board[7][c]={t:'C',s:'r'};});
     QF_PAWNS.forEach(([r,c])=>{board[r][c]={t:'I',s:'b'};});
     [0,2,4,6,8].forEach(c=>{board[6][c]={t:'P',s:'r'};});
-    turn='r';hist=[];sel=null;targets=[];last=null;over=null;return;}
+    turn='b';hist=[];sel=null;targets=[];last=null;over=null;return;}   // 法軍先走、清軍後走
   const back='RNBAKABNR';
   for(let c=0;c<9;c++){board[0][c]={t:back[c],s:'b'};board[9][c]={t:back[c],s:'r'};}
   [1,7].forEach(c=>{board[2][c]={t:'C',s:'b'};board[7][c]={t:'C',s:'r'};});
@@ -1747,7 +1754,22 @@ const inB=(r,c)=>r>=0&&r<10&&c>=0&&c<9;
 const clone=b=>b.map(row=>row.slice());
 const opp=s=>s==='r'?'b':'r';
 
-const QF_PAWNS=[0,1,2,3,4,5,6,7].map(c=>[1,c]);   // 法軍照真正的西洋棋佈局：底線 城堡 騎士 主教 皇后 國王 主教 騎士 城堡，前一排 8 個士兵（國王在中路，第 9 路空著）
+// 清軍技能「增援」（每局一次，算一步）：從底線推出一整排 俥傌相仕俥仕相傌俥（帥的位置換成俥），
+// 每一路底線往上連在一起的棋子（不分敵我）整串往前推一格；那一路一直到頂都滿了就不補。
+let qfRf=false,qfRfAt=0;
+const QF_RF_ROW='RNBARABNR';
+function qfRfBoard(b){const nb=clone(b);
+  for(let c=0;c<9;c++){let g=9;while(g>=0&&nb[g][c])g--;if(g<0)continue;for(let r=g;r<9;r++)nb[r][c]=nb[r+1][c];nb[9][c]={t:QF_RF_ROW[c],s:'r'};}
+  return nb;}
+function qfRfOk(){return qf&&variant==='xq'&&!qfRf&&!over&&turn==='r'&&!inCheck(qfRfBoard(board),'r');}
+function qfDoRf(){if(!qfRfOk())return false;
+  hist.push({board:clone(board),turn,last,inChk:inCheck(board,turn),rf:qfRf});
+  board=qfRfBoard(board);qfRf=true;qfRfAt=Date.now();last=null;turn='b';sel=null;targets=[];
+  if(!hasMove(board,turn))over={winner:'r',mate:inCheck(board,turn)};
+  seq++;undoAsk=false;myUndoReq=false;render();announce();
+  if(!over){const el=$('jiang');clearTimeout(jiangTimer);el.innerHTML=(mode==='local'?'<div class="flip">增援！</div>':'')+'<div>增援！</div>';el.hidden=false;jiangTimer=setTimeout(hideBanner,1500);}
+  if(role==='host')broadcast();if(mode==='ai')maybeAI();return true;}
+const QF_PAWNS=[0,1,2,3,4,5,6,7,8].map(c=>[1,c]);   // 法軍：西洋棋佈局擴成九路，國王左右各一隻皇后（左右對稱），前一排 9 個士兵
 /* ---------- rules ---------- */
 function pseudo(b,r,c){
   const p=b[r][c],s=p.s,out=[];
@@ -1821,11 +1843,11 @@ const legalNP=(r,c)=>legal(board,r,c).filter(([rr,cc])=>!perpForbidden(r,c,rr,cc
 
 /* ---------- state changes ---------- */
 function applyMove(fr,fc,tr,tc){
-  hist.push({board:clone(board),turn,last,inChk:inCheck(board,turn)});
+  hist.push({board:clone(board),turn,last,inChk:inCheck(board,turn),rf:qfRf});
   board[tr][tc]=board[fr][fc];board[fr][fc]=null;
   {const q=board[tr][tc];if(q&&q.t==='I'&&(q.s==='b'?tr===9:tr===0))board[tr][tc]={t:'D',s:q.s};}   // 法軍士兵走到底升變成皇后
   last={from:[fr,fc],to:[tr,tc]};turn=opp(turn);sel=null;targets=[];
-  if(!hasMove(board,turn))over={winner:opp(turn),mate:inCheck(board,turn)};
+  if(!hasMove(board,turn)&&!qfRfOk())over={winner:opp(turn),mate:inCheck(board,turn)};
   seq++;undoAsk=false;myUndoReq=false;
   render();announce();
   if(role==='host')broadcast();
@@ -1867,6 +1889,10 @@ function maybeAI(){
   if(variant==='gm')return gmMaybeAI();
   if(variant==='go')return goMaybeAI();
   if(mode!=='ai'||over||turn===mySide||thinking)return;
+  // AI 清軍：底線空了 5 格以上或兵力落後很多時用增援
+  if(qf&&turn==='r'&&qfRfOk()){const emp=board[9].filter(x=>!x).length;let mat=0;const V={R:9,N:4,B:2,A:2,C:4.5,P:1,T:9,H:4.3,F:4.2,D:15,I:1.1};
+    board.flat().forEach(p=>{if(p&&V[p.t])mat+=(p.s==='r'?1:-1)*V[p.t];});
+    if((emp>=5||mat<-12)&&!inCheck(board,'r')){thinking=true;render();const tk=aiToken;setTimeout(()=>{thinking=false;if(tk===aiToken&&mode==='ai'&&turn==='r'&&!over)qfDoRf();else render();},600);return;}}
   thinking=true;render();
   const tok=++aiToken,t0=Date.now(),L=LEVELS[aiLevel];
   const rep=hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}));
@@ -1966,7 +1992,7 @@ function dkLegal(a,seat){
 function dkSave(){return{board:board.map(p=>p&&{...p}),turn,last,colors:{...dkColors},quiet:dkQuiet,chain:dkChain,dead:JSON.parse(JSON.stringify(dkDead))};}
 function dkRestore(h){board=h.board;turn=h.turn;last=h.last;dkColors=h.colors;dkQuiet=h.quiet;dkChain=h.chain??-1;dkDead=h.dead||{r:{},b:{}};flipAnim=-1;
   if(dkChain>=0&&(mode==='local'||turn===mySide)){sel=dkChain;targets=dkCapTargets(dkChain);}}
-function restoreH(h){if(variant==='dk')dkRestore(h);else if(variant==='ch')chRestore(h);else if(variant==='gm')gmRestore(h);else if(variant==='go')goRestore(h);else{board=h.board;turn=h.turn;last=h.last;}}
+function restoreH(h){if(variant==='dk')dkRestore(h);else if(variant==='ch')chRestore(h);else if(variant==='gm')gmRestore(h);else if(variant==='go')goRestore(h);else{board=h.board;turn=h.turn;last=h.last;if(qf)qfRf=!!h.rf;}}
 function dkApply(a){
   hist.push(dkSave());
   let goOn=false;
@@ -2308,9 +2334,9 @@ function syncVariant(){
   $('skinBtn').innerHTML=v==='gm'||v==='go'?'<span>棋子顏色</span><b>黑方・白方</b>':`<span>${v==='dk'?'暗棋':'象棋'}外觀設定</span><b>字體・顏色・材質</b>`;
   const lg=document.querySelector('.logo');lg.classList.toggle('dk',v==='dk');lg.classList.toggle('ch',v==='ch');lg.classList.toggle('gm',v==='gm'||v==='go');
   $('logoA').textContent=v==='ch'?'♔\uFE0E':'帥';$('logoB').textContent=v==='ch'||v==='qf'?'♚\uFE0E':'將';lg.classList.toggle('qfl',v==='qf');$('qfRule').hidden=v!=='qf';
-  $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（先走）');
-  $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍');
-  $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍')+'，取得 4 位數房號給朋友';
+  $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（後走）');
+  $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍（先走）');
+  $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍（後走）')+'，取得 4 位數房號給朋友';
   const pk=v==='pk',ww=v==='ww',other=pk||ww;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
   document.querySelector('.card>.aibox').hidden=other;document.querySelector('.card>.join').hidden=other;lg.classList.toggle('pkl',pk);lg.classList.toggle('wwl',ww);
   if(ww){$('skinBtn').hidden=true;$('ttl').textContent='狼人殺';$('logoA').textContent='🐺';$('logoB').textContent='🌕';wwSyncMenu();}
@@ -5542,7 +5568,10 @@ function renderCore(){
       h+=`<button class="${cls.join(' ')}" data-r="${r}" data-c="${c}" data-k="${p.s}${p.t}" style="${P(r,c)}" aria-label="${SIDE[p.s]}${NAMES[p.s][p.t]}${dg?'（可吃）':''}">${dg?'<span class="glow"></span>':''}<span class="face">${NAMES[p.s][p.t]}</span></button>`;}
     else if(isT)h+=`<button class="tg" data-r="${r}" data-c="${c}" style="${P(r,c)}" aria-label="移到這裡"></button>`;
   }
+  if(qf&&!over&&!qfRf&&(local||mySide==='r')){const k=findKing(board,'r');
+    if(k){const ok=qfRfOk()&&canAct();h+=`<button class="qfrf${ok?'':' off'}" data-act="qfRf" style="left:${X(flip?8-k[1]:k[1])}%;top:${Y(flip?9-k[0]:k[0])}%"${ok?'':' disabled'} aria-label="增援：從底線推出一整排新的車馬相仕">增援</button>`;}}
   $('layer').innerHTML=h;
+  if(qf&&Date.now()-qfRfAt<700)$('layer').querySelectorAll('.pc.r').forEach(e=>{if(+e.dataset.r===9)e.classList.add('rfin');});
   renderBars(chk);
 }
 
@@ -5789,6 +5818,7 @@ document.addEventListener('click',e=>{
     case 'undo':mode==='ai'?aiUndo():doUndo();break;
     case 'sd':aiPick=b.dataset.v;document.querySelectorAll('#sdSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===aiPick));break;
     case 'aiStart':setQf(menuVariant==='qf');variant=vOf(menuVariant);if(variant==='dk'){mySide='A';dkFirst=aiPick==='r'?'A':'B';}else if(variant==='ch')mySide=aiPick==='r'?'w':'b';else if(variant==='gm'||variant==='go')mySide=aiPick==='r'?'b':'w';else mySide=aiPick;init();enterGame('ai');maybeAI();break;
+    case 'qfRf':if(canAct())qfDoRf();break;
     case 'reset':case 'again':newGame();break;
     case 'menu':aiCancel();showMenu('');break;
     case 'leave':leaveRoom();showMenu('');break;
