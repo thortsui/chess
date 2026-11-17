@@ -30,7 +30,11 @@ function b2Combo(cards){
   if(so!==undefined)return{n,k:1,v:so*4+pkS(cs[4]),name:'順子'};
   return null;
 }
-function b2Beats(a,b){if(!b)return true;if(a.n!==b.n)return false;if(a.n===5&&a.k!==b.k)return a.k>b.k;return a.v>b.v;}
+// 台灣規則：鐵支、同花順是「炸彈」，可以壓單張、對子和其他五張牌型；炸彈之間先比牌型（同花順＞鐵支）再比大小
+const b2Bomb=c=>c.n===5&&c.k>=4;
+function b2Beats(a,b){if(!b)return true;
+  if(b2Bomb(a)&&!b2Bomb(b))return true;if(b2Bomb(b)&&!b2Bomb(a))return false;
+  if(a.n!==b.n)return false;if(a.n===5&&a.k!==b.k)return a.k>b.k;return a.v>b.v;}
 function b2New(){const d=pkDeck(false),hands=[[],[],[],[]];d.forEach((c,i)=>hands[i%4].push(c));hands.forEach(b2sort);
   const turn=hands.findIndex(h=>h.includes(8));   // 梅花 3（點數 3、花色 ♣ → 牌 8）
   return{g:'b2',hands,turn,lead:null,passes:0,first:true,over:null,log:[],seq:0};}
@@ -39,13 +43,13 @@ function b2Act(st,seat,a){
   if(st.over)return'這局已經結束';if(seat!==st.turn)return'還沒輪到你';
   if(a.type==='pass'){if(!st.lead)return'你是這一輪第一個出牌的，不能過';
     st.passes++;st.log.push({seat,pass:true});st.turn=pkNext(seat);
-    if(st.passes>=3){st.turn=st.lead.seat;st.lead=null;st.passes=0;}st.seq++;return null;}
+    if(st.passes>=3){st.turn=st.lead.seat;st.lead=null;st.passes=0;st.round=(st.round||0)+1;}st.seq++;return null;}
   const cards=Array.isArray(a.cards)?a.cards:[];const h=st.hands[seat];
   if(!cards.length||new Set(cards).size!==cards.length||!cards.every(c=>h.includes(c)))return'選的牌不在手上';
   const cb=b2Combo(cards);if(!cb)return'這幾張牌不能一起出（可出：單張、對子、順子、同花、葫蘆、鐵支、同花順）';
   if(st.first&&!cards.includes(8))return'第一手要包含梅花 3';
-  if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張`:'壓不過上一手';
-  st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.lead={seat,cards:b2sort(cards.slice()),combo:cb};st.passes=0;
+  if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張（或用鐵支、同花順壓）`:'壓不過上一手';
+  st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.pn=(st.pn||0)+1;st.lead={seat,cards:b2sort(cards.slice()),combo:cb,pn:st.pn};st.passes=0;
   st.log.push({seat,cards:st.lead.cards,name:cb.name});
   if(!st.hands[seat].length){st.over={winner:seat,left:st.hands.map(x=>x.length)};}else st.turn=pkNext(seat);
   st.seq++;return null;
@@ -70,6 +74,7 @@ function b2AI(st,seat){
   // 不急著拆掉 2：手牌還多、對手也沒威脅時，有一定機率保留大牌
   const pick=danger?ok[ok.length-1]:ok[0];
   if(!danger&&h.length>6&&pick.cb.n===1&&pkR(pick.cards[0])===2&&Math.random()<.5)return{type:'pass'};
+  if(!danger&&h.length>5&&b2Bomb(pick.cb)&&!b2Bomb(st.lead.combo))return{type:'pass'};   // 炸彈留到關鍵時刻
   return{type:'play',cards:pick.cards};
 }
 // 提示：給玩家一組可出的牌
@@ -133,7 +138,7 @@ function omAI(st,seat){const from=omFrom(st,seat);return{type:'draw',i:Math.floo
 
 /* ---------- 共用：給每位玩家看的畫面資料（只含自己的手牌） ---------- */
 function pkView(st,seat){
-  if(st.g==='b2')return{g:'b2',seq:st.seq,me:seat,hand:st.hands[seat].slice(),counts:st.hands.map(h=>h.length),turn:st.turn,lead:st.lead,passes:st.passes,first:st.first,over:st.over,
+  if(st.g==='b2')return{g:'b2',seq:st.seq,me:seat,hand:st.hands[seat].slice(),counts:st.hands.map(h=>h.length),turn:st.turn,lead:st.lead,passes:st.passes,first:st.first,over:st.over,round:st.round||0,
     last:st.log.slice(-4),reveal:st.over?st.hands.map(h=>h.slice()):null};
   if(st.g==='hh')return{g:'hh',seq:st.seq,me:seat,counts:st.piles.map(p=>p.length),center:st.center.length,top:st.center[st.center.length-1]??null,turn:st.turn,call:st.call,
     shown:st.shown,match:st.match,slapped:st.slaps.slice(),taken:st.taken||null,over:st.over};
@@ -142,4 +147,4 @@ function pkView(st,seat){
     discards:st.discards.length,over:st.over,place:st.place.slice(),reveal:st.over?st.hands.map(h=>h.slice()):null};
 }
 const PK_GAMES={b2:{n:'大老二',neu:b2New,act:b2Act},hh:{n:'心臟病',neu:hhNew,act:hhAct},om:{n:'抽鬼牌',neu:omNew,act:omAct}};
-if(typeof module!=='undefined')module.exports={PK_GAMES,b2Combo,b2Beats,b2All,b2AI,b2Hint,b2New,b2Act,hhNew,hhAct,hhResolve,omNew,omAct,omAI,pkView,pkR,pkS,b2v,pkName};
+if(typeof module!=='undefined')module.exports={PK_GAMES,b2Bomb,b2Combo,b2Beats,b2All,b2AI,b2Hint,b2New,b2Act,hhNew,hhAct,hhResolve,omNew,omAct,omAI,pkView,pkR,pkS,b2v,pkName};

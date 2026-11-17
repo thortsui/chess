@@ -560,7 +560,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.8.2">v0.8.2</span>
+  <span class="ver" aria-label="版本 0.8.3">v0.8.3</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -3224,7 +3224,11 @@ function b2Combo(cards){
   if(so!==undefined)return{n,k:1,v:so*4+pkS(cs[4]),name:'順子'};
   return null;
 }
-function b2Beats(a,b){if(!b)return true;if(a.n!==b.n)return false;if(a.n===5&&a.k!==b.k)return a.k>b.k;return a.v>b.v;}
+// 台灣規則：鐵支、同花順是「炸彈」，可以壓單張、對子和其他五張牌型；炸彈之間先比牌型（同花順＞鐵支）再比大小
+const b2Bomb=c=>c.n===5&&c.k>=4;
+function b2Beats(a,b){if(!b)return true;
+  if(b2Bomb(a)&&!b2Bomb(b))return true;if(b2Bomb(b)&&!b2Bomb(a))return false;
+  if(a.n!==b.n)return false;if(a.n===5&&a.k!==b.k)return a.k>b.k;return a.v>b.v;}
 function b2New(){const d=pkDeck(false),hands=[[],[],[],[]];d.forEach((c,i)=>hands[i%4].push(c));hands.forEach(b2sort);
   const turn=hands.findIndex(h=>h.includes(8));   // 梅花 3（點數 3、花色 ♣ → 牌 8）
   return{g:'b2',hands,turn,lead:null,passes:0,first:true,over:null,log:[],seq:0};}
@@ -3233,12 +3237,12 @@ function b2Act(st,seat,a){
   if(st.over)return'這局已經結束';if(seat!==st.turn)return'還沒輪到你';
   if(a.type==='pass'){if(!st.lead)return'你是這一輪第一個出牌的，不能過';
     st.passes++;st.log.push({seat,pass:true});st.turn=pkNext(seat);
-    if(st.passes>=3){st.turn=st.lead.seat;st.lead=null;st.passes=0;}st.seq++;return null;}
+    if(st.passes>=3){st.turn=st.lead.seat;st.lead=null;st.passes=0;st.round=(st.round||0)+1;}st.seq++;return null;}
   const cards=Array.isArray(a.cards)?a.cards:[];const h=st.hands[seat];
   if(!cards.length||new Set(cards).size!==cards.length||!cards.every(c=>h.includes(c)))return'選的牌不在手上';
   const cb=b2Combo(cards);if(!cb)return'這幾張牌不能一起出（可出：單張、對子、順子、同花、葫蘆、鐵支、同花順）';
   if(st.first&&!cards.includes(8))return'第一手要包含梅花 3';
-  if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張`:'壓不過上一手';
+  if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張（或用鐵支、同花順壓）`:'壓不過上一手';
   st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.pn=(st.pn||0)+1;st.lead={seat,cards:b2sort(cards.slice()),combo:cb,pn:st.pn};st.passes=0;
   st.log.push({seat,cards:st.lead.cards,name:cb.name});
   if(!st.hands[seat].length){st.over={winner:seat,left:st.hands.map(x=>x.length)};}else st.turn=pkNext(seat);
@@ -3264,6 +3268,7 @@ function b2AI(st,seat){
   // 不急著拆掉 2：手牌還多、對手也沒威脅時，有一定機率保留大牌
   const pick=danger?ok[ok.length-1]:ok[0];
   if(!danger&&h.length>6&&pick.cb.n===1&&pkR(pick.cards[0])===2&&Math.random()<.5)return{type:'pass'};
+  if(!danger&&h.length>5&&b2Bomb(pick.cb)&&!b2Bomb(st.lead.combo))return{type:'pass'};   // 炸彈留到關鍵時刻
   return{type:'play',cards:pick.cards};
 }
 // 提示：給玩家一組可出的牌
@@ -3327,7 +3332,7 @@ function omAI(st,seat){const from=omFrom(st,seat);return{type:'draw',i:Math.floo
 
 /* ---------- 共用：給每位玩家看的畫面資料（只含自己的手牌） ---------- */
 function pkView(st,seat){
-  if(st.g==='b2')return{g:'b2',seq:st.seq,me:seat,hand:st.hands[seat].slice(),counts:st.hands.map(h=>h.length),turn:st.turn,lead:st.lead,passes:st.passes,first:st.first,over:st.over,
+  if(st.g==='b2')return{g:'b2',seq:st.seq,me:seat,hand:st.hands[seat].slice(),counts:st.hands.map(h=>h.length),turn:st.turn,lead:st.lead,passes:st.passes,first:st.first,over:st.over,round:st.round||0,
     last:st.log.slice(-4),reveal:st.over?st.hands.map(h=>h.slice()):null};
   if(st.g==='hh')return{g:'hh',seq:st.seq,me:seat,counts:st.piles.map(p=>p.length),center:st.center.length,top:st.center[st.center.length-1]??null,turn:st.turn,call:st.call,
     shown:st.shown,match:st.match,slapped:st.slaps.slice(),taken:st.taken||null,over:st.over};
@@ -3369,7 +3374,7 @@ const pkNet={
 // 座位 0..3，順序為逆時針（自己在下 → 右 → 上 → 左）；房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料
 const PK={g:'b2',role:null,phase:null,st:null,view:null,me:0,seats:[],names:[],net:null,code:null,timers:[],slapMt:-1,resMt:-1,sel:new Set(),note:'',noteT:null};
 try{const g=localStorage.getItem('xq-pkg');if(PK_GAMES[g])PK.g=g;}catch(e){}
-const PK_RULES={b2:'4 人各 13 張，梅花 3 先出。可出單張、對子，或五張的順子＜同花＜葫蘆＜鐵支＜同花順；2 最大，同點數比花色 ♠＞♥＞♦＞♣。最先出完的人贏。',
+const PK_RULES={b2:'4 人各 13 張，梅花 3 先出。可出單張、對子，或五張的順子＜同花＜葫蘆＜鐵支＜同花順；鐵支、同花順可以壓任何牌。2 最大，同點數比花色 ♠＞♥＞♦＞♣。其他三家都過，桌上的牌推掉，由最後出牌的人自由出牌。最先出完的人贏。',
   hh:'4 人平分整副牌。輪流翻牌並依序喊 1、2…13（A＝1，J Q K＝11 12 13）。翻出的牌和喊的數字一樣時大家搶著「拍！」，最後拍或沒拍到的人收走整疊；拍錯的人也要收。先把牌翻完的人贏。',
   om:'52 張加一張鬼牌發給 4 人，同點數的兩張先丟掉。輪流從下一位玩家手中抽一張，湊成一對就丟掉。手牌先清空的人過關，最後拿著鬼牌的人輸。'};
 const pkPos=s=>(s-PK.me+4)%4;            // 0 下（自己）1 右 2 上 3 左
@@ -3503,8 +3508,9 @@ function pkFlick(){try{actx=actx||new (window.AudioContext||window.webkitAudioCo
   s.connect(f).connect(g).connect(actx.destination);s.start(t);}catch(e){}}
 // 依畫面資料更新牌堆（房主、加入者都用同一套，所以各自的亂度不同但都會越疊越多）
 function pkSyncPile(v){
-  const key=PK.code+'|'+v.g+'|'+(PK.gameId||0);if(PK.pileKey!==key){PK.pileKey=key;pkPileReset();PK.lastPn=0;PK.lastCenter=0;PK.lastDis=null;}
-  if(v.g==='b2'){if(v.lead&&v.lead.pn&&v.lead.pn!==PK.lastPn){if(v.lead.pn<PK.lastPn)pkPileReset();PK.lastPn=v.lead.pn;pkPileAdd(v.lead.cards,v.lead.seat);}}
+  const key=PK.code+'|'+v.g+'|'+(PK.gameId||0);if(PK.pileKey!==key){PK.pileKey=key;pkPileReset();PK.lastPn=0;PK.lastRound=0;PK.lastCenter=0;PK.lastDis=null;}
+  if(v.g==='b2'){if((v.round||0)!==(PK.lastRound||0)){if(PK.pile.length&&(v.round||0)>(PK.lastRound||0))PK.sweep={to:'off',html:pkPileHTML()};pkPileReset();PK.lastRound=v.round||0;}
+    if(v.lead&&v.lead.pn&&v.lead.pn!==PK.lastPn){if(v.lead.pn<PK.lastPn)pkPileReset();PK.lastPn=v.lead.pn;pkPileAdd(v.lead.cards,v.lead.seat);}}
   else if(v.g==='hh'){if(v.center>PK.lastCenter&&v.top!=null){pkPileAdd([v.top],v.shown?v.shown.seat:v.turn);}
     else if(v.center<PK.lastCenter){PK.sweep={to:v.taken?v.taken.seat:null,html:pkPileHTML()};pkPileReset();}PK.lastCenter=v.center;}
   else{const pairs=v.discards/2|0;if(PK.lastDis===null){for(let i=0;i<pairs;i++){const g=pkPileAdd([null,null],0,false);}PK.fresh=null;}
@@ -3513,8 +3519,12 @@ function pkSyncPile(v){
 // 心臟病：收牌時整疊滑向收牌的人
 function pkSweep(){const sw=PK.sweep;PK.sweep=null;if(!sw||sw.to==null)return;const pile=$('pkPile');if(!pile)return;
   const tmp=document.createElement('div');tmp.className='pkpile ghostpile';tmp.innerHTML=sw.html;pile.parentNode.insertBefore(tmp,pile);
-  const r=tmp.getBoundingClientRect(),pos=pkPos(sw.to),dst=(pos===0?$('pkHand'):$('pkS'+pos)).getBoundingClientRect();
   tmp.style.position='absolute';tmp.style.left=pile.offsetLeft+'px';tmp.style.top=pile.offsetTop+'px';
+  if(sw.to==='off'){   // 大老二換輪：整疊往桌邊推出去
+    const w=$('pkTable').getBoundingClientRect().width;
+    tmp.animate([{translate:'0 0',rotate:'0deg',opacity:1},{offset:.25,translate:'-10px 4px',rotate:'-2deg',opacity:1},{translate:`${w*.85}px 18px`,rotate:'14deg',opacity:0}],{duration:620,delay:250,easing:'cubic-bezier(.45,0,.75,1)',fill:'backwards'}).onfinish=()=>tmp.remove();
+    try{pkFlick();}catch(e){}return;}
+  const r=tmp.getBoundingClientRect(),pos=pkPos(sw.to),dst=(pos===0?$('pkHand'):$('pkS'+pos)).getBoundingClientRect();
   tmp.animate([{translate:'0 0',scale:1,opacity:1},{translate:`${dst.left+dst.width/2-(r.left+r.width/2)}px ${dst.top+dst.height/2-(r.top+r.height/2)}px`,scale:.4,opacity:0}],{duration:520,easing:'cubic-bezier(.5,0,.7,1)'}).onfinish=()=>tmp.remove();}
 
 /* ---------- 各遊戲的牌桌 ---------- */
@@ -3527,7 +3537,7 @@ function pkRenderB2(v,names){
   pkHand(v.hand,true);
   $('pkBtns').innerHTML=`<button data-act="pkHint"${my?'':' disabled'}>提示</button><button data-act="pkPass"${my&&v.lead?'':' disabled'}>過</button>`
     +`<button class="go" data-act="pkPlay"${my&&cb?'':' disabled'}>${cb?'出 '+cb.name:'出牌'}</button>`;
-  $('pkMe').classList.toggle('myturn',my);pkSlapZone();pkThrowFresh();
+  $('pkMe').classList.toggle('myturn',my);pkSlapZone();pkThrowFresh();pkSweep();
 }
 function pkRenderHH(v,names){
   const said=v.shown?v.shown.said:null;

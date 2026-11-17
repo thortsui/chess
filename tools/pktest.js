@@ -16,6 +16,9 @@ const s23456=C([card(2,0),card(3,1),card(4,2),card(5,3),card(6,0)]),sA2345=C([ca
 ok(B(s23456,sA2345)&&B(sA2345,s10A),'straight order 23456>A2345>10JQKA');
 ok(B(C([card(9,0),card(9,1),card(9,2),card(4,3),card(4,0)]),C([card(2,0),card(4,0),card(9,0),card(11,0),card(13,0)])),'full beats flush');
 ok(!B(C([card(5,0),card(5,3)]),C([card(5,0)])),'pair cannot beat single');
+const quads=C([card(9,0),card(9,1),card(9,2),card(9,3),card(4,0)]),sf=C([card(3,2),card(4,2),card(5,2),card(6,2),card(7,2)]);
+ok(B(quads,C([card(2,3)]))&&B(quads,C([card(2,0),card(2,3)])),'鐵支壓單張、對子');ok(B(sf,quads)&&!B(quads,sf),'同花順壓鐵支');
+ok(!B(C([card(2,3)]),quads)&&!B(C([card(9,0),card(9,1),card(9,2),card(4,3),card(4,0)]),quads),'一般牌壓不過鐵支');
 // AI 自動對局
 let turns=0;const t0=Date.now();
 for(let g=0;g<300;g++){const st=E.b2New();let n=0;while(!st.over&&n++<500){const a=E.b2AI(st,st.turn);const e=E.b2Act(st,st.turn,a);if(e){fail++;console.log('b2 AI illegal',e,JSON.stringify(a));break;}}if(!st.over){fail++;console.log('b2 no end');}turns+=n;
