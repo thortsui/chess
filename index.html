@@ -555,18 +555,86 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .p1 .pkname,.p3 .pkname{flex-direction:column;gap:2px}
 #pkS0 .slap{top:-30px;height:calc(100% + 30px);width:60%}
 @media (min-width:700px){.pkpile{--pw:62px}}
+/* ---------- 狼人殺 ---------- */
+.logo.wwl .duo span{font-size:30px;background:#1d2236;border-radius:50%;width:52px;height:52px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.logo.wwl .duo span:last-child{margin-left:-12px;background:#f3c64a}
+.ww{position:fixed;inset:0;display:grid;grid-template-rows:auto auto auto auto minmax(0,1fr) auto auto;gap:6px;color:#eef1f7;
+  background:linear-gradient(180deg,#5a7fa8,#3e5f84 60%,#304c6c);transition:background .6s;
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));touch-action:manipulation;overflow:hidden}
+.ww.night{background:linear-gradient(180deg,#0e1226,#151a33 55%,#1d1730)}
+.wwhead{display:flex;align-items:center;gap:10px}
+.wwhead button{border:0;border-radius:10px;padding:7px 12px;background:rgba(255,255,255,.14);color:#fff;font-size:14px;cursor:pointer}
+.wwhead b{font-size:17px}.wwhead span{margin-left:auto;font-size:13px;opacity:.85}
+.wwphase{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:12px;background:rgba(0,0,0,.22);font-size:13px}
+.wwphase b{font-size:15px}
+.wwtimer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.12)}
+.wwtimer.low{background:#c62828;color:#fff}.wwtimer:empty{display:none}
+.wwseats{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.wwseat{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:62px;padding:5px 2px 4px;border:2px solid transparent;border-radius:12px;
+  background:rgba(255,255,255,.12);color:inherit;font:inherit;cursor:default}
+.wwseat b{font-size:19px;line-height:1.1}.wwseat>span{font-size:10px;opacity:.75}
+.wwseat.me{background:rgba(255,213,74,.22)}
+.wwseat.dead{opacity:.38;filter:grayscale(1)}.wwseat.dead b{text-decoration:line-through}
+.wwseat.talk{border-color:#ffd54a;box-shadow:0 0 0 3px rgba(255,213,74,.3)}
+.wwseat.pick{cursor:pointer;border-color:rgba(255,255,255,.45)}
+.wwseat.sel{border-color:#ff5d5d;background:rgba(255,93,93,.3)}
+.wwrole{font-style:normal;font-size:9.5px;line-height:1.2;padding:1px 4px;border-radius:6px;background:rgba(255,255,255,.18);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.wwrole.wolf{background:#8e1b1b;color:#fff}.wwrole.god{background:#2f5d9e;color:#fff}.wwrole.vil{background:#4b6b3a;color:#fff}
+.wwknife,.wwvoted{position:absolute;top:-6px;right:-4px;font-style:normal;font-size:10px;padding:1px 5px;border-radius:8px;background:#c62828;color:#fff}
+.wwvoted{background:#2e7d32}
+.wwmine{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:12px;background:rgba(0,0,0,.2);font-size:14px}
+.wwmine small{display:block;font-size:11px;opacity:.75}.wwmyic{font-size:24px}
+.wwpot{font-size:11px;padding:2px 7px;border-radius:8px;background:#6a3fa0}.wwpot:first-of-type{margin-left:auto}.wwpot.used{background:rgba(255,255,255,.12);opacity:.55;text-decoration:line-through}
+.wwlog{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:8px;border-radius:12px;background:rgba(0,0,0,.25);display:flex;flex-direction:column;gap:5px}
+.wwm{max-width:88%;font-size:14px;line-height:1.45}.wwm p{margin:0;word-break:break-word}
+.wwm.sys{align-self:center;max-width:96%;text-align:center;font-size:12.5px;color:#e9dcae}
+.wwm.sys i{display:block;font-style:normal;font-size:10.5px;opacity:.8}
+.wwm.sys.priv{color:#9fd3ff}.wwm.sys.wolf,.wwm.say.wolf b{color:#ff9a9a}
+.wwm.say{align-self:flex-start;padding:5px 10px;border-radius:4px 12px 12px 12px;background:rgba(255,255,255,.14)}
+.wwm.say b{display:block;font-size:11px;opacity:.85}
+.wwm.say.mine{align-self:flex-end;border-radius:12px 4px 12px 12px;background:#2f6fb7}
+.wwm.say.wolf{background:rgba(142,27,27,.55)}.wwm.say.wolf.mine{background:#a32626}
+.wwact{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;min-height:44px}
+.wwact p{flex-basis:100%;margin:0;text-align:center;font-size:13px;opacity:.9}.wwact p.wwidle:empty{display:none}
+.wwact button,.wwgo{border:0;border-radius:12px;padding:10px 18px;background:rgba(255,255,255,.16);color:#fff;font-size:15px;font-weight:700;cursor:pointer;min-width:88px}
+.wwact button.go,.wwgo{background:#ffd54a;color:#3a2a00}.wwact button:disabled,.wwgo:disabled{opacity:.45;cursor:default}
+.wwsay{display:flex;gap:6px}
+.wwsay input{flex:1;min-width:0;border:0;border-radius:12px;padding:11px 12px;font-size:16px;background:rgba(255,255,255,.92);color:#111}
+.wwsay input:disabled{background:rgba(255,255,255,.18);color:#fff}.wwsay input:disabled::placeholder{color:rgba(255,255,255,.7)}
+.wwsay button{border:0;border-radius:12px;padding:0 16px;background:#ffd54a;color:#3a2a00;font-weight:700;font-size:15px;cursor:pointer}.wwsay button:disabled{opacity:.4}
+.wwmsg{position:fixed;left:50%;bottom:calc(120px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:8px 14px;border-radius:12px;background:rgba(0,0,0,.8);color:#fff;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5}
+.wwmsg.on{opacity:1}
+.ww.lob{grid-template-rows:auto minmax(0,1fr)}
+.wwlobby{overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;gap:10px;padding-bottom:10px}
+.wwcode{text-align:center}.wwcode p{margin:0;font-size:13px;opacity:.85}.wwcode b{font-size:40px;letter-spacing:.12em}
+.wwlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:5px;width:100%;max-width:440px}
+.wwlist li{display:flex;flex-direction:column;align-items:center;padding:5px 2px;border-radius:10px;background:rgba(255,255,255,.1);font-size:10px;opacity:.7}
+.wwlist li b{font-size:17px}.wwlist li.in{opacity:1;background:rgba(255,255,255,.2)}.wwlist li.me{background:rgba(255,213,74,.3)}
+.wwcfg{width:100%;max-width:440px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.22)}
+.wwcfg h3{margin:0 0 6px;font-size:15px}.wwcfg h3 small{font-weight:400;opacity:.75;font-size:12px}
+.wwrow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px}
+.wwrow:last-of-type{border-bottom:0}.wwic{width:24px;text-align:center}.wwrn{flex:1}
+.wwrow b{min-width:22px;text-align:center;font-size:16px}.wwrow small{opacity:.7;font-size:11px}
+.wwrow>button{width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer}
+.wwcfg .seg.mini{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.wwcfg .seg.mini button{border:0;border-radius:9px;padding:6px 9px;background:rgba(255,255,255,.12);color:#fff;font-size:12.5px;cursor:pointer}
+.wwcfg .seg.mini button.on{background:#ffd54a;color:#3a2a00;font-weight:700}
+.wwlink{margin-top:6px;border:0;background:none;color:#cfe3ff;text-decoration:underline;font-size:12.5px;cursor:pointer;padding:4px 0}
+.wwerr{margin:6px 0 0;color:#ffb4b4;font-size:13px}.wwwait{opacity:.8}
+.wwgo{padding:13px 34px;font-size:17px}
+@media (max-height:640px){.wwseat{min-height:52px}.wwseat b{font-size:16px}}
 </style>
 </head>
 <body>
 
 <div class="menu" id="menu">
-  <span class="ver" aria-label="版本 0.8.3">v0.8.3</span>
+  <span class="ver" aria-label="版本 0.9.0">v0.9.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
-    <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button></div>
+    <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
     <div class="pkmenu" id="pkMenu" hidden>
       <div class="seg" id="pkGameSeg"><button data-act="pkGame" data-v="b2">大老二</button><button data-act="pkGame" data-v="hh">心臟病</button><button data-act="pkGame" data-v="om">抽鬼牌</button></div>
       <p class="pkrule" id="pkRule"></p>
@@ -574,6 +642,13 @@ html,body{overflow:hidden;overscroll-behavior:none}
       <button class="big" data-act="pkCreate" id="pkCreateBtn">創建房間<small>最多 4 人，空位由電腦補上</small></button>
       <div class="join"><input id="pkCodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="撲克牌房號"><button data-act="pkJoin" id="pkJoinBtn">加入</button></div>
       <p class="msg" id="pkMenuMsg"></p>
+    </div>
+    <div class="pkmenu" id="wwMenu" hidden>
+      <p class="pkrule" id="wwRule"></p>
+      <button class="big" data-act="wwSolo">和電腦玩<small>先設定人數與身份，空位都由電腦補上</small></button>
+      <button class="big" data-act="wwCreate" id="wwCreateBtn">創建房間<small>6～12 人，房主設定身份，空位由電腦補上</small></button>
+      <div class="join"><input id="wwCodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="狼人殺房號"><button data-act="wwJoin" id="wwJoinBtn">加入</button></div>
+      <p class="msg" id="wwMenuMsg"></p>
     </div>
     <button class="big" data-act="local" id="localBtn">單機對戰<small>同一台手機或電腦，兩人輪流下</small></button>
     <div class="aibox">
@@ -625,6 +700,17 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="pkme" id="pkMe"><div class="pkinfo" id="pkS0"></div><div class="pkhand" id="pkHand"></div><div class="pkbtns" id="pkBtns"></div></div>
   <p class="pkmsg" id="pkMsg" aria-live="polite"></p>
   <div class="pkover" id="pkOver" hidden></div>
+</div>
+<div class="ww" id="ww" hidden>
+  <div class="wwhead"><button data-act="wwExit" aria-label="回選單">‹ 選單</button><b id="wwTitle">狼人殺</b><span id="wwCode"></span></div>
+  <div class="wwphase" id="wwPhase" aria-live="polite"></div>
+  <div class="wwseats" id="wwSeats"></div>
+  <div class="wwmine" id="wwMine"></div>
+  <div class="wwlog" id="wwLog" aria-live="polite"></div>
+  <div class="wwact" id="wwAct"></div>
+  <div class="wwsay" id="wwSay"><input id="wwIn" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="發言內容"><button data-act="wwSend" id="wwSend">送出</button></div>
+  <div class="wwlobby" id="wwLobby" hidden></div>
+  <p class="wwmsg" id="wwMsg" aria-live="polite"></p>
 </div>
 <div class="app" id="app" hidden>
   <div class="bar" id="barT"></div>
@@ -1902,7 +1988,7 @@ function dkOnMv(d){
   dkApply(a);
 }
 function syncVariant(){
-  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5}[v],T=(...a)=>a[i]??'';
+  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6}[v],T=(...a)=>a[i]??'';
   document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   $('ttl').textContent=T('象棋','暗棋','西洋棋','五子棋','圍棋');
   $('skinBtn').hidden=v==='ch';
@@ -1912,8 +1998,9 @@ function syncVariant(){
   $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）');
   $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白');
   $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下')+'，取得 4 位數房號給朋友';
-  const pk=v==='pk';$('pkMenu').hidden=!pk;['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=pk);
-  document.querySelector('.card>.aibox').hidden=pk;document.querySelector('.card>.join').hidden=pk;lg.classList.toggle('pkl',pk);
+  const pk=v==='pk',ww=v==='ww',other=pk||ww;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
+  document.querySelector('.card>.aibox').hidden=other;document.querySelector('.card>.join').hidden=other;lg.classList.toggle('pkl',pk);lg.classList.toggle('wwl',ww);
+  if(ww){$('skinBtn').hidden=true;$('ttl').textContent='狼人殺';$('logoA').textContent='🐺';$('logoB').textContent='🌕';wwSyncMenu();}
   if(pk){$('skinBtn').hidden=true;$('ttl').textContent='撲克牌';$('logoA').textContent='♥';$('logoB').textContent='♠';pkSyncMenu();}
 }
 
@@ -3343,26 +3430,26 @@ function pkView(st,seat){
 const PK_GAMES={b2:{n:'大老二',neu:b2New,act:b2Act},hh:{n:'心臟病',neu:hhNew,act:hhAct},om:{n:'抽鬼牌',neu:omNew,act:omAct}};
 
 /* ---------- pk-net:peer ---------- */
-// 撲克牌連線（GitHub／App 版：PeerJS）。房主的 Peer ID 是固定前綴＋房號，最多接受 3 位加入者
-const PK_PREFIX='thortsui-xiangqi-pk-';
+// 撲克牌、狼人殺連線（GitHub／App 版：PeerJS）。房主的 Peer ID 是固定前綴＋種類＋房號；撲克牌最多 4 人、狼人殺最多 12 人
+const PK_PREFIX='thortsui-xiangqi-';
 function pkOpenPeer(id){return new Promise(res=>{let p,done=false;const fin=v=>{if(done)return;done=true;clearTimeout(t);res(v);};
   try{p=id?new Peer(id):new Peer();}catch(e){res(null);return;}
   const t=setTimeout(()=>{try{p.destroy()}catch(e){}fin(null);},12000);
   p.on('open',()=>fin(p));p.on('error',()=>{if(done)return;try{p.destroy()}catch(x){}fin(null);});});}
 const pkNet={
-  async host(){
-    for(let i=0;i<4;i++){const code=String(Math.floor(Math.random()*10000)).padStart(4,'0');const peer=await pkOpenPeer(PK_PREFIX+code);if(!peer)continue;
+  async host(kind='pk',max=4){
+    for(let i=0;i<4;i++){const code=String(Math.floor(Math.random()*10000)).padStart(4,'0');const peer=await pkOpenPeer(PK_PREFIX+kind+'-'+code);if(!peer)continue;
       const conns={};let msgFn=()=>{},leaveFn=()=>{};
       peer.on('connection',c=>{
-        if(Object.keys(conns).length>=3&&!conns[c.peer]){c.on('open',()=>{try{c.send({m:{k:'full',why:'房間已經滿 4 人'}});}catch(e){}setTimeout(()=>{try{c.close()}catch(e){}},600);});return;}
+        if(Object.keys(conns).length>=max-1&&!conns[c.peer]){c.on('open',()=>{try{c.send({m:{k:'full',why:`房間已經滿 ${max} 人`}});}catch(e){}setTimeout(()=>{try{c.close()}catch(e){}},600);});return;}
         conns[c.peer]=c;c.on('data',d=>{if(d&&typeof d==='object')msgFn(c.peer,d.m);});
         c.on('close',()=>{if(conns[c.peer]===c){delete conns[c.peer];leaveFn(c.peer);}});c.on('error',()=>{});});
       return{code,sendTo(to,m){const c=conns[to];try{if(c&&c.open)c.send({m});}catch(e){}},sendHost(){},onMsg(fn){msgFn=fn;},onLeave(fn){leaveFn=fn;},
         close(){Object.values(conns).forEach(c=>{try{c.close()}catch(e){}});try{peer.destroy()}catch(e){}}};}
     return null;},
-  async join(code){
+  async join(code,kind='pk'){
     const peer=await pkOpenPeer(null);if(!peer)return null;
-    const c=peer.connect(PK_PREFIX+code,{reliable:true});
+    const c=peer.connect(PK_PREFIX+kind+'-'+code,{reliable:true});
     const ok=await new Promise(res=>{const t=setTimeout(()=>res(false),8000);c.on('open',()=>{clearTimeout(t);res(true);});c.on('error',()=>{clearTimeout(t);res(false);});peer.on('error',()=>{clearTimeout(t);res(false);});});
     if(!ok){try{peer.destroy()}catch(e){}return null;}
     let msgFn=()=>{},leaveFn=()=>{};c.on('data',d=>{if(d&&typeof d==='object')msgFn('host',d.m);});c.on('close',()=>leaveFn('host'));
@@ -3698,6 +3785,419 @@ function b2HintView(v){const fake={hands:[],first:v.first,lead:v.lead};fake.hand
 function pkSyncMenu(){document.querySelectorAll('#pkGameSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===PK.g));$('pkRule').textContent=PK_RULES[PK.g];
   const ok=!!R;$('pkCreateBtn').disabled=!ok;$('pkJoinBtn').disabled=!ok;}
 addEventListener('resize',()=>{if(!$('pk').hidden&&PK.view)pkRender();});
+
+/* ===== 狼人殺：規則引擎（遊戲自動當法官）＋電腦玩家。全部在房主（或單機）端運算 ===== */
+// 座位 0..n-1，畫面上顯示成 1..n 號。時間都用房主的時鐘（毫秒）
+const WW_ROLES={wolf:{n:'狼人',side:'wolf',ic:'🐺'},seer:{n:'預言家',side:'god',ic:'🔮'},witch:{n:'女巫',side:'god',ic:'🧪'},
+  hunter:{n:'獵人',side:'god',ic:'🏹'},guard:{n:'守衛',side:'god',ic:'🛡️'},idiot:{n:'白痴',side:'god',ic:'🤪'},villager:{n:'平民',side:'vil',ic:'🙂'}};
+const WW_GODS=['seer','witch','hunter','guard','idiot'];
+// 各人數的預設身份（平民自動補滿）
+const WW_PRESET={6:{wolf:2,seer:1,witch:1},7:{wolf:2,seer:1,witch:1,hunter:1},8:{wolf:3,seer:1,witch:1,hunter:1},9:{wolf:3,seer:1,witch:1,hunter:1},
+  10:{wolf:3,seer:1,witch:1,hunter:1,guard:1},11:{wolf:4,seer:1,witch:1,hunter:1,guard:1},12:{wolf:4,seer:1,witch:1,hunter:1,idiot:1}};
+const WW_T={night:45000,witch:25000,hunter:20000,vote:30000,nightMin:7000};
+const wwNo=s=>(s+1)+' 號';
+function wwCfgFor(n){const r={wolf:0,seer:0,witch:0,hunter:0,guard:0,idiot:0,...WW_PRESET[n]};return{n,roles:r,win:'side',speak:60};}
+function wwVil(cfg){return cfg.n-['wolf',...WW_GODS].reduce((a,k)=>a+(cfg.roles[k]|0),0);}
+function wwCfgErr(cfg){
+  if(!(cfg.n>=5&&cfg.n<=12))return'人數要在 5～12 人';
+  const w=cfg.roles.wolf|0;if(w<1)return'至少要 1 隻狼人';if(wwVil(cfg)<0)return'身份比人數還多';
+  if(w*2>=cfg.n)return'狼人太多了（要少於一半）';if(cfg.n-w<2)return'好人至少要 2 位';return null;}
+function wwMsg(st,to,txt,seat){st.msgs.push({id:++st.mid,to,seat:seat==null?-1:seat,txt:String(txt),day:st.day,night:st.phase==='night'||st.phase==='witch'});
+  if(st.msgs.length>400)st.msgs.splice(0,st.msgs.length-400);}
+const wwIsWolf=(st,s)=>st.roles[s]==='wolf';
+const wwAliveOf=(st,f)=>st.roles.map((r,i)=>i).filter(i=>st.alive[i]&&(!f||f(i)));
+function wwSeatOf(st,role){return st.roles.indexOf(role);}
+function wwNew(cfg,ai,now){
+  const deck=[];['wolf',...WW_GODS].forEach(k=>{for(let i=0;i<(cfg.roles[k]|0);i++)deck.push(k);});while(deck.length<cfg.n)deck.push('villager');
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+  const st={g:'ww',n:cfg.n,cfg:JSON.parse(JSON.stringify(cfg)),roles:deck,alive:Array(cfg.n).fill(true),ai:ai.slice(),day:1,phase:'',dl:0,t0:now,
+    witchSave:true,witchPoison:true,guardLast:-1,seerRes:{},idiotUp:[],msgs:[],mid:0,over:null,seq:0,aiAt:{},q:[],cur:-1,order:[],si:0,votes:{},night:null,hunterGone:false};
+  wwMsg(st,'all',`遊戲開始，共 ${cfg.n} 人：`+wwCfgText(st.cfg)+'。');
+  st.roles.forEach((r,i)=>{wwMsg(st,i,`你是 ${wwNo(i)}，身份是「${WW_ROLES[r].n}」。`+wwRoleTip(r));});
+  const wolves=wwAliveOf(st,i=>wwIsWolf(st,i));wwMsg(st,'wolf',`狼隊友：${wolves.map(wwNo).join('、')}。晚上可以在這裡和隊友討論。`);
+  wwNight(st,now);return st;}
+function wwCfgText(cfg){const p=['wolf',...WW_GODS].filter(k=>cfg.roles[k]).map(k=>`${WW_ROLES[k].n}×${cfg.roles[k]}`);const v=wwVil(cfg);if(v)p.push(`平民×${v}`);
+  return p.join('、')+`（${cfg.win==='all'?'屠城':'屠邊'}）`;}
+function wwRoleTip(r){return{wolf:'每晚和狼隊友選一位玩家殺掉。',seer:'每晚可以查驗一位玩家是好人還是狼人。',witch:'有一瓶解藥（救當晚被殺的人，不能救自己）和一瓶毒藥，同一晚只能用一瓶。',
+  hunter:'被殺或被投票出局時可以開槍帶走一人（被毒死不能開槍）。',guard:'每晚守護一位玩家不被狼人殺，不能連續兩晚守同一人。',idiot:'被投票出局時翻牌免死，但之後不能投票。',villager:'沒有特殊能力，靠發言和投票找出狼人。'}[r]||'';}
+function wwPhase(st,ph,now,ms){st.phase=ph;st.dl=now+(ms||0);st.aiAt={};st.seq++;}
+function wwNight(st,now){
+  if(st.phase)st.day++;
+  st.night={wolf:{},seer:null,guard:undefined,acted:{},kill:-1,saved:-1,poison:-1,min:now+WW_T.nightMin+Math.random()*4000};
+  wwPhase(st,'night',now,WW_T.night);wwMsg(st,'all',`第 ${st.day} 夜，天黑請閉眼。`);}
+// 晚上需要行動的人
+function wwNightNeed(st){const need=[];
+  wwAliveOf(st,i=>wwIsWolf(st,i)).forEach(i=>need.push(i));
+  ['seer','guard'].forEach(r=>{const s=wwSeatOf(st,r);if(s>=0&&st.alive[s])need.push(s);});return need;}
+function wwNightDone(st,now){return now>=st.night.min&&wwNightNeed(st).every(s=>st.night.acted[s]);}
+function wwWolfKill(st){const v={};Object.values(st.night.wolf).forEach(t=>{v[t]=(v[t]||0)+1;});let best=-1,bn=0,ties=[];
+  for(const k in v){if(v[k]>bn){bn=v[k];ties=[+k];}else if(v[k]===bn)ties.push(+k);}
+  if(!ties.length)return-1;best=ties[Math.floor(Math.random()*ties.length)];return best;}
+function wwToWitch(st,now){
+  st.night.kill=wwWolfKill(st);
+  const ws=wwSeatOf(st,'witch');
+  if(ws<0){wwDawn(st,now);return;}
+  const can=st.alive[ws]&&(st.witchSave||st.witchPoison);
+  wwPhase(st,'witch',now,can?WW_T.witch:3000+Math.random()*3000);   // 女巫不在了也等一下，免得大家猜到
+  if(!can)st.night.witchFake=true;}
+function wwDawn(st,now){
+  const n=st.night,deaths=[];const k=n.kill;
+  if(k>=0){const g=n.guard===k,s=n.saved===k;if(g===s)deaths.push(k);}   // 同守同救也會死
+  if(n.poison>=0&&!deaths.includes(n.poison))deaths.push(n.poison);
+  deaths.sort((a,b)=>a-b);deaths.forEach(d=>st.alive[d]=false);st.guardLast=n.guard===undefined?-1:n.guard;
+  wwMsg(st,'all',deaths.length?`天亮了。昨晚 ${deaths.map(wwNo).join('、')} 死亡。`:'天亮了。昨晚是平安夜，沒有人死亡。');
+  st.lastDeaths=deaths;st.q=[];
+  deaths.forEach(d=>{if(st.day===1)st.q.push({ph:'last',s:d});if(st.roles[d]==='hunter'&&d!==n.poison)st.q.push({ph:'hunter',s:d});});
+  st.q.push({ph:'speak'});st.q.push({ph:'vote'});
+  if(wwCheck(st,now))return;wwNext(st,now);}
+function wwNext(st,now){
+  if(st.over)return;const it=st.q.shift();if(!it){wwNight(st,now);return;}
+  if(it.ph==='last'){st.cur=it.s;wwPhase(st,'last',now,st.cfg.speak*1000);wwMsg(st,'all',`請 ${wwNo(it.s)} 發表遺言。`);return;}
+  if(it.ph==='hunter'){st.cur=it.s;wwPhase(st,'hunter',now,WW_T.hunter);wwMsg(st,'all',`${wwNo(it.s)} 是獵人，可以選擇開槍帶走一位玩家。`);return;}
+  if(it.ph==='speak'){const al=wwAliveOf(st);if(!al.length){wwNext(st,now);return;}
+    let start;const d=st.lastDeaths||[];if(d.length){start=(d[0]+1)%st.n;}else start=al[Math.floor(Math.random()*al.length)];
+    const ord=[];for(let k=0;k<st.n;k++){const s=(start+k)%st.n;if(st.alive[s])ord.push(s);}
+    st.order=ord;st.si=0;st.cur=ord[0];wwPhase(st,'speak',now,st.cfg.speak*1000);
+    wwMsg(st,'all',`開始發言，順序：${ord.map(s=>s+1).join('→')}。請 ${wwNo(st.cur)} 發言。`);return;}
+  if(it.ph==='vote'){st.votes={};st.cur=-1;wwPhase(st,'vote',now,WW_T.vote);wwMsg(st,'all','發言結束，請投票（可以棄票）。');return;}
+}
+function wwVoters(st){return wwAliveOf(st,i=>!st.idiotUp.includes(i));}
+function wwTally(st,now){
+  const by={},ab=[];wwVoters(st).forEach(s=>{const t=st.votes[s];if(t==null||t<0)ab.push(s);else(by[t]=by[t]||[]).push(s);});
+  const rows=Object.keys(by).map(Number).sort((a,b)=>by[b].length-by[a].length||a-b);
+  wwMsg(st,'all','投票結果：'+(rows.length?rows.map(t=>`${wwNo(t)} ${by[t].length} 票（${by[t].map(s=>s+1).join('、')}）`).join('；'):'沒有人投票')+(ab.length?`；棄票：${ab.map(s=>s+1).join('、')}`:'')+'。');
+  st.lastVote={by,ab};st.q=[];
+  if(!rows.length||(rows.length>1&&by[rows[0]].length===by[rows[1]].length)){wwMsg(st,'all',rows.length?'平票，這輪沒有人出局。':'沒有人出局。');wwNight(st,now);return;}
+  const out=rows[0];
+  if(st.roles[out]==='idiot'&&!st.idiotUp.includes(out)){st.idiotUp.push(out);wwMsg(st,'all',`${wwNo(out)} 翻牌是白痴，不會出局，但之後不能投票。`);wwNight(st,now);return;}
+  st.alive[out]=false;wwMsg(st,'all',`${wwNo(out)} 被投票出局。`);
+  if(wwCheck(st,now))return;
+  st.q.push({ph:'last',s:out});if(st.roles[out]==='hunter')st.q.push({ph:'hunter',s:out});wwNext(st,now);}
+function wwCheck(st,now){
+  const al=wwAliveOf(st),w=al.filter(i=>wwIsWolf(st,i)).length,g=al.filter(i=>WW_ROLES[st.roles[i]].side==='god').length,v=al.filter(i=>st.roles[i]==='villager').length;
+  const G=st.roles.filter(r=>WW_ROLES[r].side==='god').length,V=st.roles.filter(r=>r==='villager').length;
+  let win=null;if(!w)win='good';
+  else if(st.cfg.win==='all'){if(!g&&!v)win='wolf';}
+  else if((G&&!g)||(V&&!v)||(!g&&!v))win='wolf';
+  if(!win)return false;
+  st.over={win,why:win==='good'?'狼人全部出局':(st.cfg.win==='all'?'好人全部出局':(G&&!g?'神職全部出局':'平民全部出局'))};
+  wwPhase(st,'over',now,0);
+  wwMsg(st,'all',`遊戲結束：${win==='good'?'好人陣營':'狼人陣營'}獲勝（${st.over.why}）。身份：`+st.roles.map((r,i)=>`${i+1} 號${WW_ROLES[r].n}`).join('、')+'。');
+  return true;}
+// 動作：回傳錯誤訊息，成功回傳 null
+function wwAct(st,seat,a,now){
+  if(!a||typeof a!=='object')return'動作格式錯誤';const ok=t=>Number.isInteger(t)&&t>=0&&t<st.n;
+  if(a.type==='say'){const txt=String(a.txt||'').replace(/\s+/g,' ').trim().slice(0,200);if(!txt)return'請輸入內容';
+    if(st.phase==='over'){wwMsg(st,'all',txt,seat);st.seq++;return null;}
+    if(st.phase==='night'&&wwIsWolf(st,seat)&&st.alive[seat]){wwMsg(st,'wolf',txt,seat);st.seq++;return null;}
+    if((st.phase==='speak'||st.phase==='last')&&st.cur===seat){wwMsg(st,'all',txt,seat);st.seq++;return null;}
+    return st.phase==='night'?'天黑了，請閉眼（只有狼人能在狼隊頻道說話）':'還沒輪到你發言';}
+  if(st.over)return'遊戲已經結束';
+  if(a.type==='night'){if(st.phase!=='night')return'現在不是晚上行動的時間';if(!st.alive[seat])return'你已經出局';const r=st.roles[seat],t=a.t;
+    if(r==='wolf'){if(t!==-1&&!(ok(t)&&st.alive[t]))return'請選一位活著的玩家';if(t===-1)delete st.night.wolf[seat];else st.night.wolf[seat]=t;st.night.acted[seat]=true;
+      wwMsg(st,'wolf',t===-1?`${wwNo(seat)} 選擇空刀。`:`${wwNo(seat)} 選擇殺 ${wwNo(t)}。`);}
+    else if(r==='seer'){if(st.night.acted[seat])return'今晚已經查驗過了';if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位其他活著的玩家';
+      st.night.seer=t;st.night.acted[seat]=true;st.seerRes[t]=wwIsWolf(st,t);wwMsg(st,seat,`查驗結果：${wwNo(t)} 是${st.seerRes[t]?'狼人':'好人'}。`);}
+    else if(r==='guard'){if(st.night.acted[seat])return'今晚已經守護過了';if(t!==-1&&!(ok(t)&&st.alive[t]))return'請選一位活著的玩家';if(t!==-1&&t===st.guardLast)return'不能連續兩晚守同一個人';
+      st.night.guard=t===-1?undefined:t;st.night.acted[seat]=true;wwMsg(st,seat,t===-1?'今晚你不守護任何人。':`今晚你守護 ${wwNo(t)}。`);}
+    else return'你的身份晚上沒有行動';
+    st.seq++;if(wwNightDone(st,now))wwToWitch(st,now);return null;}
+  if(a.type==='witch'){if(st.phase!=='witch'||st.roles[seat]!=='witch'||!st.alive[seat]||st.night.witchFake)return'現在不是女巫行動的時間';
+    if(a.use==='save'){if(!st.witchSave)return'解藥已經用掉了';const k=st.night.kill;if(k<0)return'今晚沒有人被殺';if(k===seat)return'女巫不能救自己';
+      st.witchSave=false;st.night.saved=k;wwMsg(st,seat,`你用解藥救了 ${wwNo(k)}。`);}
+    else if(a.use==='poison'){if(!st.witchPoison)return'毒藥已經用掉了';const t=a.t;if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位其他活著的玩家';
+      st.witchPoison=false;st.night.poison=t;wwMsg(st,seat,`你對 ${wwNo(t)} 用了毒藥。`);}
+    else wwMsg(st,seat,'今晚你沒有用藥。');
+    wwDawn(st,now);return null;}
+  if(a.type==='hunter'){if(st.phase!=='hunter'||st.cur!==seat)return'現在不能開槍';const t=a.t;
+    if(t===-1){wwMsg(st,'all',`${wwNo(seat)} 選擇不開槍。`);}
+    else{if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位活著的玩家';st.alive[t]=false;wwMsg(st,'all',`獵人 ${wwNo(seat)} 開槍帶走了 ${wwNo(t)}。`);
+      if(wwCheck(st,now))return null;}
+    wwNext(st,now);return null;}
+  if(a.type==='endSpeak'){if((st.phase!=='speak'&&st.phase!=='last')||st.cur!==seat)return'還沒輪到你發言';wwEndSpeak(st,now);return null;}
+  if(a.type==='vote'){if(st.phase!=='vote')return'現在不是投票時間';if(!wwVoters(st).includes(seat))return st.alive[seat]?'白痴翻牌後不能投票':'你已經出局';
+    const t=a.t;if(t!==-1&&!(ok(t)&&st.alive[t]))return'請投給活著的玩家';st.votes[seat]=t;st.seq++;
+    if(wwVoters(st).every(s=>s in st.votes))wwTally(st,now);return null;}
+  return'不認得的動作';}
+function wwEndSpeak(st,now){
+  if(st.phase==='last'){wwNext(st,now);return;}
+  st.si++;while(st.si<st.order.length&&!st.alive[st.order[st.si]])st.si++;
+  if(st.si>=st.order.length){wwNext(st,now);return;}
+  st.cur=st.order[st.si];wwPhase(st,'speak',now,st.cfg.speak*1000);wwMsg(st,'all',`請 ${wwNo(st.cur)} 發言。`);}
+// 時間到
+function wwTimeout(st,now){
+  const ph=st.phase;
+  if(ph==='night'){if(!wwNightDone(st,now)&&now<st.dl)return false;wwToWitch(st,now);return true;}
+  if(ph==='witch'){if(!st.night.witchFake)wwMsg(st,wwSeatOf(st,'witch'),'時間到，今晚你沒有用藥。');wwDawn(st,now);return true;}
+  if(ph==='hunter'){wwMsg(st,'all',`${wwNo(st.cur)} 時間到，沒有開槍。`);wwNext(st,now);return true;}
+  if(ph==='speak'||ph==='last'){wwMsg(st,'all',`${wwNo(st.cur)} 發言時間到。`);wwEndSpeak(st,now);return true;}
+  if(ph==='vote'){wwTally(st,now);return true;}
+  return false;}
+// 電腦玩家
+const wwPick=a=>a[Math.floor(Math.random()*a.length)];
+function wwAIAct(st,s,now){
+  const al=wwAliveOf(st),others=al.filter(i=>i!==s),r=st.roles[s];
+  if(st.phase==='night'){
+    if(r==='wolf'){const hum=wwAliveOf(st,i=>wwIsWolf(st,i)&&!st.ai[i]),picks=hum.map(i=>st.night.wolf[i]).filter(t=>t!=null);
+      const t=picks.length?picks[0]:(Object.values(st.night.wolf)[0]??wwPick(al.filter(i=>!wwIsWolf(st,i))));return{type:'night',t};}
+    if(r==='seer'){const c=others.filter(i=>!(i in st.seerRes));return{type:'night',t:wwPick(c.length?c:others)};}
+    if(r==='guard'){const c=al.filter(i=>i!==st.guardLast);return{type:'night',t:c.length?wwPick(c):-1};}
+    return null;}
+  if(st.phase==='witch'){const k=st.night.kill;
+    if(st.witchSave&&k>=0&&k!==s&&(st.day===1||Math.random()<.5))return{type:'witch',use:'save'};
+    if(st.witchPoison&&st.day>1&&Math.random()<.12){const c=others;if(c.length)return{type:'witch',use:'poison',t:wwPick(c)};}
+    return{type:'witch',use:'none'};}
+  if(st.phase==='hunter')return{type:'hunter',t:Math.random()<.75&&others.length?wwPick(wwIsWolf(st,s)?others.filter(i=>!wwIsWolf(st,i)):others):-1};
+  if(st.phase==='speak'||st.phase==='last')return{type:'endSpeak',say:'過。'};
+  if(st.phase==='vote'){const c=al.filter(i=>i!==s);
+    if(wwIsWolf(st,s)){const g=c.filter(i=>!wwIsWolf(st,i));return{type:'vote',t:g.length?wwPick(g):-1};}
+    if(r==='seer'){const k=c.filter(i=>st.seerRes[i]);if(k.length)return{type:'vote',t:k[0]};}
+    // 跟著目前票最多的人投，沒有就隨機
+    const tally={};Object.values(st.votes).forEach(t=>{if(t>=0&&t!==s)tally[t]=(tally[t]||0)+1;});const top=Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0];
+    if(top!=null&&Math.random()<.55)return{type:'vote',t:+top};
+    return{type:'vote',t:Math.random()<.15?-1:wwPick(c)};}
+  return null;}
+// 哪些電腦玩家現在要行動
+function wwAINeed(st){const ai=i=>st.ai[i],out=[];
+  if(st.phase==='night'){wwNightNeed(st).forEach(s=>{if(ai(s)&&!st.night.acted[s])out.push(s);});}
+  else if(st.phase==='witch'){const w=wwSeatOf(st,'witch');if(w>=0&&ai(w)&&st.alive[w]&&!st.night.witchFake)out.push(w);}
+  else if(st.phase==='hunter'||st.phase==='speak'||st.phase==='last'){if(ai(st.cur))out.push(st.cur);}
+  else if(st.phase==='vote')wwVoters(st).forEach(s=>{if(ai(s)&&!(s in st.votes))out.push(s);});
+  return out;}
+// 每隔一段時間呼叫：處理時間到與電腦玩家，有變化回傳 true
+function wwTick(st,now){
+  if(!st||st.over)return false;const seq=st.seq,ph=st.phase,dl0=st.dl;
+  for(const s of wwAINeed(st)){
+    if(st.aiAt[s]==null){let d=1200+Math.random()*2600;if(st.phase==='speak'||st.phase==='last')d=1100+Math.random()*700;
+      // 電腦狼人先等真人狼隊友決定
+      if(st.phase==='night'&&wwIsWolf(st,s)&&wwAliveOf(st,i=>wwIsWolf(st,i)&&!st.ai[i]&&!(i in st.night.wolf)).length)d=Math.max(d,st.dl-now-12000);
+      st.aiAt[s]=now+d;continue;}
+    if(now<st.aiAt[s])continue;
+    if(st.phase==='night'&&wwIsWolf(st,s)){const hum=wwAliveOf(st,i=>wwIsWolf(st,i)&&!st.ai[i]&&!(i in st.night.wolf));if(hum.length&&st.dl-now>12000)continue;}
+    const a=wwAIAct(st,s,now);if(!a)continue;
+    if(a.say){wwMsg(st,'all',a.say,s);}
+    const e=wwAct(st,s,a,now);if(e&&a.type==='witch')wwAct(st,s,{type:'witch',use:'none'},now);
+    if(st.phase!==ph||st.dl!==dl0)break;}
+  if(st.phase==='night'&&wwNightDone(st,now))wwToWitch(st,now);
+  else if(now>=st.dl&&st.phase===ph&&st.dl===dl0)wwTimeout(st,now);
+  return st.seq!==seq||st.phase!==ph;}
+// 每個人看得到的資料
+function wwView(st,seat,now){
+  const r=st.roles[seat],wolf=r==='wolf',ph=st.phase,end=!!st.over;
+  return{g:'ww',seq:st.seq,mid:st.mid,me:seat,n:st.n,cfg:st.cfg,phase:ph,day:st.day,dl:Math.max(0,st.dl-now),alive:st.alive.slice(),cur:st.cur,order:ph==='speak'?st.order:null,
+    role:r,wolves:wolf||end?st.roles.map((x,i)=>x==='wolf'?i:-1).filter(i=>i>=0):null,seerRes:r==='seer'?st.seerRes:null,
+    witch:r==='witch'?{save:st.witchSave,poison:st.witchPoison,kill:ph==='witch'&&st.alive[seat]&&st.witchSave&&!st.night.witchFake?st.night.kill:null,fake:ph==='witch'&&!!st.night.witchFake}:null,
+    guardLast:r==='guard'?st.guardLast:null,acted:ph==='night'?!!st.night.acted[seat]:ph==='vote'?(seat in st.votes):false,myVote:ph==='vote'&&seat in st.votes?st.votes[seat]:null,
+    voted:ph==='vote'?Object.keys(st.votes).map(Number):null,canVote:ph==='vote'&&wwVoters(st).includes(seat),
+    wolfPicks:wolf&&ph==='night'?st.night.wolf:null,idiotUp:st.idiotUp.slice(),over:st.over,roles:end?st.roles.slice():null,ai:st.ai.slice(),
+    msgs:st.msgs.filter(m=>m.to==='all'||m.to===seat||(m.to==='wolf'&&(wolf||end))).slice(-160)};}
+
+/* ===== 狼人殺：控制流程、畫面 ===== */
+// 房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料；連線沿用撲克牌的 pkNet（另一個房間種類 'ww'）
+const WW={role:null,phase:null,st:null,view:null,me:0,seats:[],net:null,code:null,cfg:null,tick:null,clock:null,sel:null,mode:null,lobby:null,recvAt:0,lastMid:0,stick:true};
+try{const c=JSON.parse(localStorage.getItem('xq-wwcfg')||'null');if(c&&c.roles&&!wwCfgErr(c))WW.cfg=c;}catch(e){}
+if(!WW.cfg)WW.cfg=wwCfgFor(9);
+const WW_RULE='遊戲自動當法官。天黑後狼人選人殺、預言家查驗、守衛守護，接著女巫決定用不用藥；天亮公布死者後，依編號輪流打字發言（可以「過」），再一起投票，票最多的人出局（平票沒人出局）。狼人全部出局好人贏；屠邊時神職或平民其中一邊全部出局狼人贏，屠城要好人全部出局。人數不夠由電腦補位，電腦發言一律「過」。';
+function wwSaveCfg(){try{localStorage.setItem('xq-wwcfg',JSON.stringify(WW.cfg));}catch(e){}}
+function wwShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=true;$('ww').hidden=false;}
+function wwStop(){clearInterval(WW.tick);WW.tick=null;clearInterval(WW.clock);WW.clock=null;}
+function wwExit(){wwStop();if(WW.net){try{WW.net.close();}catch(e){}WW.net=null;}WW.role=null;WW.phase=null;WW.st=null;WW.view=null;$('ww').hidden=true;showMenu('');}
+function wwMenuMsg(t,err){const m=$('wwMenuMsg');if(m){m.textContent=t;m.classList.toggle('err',!!err);}}
+function wwSyncMenu(){$('wwRule').textContent=WW_RULE;const ok=!!R;$('wwCreateBtn').disabled=!ok;$('wwJoinBtn').disabled=!ok;}
+function wwHumans(){return WW.seats.filter(s=>s&&s.kind!=='ai').length;}
+
+/* ---------- 大廳（含房主的身份設定） ---------- */
+function wwOpenSolo(){wwStop();WW.role='solo';WW.code=null;WW.me=0;WW.phase='lobby';WW.seats=[{kind:'me'}];wwShow();wwRenderLobby();}
+function wwSetCount(n){n=Math.max(Math.max(6,wwHumans()),Math.min(12,n));const keep={win:WW.cfg.win,speak:WW.cfg.speak};WW.cfg={...wwCfgFor(n),...keep};wwCfgChanged();}
+function wwCfgChanged(){wwSaveCfg();if(WW.role==='host')wwHostLobby();else wwRenderLobby();}
+function wwRoleStep(k,d){const c=WW.cfg,max=k==='wolf'?Math.floor((c.n-1)/2):1,v=(c.roles[k]|0)+d;if(v<(k==='wolf'?1:0)||v>max)return;
+  if(d>0&&wwVil(c)<1)return;c.roles[k]=v;wwCfgChanged();}
+function wwCfgHTML(edit){const c=WW.cfg,err=wwCfgErr(c);
+  const stepper=(k,label,ic)=>`<div class="wwrow"><span class="wwic">${ic}</span><span class="wwrn">${label}</span>${edit?`<button data-act="wwRole" data-k="${k}" data-d="-1" aria-label="${label}減一">−</button>`:''}<b>${c.roles[k]|0}</b>${edit?`<button data-act="wwRole" data-k="${k}" data-d="1" aria-label="${label}加一">＋</button>`:''}</div>`;
+  return`<div class="wwcfg"><h3>身份設定${edit?'':'<small>（房主設定）</small>'}</h3>`
+   +`<div class="wwrow"><span class="wwic">👥</span><span class="wwrn">人數</span>${edit?`<button data-act="wwN" data-d="-1" aria-label="人數減一">−</button>`:''}<b>${c.n}</b>${edit?`<button data-act="wwN" data-d="1" aria-label="人數加一">＋</button>`:''}</div>`
+   +stepper('wolf','狼人',WW_ROLES.wolf.ic)+WW_GODS.map(k=>stepper(k,WW_ROLES[k].n,WW_ROLES[k].ic)).join('')
+   +`<div class="wwrow"><span class="wwic">${WW_ROLES.villager.ic}</span><span class="wwrn">平民</span><b>${wwVil(c)}</b><small>自動補滿</small></div>`
+   +`<div class="wwrow"><span class="wwic">🏁</span><span class="wwrn">勝利條件</span>${edit?`<div class="seg mini"><button data-act="wwWin" data-v="side" class="${c.win!=='all'?'on':''}">屠邊</button><button data-act="wwWin" data-v="all" class="${c.win==='all'?'on':''}">屠城</button></div>`:`<b>${c.win==='all'?'屠城':'屠邊'}</b>`}</div>`
+   +`<div class="wwrow"><span class="wwic">⏱️</span><span class="wwrn">每人發言</span>${edit?`<div class="seg mini">${[30,60,90,120].map(s=>`<button data-act="wwSpeak" data-v="${s}" class="${c.speak===s?'on':''}">${s} 秒</button>`).join('')}</div>`:`<b>${c.speak} 秒</b>`}</div>`
+   +(edit?`<button class="wwlink" data-act="wwPreset">恢復 ${c.n} 人的預設身份</button>`:'')
+   +(err?`<p class="wwerr">${err}</p>`:'')+`</div>`;}
+function wwRenderLobby(){
+  const host=WW.role==='host'||WW.role==='solo',seats=WW.role==='guest'?(WW.lobby||[]):WW.seats,n=WW.cfg.n;
+  $('wwTitle').textContent='狼人殺';$('wwCode').textContent=WW.code?`房號 ${WW.code}`:'';wwGameEls(false);$('ww').classList.remove('night');
+  const list=Array.from({length:n},(_,i)=>{const s=seats[i];const me=WW.role==='guest'?i===WW.me:s&&s.kind==='me';
+    return`<li class="${s&&s.kind!=='ai'?'in':''}${me?' me':''}"><b>${i+1}</b><span>${s&&s.kind!=='ai'?(me?'你':'玩家'):'電腦補位'}</span></li>`;}).join('');
+  const err=wwCfgErr(WW.cfg);
+  $('wwLobby').hidden=false;
+  $('wwLobby').innerHTML=(WW.code?`<div class="wwcode"><p>房號</p><b>${WW.code}</b><p>把房號給朋友，在選單「狼人殺」輸入後加入</p></div>`:'')
+    +`<ul class="wwlist">${list}</ul>`+wwCfgHTML(host)
+    +(host?`<button class="wwgo" data-act="wwGo"${err?' disabled':''}>開始遊戲</button>`:'<p class="wwwait">等房主開始…</p>');
+}
+function wwHostLobby(){wwRenderLobby();const lob=WW.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind}:null);
+  WW.seats.forEach((s,i)=>{if(s&&s.kind==='net')WW.net.sendTo(s.peer,{k:'lobby',seats:lob,cfg:WW.cfg,code:WW.code,me:i});});}
+
+/* ---------- 開局與每回合 ---------- */
+function wwGo(){if(wwCfgErr(WW.cfg))return;const n=WW.cfg.n;
+  if(wwHumans()>n){wwNote('人數比已加入的玩家少');return;}
+  // 先把真人往前排（離線的座位留給電腦）
+  const hum=WW.seats.filter(s=>s&&s.kind!=='ai');WW.seats=Array.from({length:n},(_,i)=>hum[i]||{kind:'ai'});
+  WW.me=WW.seats.findIndex(s=>s.kind==='me');WW.st=wwNew(WW.cfg,WW.seats.map(s=>s.kind==='ai'),Date.now());WW.phase='play';WW.sel=null;WW.mode=null;WW.lastMid=0;WW.stick=true;
+  wwStop();WW.tick=setInterval(()=>{if(WW.st&&wwTick(WW.st,Date.now()))wwAfter();},300);wwClock();wwAfter();}
+function wwAfter(){if(!WW.st)return;const now=Date.now();
+  if(WW.role==='host'&&WW.net)WW.seats.forEach((s,i)=>{if(s.kind==='net')WW.net.sendTo(s.peer,{k:'view',v:wwView(WW.st,i,now)});});
+  WW.view=wwView(WW.st,WW.me,now);WW.recvAt=now;wwRender();}
+function wwDo(seat,a){if(!WW.st)return'還沒開始';const err=wwAct(WW.st,seat,a,Date.now());if(!err)wwAfter();return err;}
+function wwMine(a){if(WW.role==='guest'){if(WW.net)WW.net.sendHost({k:'act',a});return;}const e=wwDo(WW.me,a);if(e)wwNote(e);}
+function wwTimerUpd(){const el=$('wwTimer'),v=WW.view;if(!el||!v||v.phase==='over'){if(el)el.textContent='';return;}
+  const left=Math.max(0,v.dl-(Date.now()-WW.recvAt));const s=Math.ceil(left/1000);el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;el.classList.toggle('low',s<=10);}
+function wwClock(){clearInterval(WW.clock);WW.clock=setInterval(wwTimerUpd,250);}
+let wwNoteT=null;function wwNote(t){const el=$('wwMsg');if(!el)return;el.textContent=t;el.classList.add('on');clearTimeout(wwNoteT);wwNoteT=setTimeout(()=>el.classList.remove('on'),2200);}
+
+/* ---------- 畫面 ---------- */
+function wwGameEls(on){['wwPhase','wwSeats','wwMine','wwLog','wwAct','wwSay'].forEach(id=>$(id).hidden=!on);$('wwLobby').hidden=on;$('ww').classList.toggle('lob',!on);}
+const wwEsc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const WW_PH={night:'天黑・夜晚行動',witch:'天黑・女巫行動',last:'遺言',hunter:'獵人開槍',speak:'白天・依序發言',vote:'白天・投票',over:'遊戲結束'};
+// 我現在能做什麼：{kind, hint, can(t), confirm, skip}
+function wwMyTask(v){
+  const me=v.me,alive=v.alive[me],r=v.role,al=i=>v.alive[i];
+  if(v.phase==='night'&&alive){
+    if(r==='wolf')return{kind:'night',hint:v.acted?'已選好，可以改選或等隊友（狼隊頻道可以討論）':'狼人：點一位玩家，今晚要殺的人',can:al,skip:'空刀',again:true};
+    if(r==='seer'&&!v.acted)return{kind:'night',hint:'預言家：點一位玩家查驗身份',can:i=>al(i)&&i!==me};
+    if(r==='guard'&&!v.acted)return{kind:'night',hint:'守衛：點一位玩家守護（可以守自己，不能連兩晚守同一人）',can:i=>al(i)&&i!==v.guardLast,skip:'不守'};
+  }
+  if(v.phase==='witch'&&r==='witch'&&alive&&!v.witch.fake)return{kind:'witch'};
+  if(v.phase==='hunter'&&v.cur===me)return{kind:'hunter',hint:'獵人：點一位玩家開槍帶走',can:i=>al(i)&&i!==me,skip:'不開槍'};
+  if((v.phase==='speak'||v.phase==='last')&&v.cur===me)return{kind:'speak'};
+  if(v.phase==='vote'&&v.canVote)return{kind:'vote',hint:v.myVote!=null?'已投票，可以改投':'點一位玩家投票',can:al,skip:'棄票',again:true};
+  return null;}
+function wwCanSay(v){const me=v.me;if(v.phase==='over')return true;if(v.phase==='night')return v.role==='wolf'&&v.alive[me];
+  return(v.phase==='speak'||v.phase==='last')&&v.cur===me;}
+function wwRender(){
+  const v=WW.view;if(!v)return;wwGameEls(true);
+  const me=v.me,night=v.phase==='night'||v.phase==='witch';$('ww').classList.toggle('night',night&&v.phase!=='over');
+  $('wwTitle').textContent='狼人殺';$('wwCode').textContent=WW.code?`房號 ${WW.code}`:'';
+  const task=wwMyTask(v);if(!task||!task.can)WW.sel=null;
+  if(WW.mode==='poison'&&!(v.phase==='witch'&&v.witch&&v.witch.poison))WW.mode=null;
+  const canPick=task&&task.can?task.can:(WW.mode==='poison'?i=>v.alive[i]&&i!==me:null);
+  // 標題列
+  let who='';if(v.phase==='speak'||v.phase==='last')who=`・${v.cur===me?'輪到你':(v.cur+1)+' 號'}發言`;else if(v.phase==='hunter')who=`・${v.cur+1} 號`;
+  $('wwPhase').innerHTML=`<b>${v.phase==='over'?'遊戲結束':`第 ${v.day} ${night?'夜':'天'}`}</b><span>${v.phase==='over'?(v.over.win==='good'?'好人陣營獲勝':'狼人陣營獲勝'):WW_PH[v.phase]+who}</span><span class="wwtimer" id="wwTimer"></span>`;
+  // 座位
+  const tally={};if(v.phase==='vote'&&v.voted)v.voted.forEach(s=>tally[s]=1);
+  $('wwSeats').innerHTML=Array.from({length:v.n},(_,i)=>{const dead=!v.alive[i],c=['wwseat'];
+    if(dead)c.push('dead');if(i===me)c.push('me');if(i===v.cur&&(v.phase==='speak'||v.phase==='last'||v.phase==='hunter'))c.push('talk');
+    if(canPick&&canPick(i))c.push('pick');if(WW.sel===i)c.push('sel');
+    let tag='';const rl=v.roles?v.roles[i]:(i===me?v.role:null);
+    if(rl)tag=`<i class="wwrole ${WW_ROLES[rl].side}">${WW_ROLES[rl].ic}${WW_ROLES[rl].n}</i>`;
+    else if(v.wolves&&v.wolves.includes(i))tag=`<i class="wwrole wolf">🐺狼隊友</i>`;
+    else if(v.seerRes&&i in v.seerRes)tag=`<i class="wwrole ${v.seerRes[i]?'wolf':'god'}">${v.seerRes[i]?'查驗：狼':'查驗：好人'}</i>`;
+    if(v.idiotUp.includes(i)&&!v.roles)tag+=`<i class="wwrole god">🤪白痴</i>`;
+    let badge='';if(v.wolfPicks){const n=Object.values(v.wolfPicks).filter(t=>t===i).length;if(n)badge=`<em class="wwknife">🔪${n}</em>`;}
+    if(v.phase==='vote'&&tally[i])badge+=`<em class="wwvoted">已投</em>`;
+    return`<button class="${c.join(' ')}" data-act="wwSeat" data-i="${i}"${canPick&&canPick(i)?'':' aria-disabled="true"'} aria-label="${i+1} 號${dead?'（出局）':''}"><b>${i+1}</b><span>${i===me?'你':(v.ai[i]?'電腦':'玩家')}</span>${tag}${badge}</button>`;}).join('');
+  // 我的身份
+  const R=WW_ROLES[v.role];let extra='';
+  if(v.witch)extra=`<span class="wwpot${v.witch.save?'':' used'}">解藥</span><span class="wwpot${v.witch.poison?'':' used'}">毒藥</span>`;
+  $('wwMine').innerHTML=`<span class="wwmyic">${R.ic}</span><span>你是 <b>${me+1} 號・${R.n}</b><small>${R.side==='wolf'?'狼人陣營':'好人陣營'}${v.alive[me]?'':'・已出局'}</small></span>${extra}`;
+  // 聊天紀錄
+  const log=$('wwLog'),atEnd=log.scrollHeight-log.scrollTop-log.clientHeight<40;
+  log.innerHTML=v.msgs.map(m=>{const sys=m.seat<0,priv=typeof m.to==='number',wolf=m.to==='wolf';
+    const cls=['wwm',sys?'sys':'say',priv?'priv':'',wolf?'wolf':'',m.seat===me?'mine':''].join(' ');
+    const head=sys?(priv?'<i>只有你看得到</i>':wolf?'<i>狼隊頻道</i>':''):`<b>${m.seat+1} 號${m.seat===me?'（你）':''}${wolf?'・狼隊':''}</b>`;
+    return`<div class="${cls}">${head}<p>${wwEsc(m.txt)}</p></div>`;}).join('');
+  if(atEnd||v.mid!==WW.lastMid&&WW.stick)log.scrollTop=log.scrollHeight;WW.lastMid=v.mid;
+  // 動作列
+  let act='';
+  if(v.phase==='over'){act=WW.role!=='guest'?`<button class="go" data-act="wwAgain">再來一局</button><button data-act="wwBack">回大廳</button>`:'<p>等房主開新的一局（可以在下面聊天）</p>';}
+  else if(task&&task.kind==='witch'){const w=v.witch;
+    if(WW.mode==='poison')act=`<p>點一位玩家用毒藥</p><button class="go" data-act="wwPoisonGo"${WW.sel==null?' disabled':''}>毒 ${WW.sel!=null?(WW.sel+1)+' 號':''}</button><button data-act="wwPoisonOff">取消</button>`;
+    else act=`<p>${w.save?(w.kill!=null&&w.kill>=0?`今晚 <b>${w.kill+1} 號</b> 被狼人殺了`:'今晚沒有人被殺'):'解藥已經用掉，看不到今晚誰被殺'}</p>`
+      +(w.save&&w.kill!=null&&w.kill>=0&&w.kill!==me?`<button class="go" data-act="wwSave">用解藥救</button>`:'')+(w.poison?`<button data-act="wwPoison">用毒藥…</button>`:'')+`<button data-act="wwNone">都不用</button>`;}
+  else if(task&&task.kind==='speak')act=`<p>${v.phase==='last'?'請發表遺言':'輪到你發言'}，在下面打字，說完按「過」</p><button class="go" data-act="wwEnd">過（結束發言）</button>`;
+  else if(task&&task.can)act=`<p>${task.hint}</p><button class="go" data-act="wwOk"${WW.sel==null?' disabled':''}>確定${WW.sel!=null?' '+(WW.sel+1)+' 號':''}</button>${task.skip?`<button data-act="wwSkip">${task.skip}</button>`:''}`;
+  else act=`<p class="wwidle">${wwIdle(v)}</p>`;
+  $('wwAct').innerHTML=act;
+  // 輸入框
+  const can=wwCanSay(v),inp=$('wwIn');inp.disabled=!can;$('wwSend').disabled=!can;
+  wwTimerUpd();
+  inp.placeholder=can?(v.phase==='night'?'和狼隊友說（只有狼人看得到）':v.phase==='over'?'聊聊這一局…':'輸入發言，按送出'):(v.phase==='night'||v.phase==='witch'?'天黑請閉眼':(v.phase==='speak'||v.phase==='last')?`現在是 ${v.cur+1} 號發言`:'現在不能發言');
+}
+function wwIdle(v){const me=v.me;if(!v.alive[me]&&v.phase!=='over')return'你已經出局，可以繼續觀看';
+  if(v.phase==='night')return v.acted?'已完成今晚的行動，等其他人…':'天黑請閉眼…';
+  if(v.phase==='witch')return'女巫行動中…';if(v.phase==='hunter')return`${v.cur+1} 號獵人決定是否開槍…`;
+  if(v.phase==='speak'||v.phase==='last')return`${v.cur+1} 號${v.phase==='last'?'發表遺言':'發言中'}…`;
+  if(v.phase==='vote')return v.canVote?'':'你不能投票，等其他人投完…';return'';}
+function wwSend(){const inp=$('wwIn'),t=inp.value.trim();if(!t||inp.disabled)return;inp.value='';WW.stick=true;wwMine({type:'say',txt:t});}
+
+/* ---------- 線上：房主 ---------- */
+async function wwCreate(){
+  if(!R){wwMenuMsg('連線元件還沒準備好',true);return;}wwMenuMsg('建立房間中…');
+  let net;try{net=await pkNet.host('ww',12);}catch(e){net=null;}
+  if(!net){wwMenuMsg('無法建立房間，請稍後再試',true);return;}
+  wwStop();WW.net=net;WW.role='host';WW.code=net.code;WW.me=0;WW.phase='lobby';WW.seats=[{kind:'me'}];
+  net.onMsg((peer,m)=>wwHostMsg(peer,m));
+  net.onLeave(peer=>{const i=WW.seats.findIndex(s=>s&&s.peer===peer);if(i<0)return;
+    if(WW.phase==='lobby'){WW.seats.splice(i,1);wwHostLobby();}else{WW.seats[i]={kind:'ai'};if(WW.st){WW.st.ai[i]=true;wwMsgSys(`${i+1} 號離線了，由電腦接手。`);}wwAfter();}});
+  wwShow();wwHostLobby();wwMenuMsg('');}
+function wwMsgSys(t){if(WW.st){wwMsg(WW.st,'all',t);WW.st.seq++;}}
+function wwHostMsg(peer,m){
+  if(!m||typeof m!=='object')return;
+  if(m.k==='join'){let i=WW.seats.findIndex(s=>s&&s.peer===peer);
+    if(i<0){if(WW.phase!=='lobby'){WW.net.sendTo(peer,{k:'full',why:'這局已經開始了'});return;}
+      if(WW.seats.length>=12){WW.net.sendTo(peer,{k:'full',why:'房間已經滿 12 人'});return;}
+      WW.seats.push({kind:'net',peer});i=WW.seats.length-1;if(WW.seats.length>WW.cfg.n){WW.cfg={...wwCfgFor(WW.seats.length),win:WW.cfg.win,speak:WW.cfg.speak};wwSaveCfg();}}
+    if(WW.phase==='lobby')wwHostLobby();else WW.net.sendTo(peer,{k:'view',v:wwView(WW.st,i,Date.now())});return;}
+  if(m.k==='act'){const i=WW.seats.findIndex(s=>s&&s.peer===peer);if(i<0||!WW.st)return;const err=wwDo(i,m.a||{});if(err)WW.net.sendTo(peer,{k:'err',m:err});}
+}
+/* ---------- 線上：加入者 ---------- */
+async function wwJoin(c){
+  if(!/^\d{4}$/.test(c)){wwMenuMsg('請輸入 4 位數字房號',true);return;}if(!R){wwMenuMsg('連線元件還沒準備好',true);return;}
+  wwMenuMsg(`尋找房間 ${c}…`);let net;try{net=await pkNet.join(c,'ww');}catch(e){net=null;}
+  if(!net){wwMenuMsg(`找不到房號 ${c} 的狼人殺房間`,true);return;}
+  wwStop();WW.net=net;WW.role='guest';WW.code=c;WW.phase='lobby';WW.view=null;WW.lobby=null;let got=false;
+  net.onMsg((peer,m)=>{if(!m||typeof m!=='object')return;got=true;
+    if(m.k==='full'){wwExit();wwMenuMsg(m.why||'房間已滿',true);return;}
+    if(m.k==='lobby'){WW.cfg=m.cfg;WW.lobby=m.seats;WW.me=m.me;WW.phase='lobby';WW.view=null;if($('ww').hidden){wwShow();wwMenuMsg('');}wwRenderLobby();return;}
+    if(m.k==='view'){const first=WW.phase!=='play';WW.phase='play';WW.view=m.v;WW.me=m.v.me;WW.recvAt=Date.now();if(first){WW.lastMid=0;WW.stick=true;WW.sel=null;WW.mode=null;}
+      if($('ww').hidden){wwShow();wwMenuMsg('');}if(!WW.clock)wwClock();wwRender();return;}
+    if(m.k==='err')wwNote(m.m);});
+  net.onLeave(()=>{if(WW.role==='guest'){wwExit();wwMenuMsg('房主離開了，連線中斷',true);}});
+  for(let i=0;i<8&&!got&&WW.net===net;i++){net.sendHost({k:'join'});await sleep(1200);}
+  if(!got&&WW.net===net){try{net.close();}catch(e){}WW.net=null;WW.role=null;wwMenuMsg('房主沒有回應，請確認房號',true);}
+}
+/* ---------- 點擊 ---------- */
+function wwClick(b){
+  const act=b.dataset.act,v=WW.view,host=WW.role==='host'||WW.role==='solo';
+  switch(act){
+    case 'wwSolo':wwOpenSolo();return true;
+    case 'wwCreate':wwCreate();return true;
+    case 'wwJoin':wwJoin($('wwCodeIn').value.trim());return true;
+    case 'wwExit':wwExit();return true;
+    case 'wwN':if(host)wwSetCount(WW.cfg.n+ +b.dataset.d);return true;
+    case 'wwRole':if(host)wwRoleStep(b.dataset.k,+b.dataset.d);return true;
+    case 'wwWin':if(host){WW.cfg.win=b.dataset.v;wwCfgChanged();}return true;
+    case 'wwSpeak':if(host){WW.cfg.speak=+b.dataset.v;wwCfgChanged();}return true;
+    case 'wwPreset':if(host){WW.cfg={...wwCfgFor(WW.cfg.n),win:WW.cfg.win,speak:WW.cfg.speak};wwCfgChanged();}return true;
+    case 'wwGo':if(host)wwGo();return true;
+    case 'wwAgain':if(host)wwGo();return true;
+    case 'wwBack':if(host){wwStop();WW.st=null;WW.view=null;WW.phase='lobby';WW.seats=WW.seats.filter(s=>s.kind!=='ai');if(WW.role==='host')wwHostLobby();else wwRenderLobby();}return true;
+    case 'wwSeat':{if(!v)return true;const i=+b.dataset.i,task=wwMyTask(v);
+      const can=WW.mode==='poison'?(v.alive[i]&&i!==v.me):(task&&task.can&&task.can(i));if(!can)return true;WW.sel=WW.sel===i?null:i;wwRender();return true;}
+    case 'wwOk':{if(!v||WW.sel==null)return true;const task=wwMyTask(v);if(!task)return true;const t=WW.sel;WW.sel=null;
+      wwMine(task.kind==='vote'?{type:'vote',t}:task.kind==='hunter'?{type:'hunter',t}:{type:'night',t});return true;}
+    case 'wwSkip':{if(!v)return true;const task=wwMyTask(v);if(!task)return true;WW.sel=null;
+      wwMine(task.kind==='vote'?{type:'vote',t:-1}:task.kind==='hunter'?{type:'hunter',t:-1}:{type:'night',t:-1});return true;}
+    case 'wwSave':WW.mode=null;wwMine({type:'witch',use:'save'});return true;
+    case 'wwPoison':WW.mode='poison';WW.sel=null;wwRender();return true;
+    case 'wwPoisonOff':WW.mode=null;WW.sel=null;wwRender();return true;
+    case 'wwPoisonGo':if(WW.sel!=null){const t=WW.sel;WW.sel=null;WW.mode=null;wwMine({type:'witch',use:'poison',t});}return true;
+    case 'wwNone':WW.mode=null;wwMine({type:'witch',use:'none'});return true;
+    case 'wwEnd':wwMine({type:'endSpeak'});return true;
+    case 'wwSend':wwSend();return true;
+  }
+  return false;}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='wwIn'&&!e.isComposing){e.preventDefault();wwSend();}});
+document.addEventListener('scroll',e=>{if(e.target&&e.target.id==='wwLog'){const l=e.target;WW.stick=l.scrollHeight-l.scrollTop-l.clientHeight<40;}},true);
 
 /* ---------- 電腦版隱藏快捷鍵（畫面上不顯示）：1 拍桌 2 弓箭 3 炸彈 4 翻桌 5 海嘯 6 龍捲風 7 火燒 ---------- */
 const FX_KEYS=['slap','arrow','bomb','flip','wave','tornado','fire'];
@@ -4875,6 +5375,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const act=b.dataset.act;
   if(act.startsWith('pk')&&pkClick(b))return;
+  if(act.startsWith('ww')&&wwClick(b))return;
   if(CONFIRM.has(act)&&armed!==act){armed=act;clearTimeout(armTimer);armTimer=setTimeout(()=>{armed=null;render();},2500);render();return;}
   armed=null;clearTimeout(armTimer);
   switch(act){
