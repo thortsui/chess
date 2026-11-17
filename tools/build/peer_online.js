@@ -2,7 +2,7 @@
 const enc=b=>b.flat().map(p=>p?(p.s==='r'?p.t:p.t.toLowerCase()):'.').join('');
 function dec(s){const b=[];for(let r=0;r<10;r++){b.push([]);for(let c=0;c<9;c++){const ch=s[r*9+c];
   b[r].push(ch==='.'?null:{t:ch.toUpperCase(),s:ch===ch.toUpperCase()?'r':'b'});}}return b;}
-function snapshot(){if(variant==='dk')return dkSnapshot();if(variant==='ch')return chSnapshot();if(variant==='gm')return gmSnapshot();if(variant==='go')return goSnapshot();return{v:'xq',seq,b:enc(board),t:turn,l:last?[...last.from,...last.to]:null,
+function snapshot(){if(variant==='dk')return dkSnapshot();if(variant==='ch')return chSnapshot();if(variant==='gm')return gmSnapshot();if(variant==='go')return goSnapshot();return{v:'xq',qf:qf?1:0,seq,b:enc(board),t:turn,l:last?[...last.from,...last.to]:null,
   o:over?[over.winner,over.mate?1:0]:null,g:guestPeer,h:hist.length};}
 const PREFIX='thortsui-xiangqi-';
 let peer=null,conn=null;
@@ -18,8 +18,8 @@ function onState(m){
   if(d&&d.v==='ch'){chOnState(d);return;}
   if(d&&d.v==='gm'){gmOnState(d);return;}
   if(d&&d.v==='go'){goOnState(d);return;}
-  variant='xq';
-  if(!d||typeof d.b!=='string'||d.b.length!==90||!/^[RNBAKCPrnbakcp.]+$/.test(d.b)||!Number.isInteger(d.seq))return;
+  variant='xq';setQf(!!(d&&d.qf));
+  if(!d||typeof d.b!=='string'||d.b.length!==90||!/^[RNBAKCPTHFDYIrnbakcpthfdyi.]+$/.test(d.b)||!Number.isInteger(d.seq))return;
   if(mode==='online'&&d.seq<seq)return;
   const moved=mode==='online'&&d.seq>seq&&(d.h|0)>guestHist;
   seq=d.seq;board=dec(d.b);turn=d.t==='b'?'b':'r';
