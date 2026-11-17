@@ -29,7 +29,7 @@ var qfEngine=(function(){
         case 7:{const f=side>0?-1:1;add(r+f,c);if(side>0?r<=4:r>=5){add(r,c-1);add(r,c+1);}break;}
         case 13:{const f=side>0?-1:1,rr=r+f;
           if(inb(rr,c)&&!B[rr*9+c]){if(!capsOnly)out.push(i*90+rr*9+c);
-            const start=side>0?r===7:r===2;
+            const start=side>0?r===8:r===1;
             if(start&&inb(rr+f,c)&&!B[(rr+f)*9+c]&&!capsOnly)out.push(i*90+(rr+f)*9+c);}
           for(const dc of[-1,1])if(inb(rr,c+dc)){const q=B[rr*9+c+dc];if(q&&(q>0?1:-1)!==side)out.push(i*90+rr*9+c+dc);}
           break;}
