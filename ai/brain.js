@@ -272,8 +272,18 @@
     for (let i = 0; i < n; i++) if (N[i] > 0 && Q[i] >= qb - dl) main.push(i);
     main.sort((a, b) => N[b] - N[a]); main = main.slice(0, 6);
     if (!main.includes(bi)) main.unshift(bi);
+    // 候選太少就不像真人（一步 90% 其他都很低）：Lv1～6 至少 3 個、Lv7～9 至少 2 個，補「沒有明顯比較差」的走法
+    const kMin = L <= 6 ? 3 : L <= 9 ? 2 : 1;
+    if (main.length < kMin) {
+      const rest = [];
+      for (let i = 0; i < n; i++) if (!main.includes(i) && N[i] > 0 && Q[i] >= qb - Math.max(0.35, dl)) rest.push(i);
+      rest.sort((a, b) => N[b] - N[a] || root.pri[b] - root.pri[a]);
+      main = main.concat(rest.slice(0, kMin - main.length));
+    }
     const tau = PARAM.tau(L);
-    let z = 0; for (const i of main) { p[i] = Math.pow(N[i], 1 / tau); z += p[i]; }
+    // 權重＝搜尋次數＋一點直覺（網路先驗）：搜尋次數少時（八國聯軍）也會偏向「看起來自然」的走法
+    let NT = 0, PT = 0; for (const i of main) { NT += N[i]; PT += root.pri[i]; }
+    let z = 0; for (const i of main) { p[i] = Math.pow(N[i] + 0.5 * NT * root.pri[i] / (PT || 1), 1 / tau); z += p[i]; }
     // 失誤候選：其餘走法，依網路先驗（開根號讓它更平均）分配；高等級排除已知的大漏著
     const mis = [];
     for (let i = 0; i < n; i++) {

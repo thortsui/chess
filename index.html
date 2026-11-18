@@ -813,7 +813,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.18.0">v0.18.0</span>
+  <span class="ver" aria-label="版本 0.18.1">v0.18.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -2187,7 +2187,7 @@ function getWorker(k){
 const BR={w:null,ok:false,busy:0,P:new Map(),id:0,last:null};
 function brainStart(){
   if(BR.w)return;
-  try{BR.w=new Worker('ai/worker.js');}catch(e){BR.w=null;BR.ok=false;return;}
+  try{BR.w=new Worker('ai/worker.js?v='+((document.querySelector('.ver')||{}).textContent||'').replace(/^v/,''));}catch(e){BR.w=null;BR.ok=false;return;}
   BR.w.onmessage=e=>{const f=BR.P.get(e.data.id);if(f){BR.P.delete(e.data.id);f(e.data);}};
   BR.w.onerror=()=>{BR.ok=false;const fs=[...BR.P.values()];BR.P.clear();fs.forEach(f=>f({r:null}));};
   brainCall({cmd:'init'}).then(m=>{BR.ok=!!(m&&m.ok);if(BR.ok&&typeof syncLv==='function')syncLv();});
