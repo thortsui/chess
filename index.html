@@ -729,7 +729,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.13.12">v0.13.12</span>
+  <span class="ver" aria-label="版本 0.13.13">v0.13.13</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -746,7 +746,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
         <article class="qfcard" aria-label="第 4 頁，共 8 頁"><div class="qfcd"><span class="qfic">🌊</span><span>1884 年底–1885 年</span></div><h3>封鎖台灣、攻佔澎湖</h3><p>法國艦隊封鎖台灣海峽，1885 年 3 月攻佔澎湖。孤拔同年 6 月在澎湖病逝。</p></article>
         <article class="qfcard" aria-label="第 5 頁，共 8 頁"><div class="qfcd"><span class="qfic">🚩</span><span>1885 年 3 月</span></div><h3>鎮南關大捷</h3><p>老將馮子材在中越邊境的鎮南關擊敗法軍，接著收復諒山。消息傳回巴黎，茹費理內閣因此下台。</p></article>
         <article class="qfcard" aria-label="第 6 頁，共 8 頁"><div class="qfcd"><span class="qfic">📜</span><span>1885 年 6 月 9 日</span></div><h3>中法新約</h3><p>雙方在天津簽約停戰，清朝承認法國對越南的保護權。這一年清廷決定讓台灣建省，由劉銘傳擔任首任巡撫，開始建設台灣。</p></article>
-        <article class="qfcard" aria-label="第 7 頁，共 8 頁"><div class="qfcd"><span class="qfic">♟️</span><span>這個模式</span></div><h3>雙方陣容</h3><p>清軍用象棋（紅方，先走），法軍用西洋棋（黑方，後走）。</p><p><b>法軍</b>：西洋棋佈局擴成九路，底線 城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。</p><p><b>清軍</b>：底線照象棋擺法但兩個角落是炮；1、9 路往前兩格各兩隻俥（俥 4、炮 4），兵 5 隻擺在河邊。</p></article>
+        <article class="qfcard" aria-label="第 7 頁，共 8 頁"><div class="qfcd"><span class="qfic">♟️</span><span>這個模式</span></div><h3>雙方陣容</h3><p>清軍用象棋（紅方，先走），法軍用西洋棋（黑方，後走）。</p><p><b>法軍</b>：西洋棋佈局擴成九路，底線 城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。</p><p><b>清軍</b>：底線照象棋擺法但兩個角落是炮；1、9 路往前一格是俥、往前兩格是炮（俥 2、炮 6），兵 5 隻擺在河邊。</p></article>
         <article class="qfcard" aria-label="第 8 頁，共 8 頁"><div class="qfcd"><span class="qfic">📖</span><span>這個模式</span></div><h3>法軍走法</h3><p>法軍在交叉點上照西洋棋走：城堡直走、主教斜走、皇后直斜都能走、騎士走日字不會被拐腳、國王八方向一步（不受九宮限制）；士兵往前一步（第一步可走兩步）、吃斜前方，走到底變皇后。</p><p>法軍沒有過河限制；帥與國王不能照面。將死或困死對方就贏。</p></article>
       </div>
       <div class="qfnav"><button class="qfarr" data-act="qfPrev" aria-label="上一頁">‹</button><span class="qfdots" id="qfDots"><i data-n="0"></i><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i><i data-n="5"></i><i data-n="6"></i><i data-n="7"></i></span><span class="qfpg" id="qfPg">1 / 8</span><button class="qfarr" data-act="qfNext" aria-label="下一頁">›</button></div>
@@ -1790,8 +1790,7 @@ function init(){
   if(qf){const top='THFDYDFHT',back='RNBAKABNR';
     for(let c=0;c<9;c++){if(top[c]!=='.')board[0][c]={t:top[c],s:'b'};board[9][c]={t:back[c],s:'r'};}
     [1,7].forEach(c=>{board[7][c]={t:'C',s:'r'};});   // 炮 2 隻，在原本的位置
-    [7,8].forEach(r=>[0,8].forEach(c=>{board[r][c]={t:'R',s:'r'};}));   // 1、9 路往前一格、往前兩格各一隻俥（俥共 4 隻）
-    [0,8].forEach(c=>{board[9][c]={t:'C',s:'r'};});   // 底線兩個角落的俥換成炮（炮共 4 隻）
+    [0,8].forEach(c=>{board[9][c]={t:'C',s:'r'};board[8][c]={t:'R',s:'r'};board[7][c]={t:'C',s:'r'};});   // 1、9 路：底線角落炮、往前一格俥、最靠河那格炮（俥 2、炮 6）
     QF_PAWNS.forEach(([r,c])=>{board[r][c]={t:'I',s:'b'};});
     [0,2,4,6,8].forEach(c=>{board[5][c]={t:'P',s:'r'};});   // 兵只有 5 隻，擺在原本位置的前面一格（河邊）
     turn='r';hist=[];sel=null;targets=[];last=null;over=null;return;}   // 清軍先走
