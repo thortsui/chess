@@ -27,7 +27,7 @@ def fetch(src, dst):
         shutil.copyfile(src, dst); return True
     except OSError:
         return False
-SIMS = {'bg': 48, 'go': 160, 'gm': 128}        # 每步模擬次數（其餘 128）
+SIMS = {'bg': 16, 'go': 160, 'gm': 128}        # 每步模擬次數（其餘 128）
 CONC = {'bg': 16, 'gm': 48}                    # 每個行程同時下幾局（其餘 64）
 
 

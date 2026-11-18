@@ -9,7 +9,7 @@ const AI = require(path.join(__dirname, '..', 'ai', 'brain.js'));
 const G = require(path.join(__dirname, '..', 'ai', 'games', id + '.js'));
 const NC = AI.NC, HW = G.H * G.W, NB = 36, BITB = Math.ceil(NB * HW / 8), AUXB = 4 * HW;
 const rng = AI.makeRng(+SEED * 2654435761 + 7);
-const SIM = +SIMS, MAXPLY = 500;
+const SIM = +SIMS, MAXPLY = id === 'bg' ? 240 : 500;   // 八國聯軍一局太長：下到 240 手算和局，棋局才會快點變成訓練資料
 // 溫度：開局 30 手 1.0（多變化），之後 0.7；根節點 Dirichlet 雜訊
 const TAU0 = 1.0, TAU1 = 0.7, OPEN = 30, DIR_A = 0.3, DIR_E = 0.25;
 const planes = new Float32Array(NC * HW);
