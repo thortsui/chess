@@ -802,6 +802,9 @@ html,body{overflow:hidden;overscroll-behavior:none}
   --sc-title:#fff4dc;--sc-sub:#ffe6c4;--sc-tsh:0 1px 4px rgba(40,10,0,.6)}
 .logo.bgl .duo span:first-child{font-size:24px}
 .logo.bgl .duo span:last-child{transform:none;font-size:13px;letter-spacing:-.02em;background:radial-gradient(circle at 35% 30%,#fff,#e8e2d6);color:#1e4fd8;font-family:var(--ui);font-weight:900}
+#aiInfo{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;max-width:min(92vw,420px);padding:6px 12px;border-radius:12px;background:rgba(20,16,12,.78);color:#f6ead8;font-size:12px;line-height:1.45;pointer-events:none;opacity:0;transition:opacity .3s;text-align:center}
+#aiInfo.on{opacity:1}
+#aiInfo b{color:#ffd27a;font-weight:600}
 </style>
 </head>
 <body>
@@ -810,7 +813,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.17.1">v0.17.1</span>
+  <span class="ver" aria-label="版本 0.18.0">v0.18.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -2166,7 +2169,7 @@ function doUndo(){
 function newGame(){if(mode==='ai')aiCancel();init();seq++;undoAsk=false;myUndoReq=false;hideBanner();render();if(role==='host')broadcast();if(mode==='ai')maybeAI();}
 
 /* ---------- AI ---------- */
-function lvText(l){const t=LEVELS[l].t;return t<1000?'瞬間出手':`每步最多約 ${Math.round(t/1000)} 秒`;}
+function lvText(l){if(BR.ok)return `預判 ${l*l} 步・每步約 ${(1+4*(l-1)/9).toFixed(1)} 秒`;const t=LEVELS[l].t;return t<1000?'瞬間出手':`每步最多約 ${Math.round(t/1000)} 秒`;}
 function syncLv(){$('lvVal').textContent='Lv '+aiLevel;$('lvHint').textContent=lvText(aiLevel);}
 const ENG_SRC=()=>$('engine').textContent+'\n'+$('dkengine').textContent+'\n'+$('chengine').textContent+'\n'+$('gmengine').textContent+'\n'+$('goengine').textContent+'\n'+$('qfengine').textContent+'\n'+$('jwengine').textContent;
 const W={};
@@ -2180,13 +2183,41 @@ function getWorker(k){
     return w;
   }catch(e){W[k]=null;return null;}
 }
+/* ---------- 下棋模型（ai/：DGX 訓練的共用網路＋MCTS，等級²預判、機率選步）；沒有模型時自動用上面的舊引擎 ---------- */
+const BR={w:null,ok:false,busy:0,P:new Map(),id:0,last:null};
+function brainStart(){
+  if(BR.w)return;
+  try{BR.w=new Worker('ai/worker.js');}catch(e){BR.w=null;BR.ok=false;return;}
+  BR.w.onmessage=e=>{const f=BR.P.get(e.data.id);if(f){BR.P.delete(e.data.id);f(e.data);}};
+  BR.w.onerror=()=>{BR.ok=false;const fs=[...BR.P.values()];BR.P.clear();fs.forEach(f=>f({r:null}));};
+  brainCall({cmd:'init'}).then(m=>{BR.ok=!!(m&&m.ok);if(BR.ok&&typeof syncLv==='function')syncLv();});
+}
+function brainCall(m){if(!BR.w)return Promise.resolve({r:null});return new Promise(res=>{const id=++BR.id;BR.P.set(id,res);BR.w.postMessage({...m,id});});}
+// 想到一半被取消（悔棋、重開）：直接換一個新的 Worker，不用等它想完
+function brainReset(){if(!BR.w||!BR.busy)return;try{BR.w.terminate();}catch(e){}const fs=[...BR.P.values()];BR.P.clear();BR.w=null;BR.busy=0;BR.ok=false;fs.forEach(f=>f({r:null}));brainStart();}
+const brGame=d=>d.v==='jw'?'jw':d.v==='qf'?'qf':d.v==='dk'?'dk':d.v==='ch'?'ch':d.v==='gm'?'gm':d.v==='go'?(d.op?null:'go'):d.v?null:'xq';
+function brainThink(game,req,level,best){
+  BR.busy++;
+  return brainCall({game,req,level,best}).then(m=>{BR.busy=Math.max(0,BR.busy-1);const r=m&&m.r;if(r&&!best){BR.last=r;aiInfoShow(r);}return r;});
+}
+function aiInfoShow(r){
+  let el=document.getElementById('aiInfo');if(!el){el=document.createElement('div');el.id='aiInfo';el.setAttribute('aria-live','polite');document.body.appendChild(el);}
+  const top=r.probs.slice(0,4).map(x=>Math.round(x.p*100)+'%').join('・');
+  el.innerHTML=`AI 預判 <b>${r.depth}</b> 步（上限 ${r.maxDepth}）・想了 ${(r.ms/1000).toFixed(1)} 秒<br>這步機率 <b>${Math.round(r.chosenP*100)}%</b>（候選 ${top}）`;
+  el.classList.add('on');clearTimeout(aiInfoShow.t);aiInfoShow.t=setTimeout(()=>el.classList.remove('on'),3200);
+}
 function runEngine(data,k='ai'){
+  const g=BR.ok&&(k==='ai'||k==='hint')?brGame(data):null;
+  if(g)return brainThink(g,data,k==='hint'?4:aiLevel,k==='hint').then(r=>r&&r.res?r.res:runEngineOld(data,k));
+  return runEngineOld(data,k);
+}
+function runEngineOld(data,k){
   const w=getWorker(k);
   if(w)return new Promise(res=>{const id=++reqId;W[k].P.set(id,res);w.postMessage({...data,id});});
   try{if(!mainApi)mainApi=new Function(ENG_SRC()+';return d=>d.v==="jw"?jwEngine.think(d):d.v==="qf"?qfEngine.think(d):d.v==="dk"?dkApi(d):d.v==="ch"?chEngine.think(d):d.v==="gm"?gmEngine.think(d):d.v==="go"?goEngine.think(d):api(d);')();}catch(e){return Promise.resolve(null);}
   return new Promise(res=>setTimeout(()=>res(mainApi({...data,time:Math.min(data.time,1500)})),30));
 }
-function aiCancel(){aiToken++;thinking=false;if(W.ai&&W.ai.P.size){W.ai.w.terminate();W.ai=null;}}
+function aiCancel(){aiToken++;thinking=false;if(W.ai&&W.ai.P.size){W.ai.w.terminate();W.ai=null;}brainReset();}
 function maybeAI(){
   if(variant==='dk')return dkMaybeAI();
   if(variant==='ch')return chMaybeAI();
@@ -2196,7 +2227,7 @@ function maybeAI(){
   thinking=true;render();
   const tok=++aiToken,t0=Date.now(),L=LEVELS[aiLevel];
   const rep=hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}));
-  runEngine(jw?{v:'jw',b:enc(board),s:turn,hand:{...jwHand},time:L.t,depth:L.d}:qf?{v:'qf',b:enc(board),s:turn,time:L.t,depth:L.d}:{b:enc(board),s:turn,rep,time:L.t,depth:L.d}).then(res=>{
+  runEngine(jw?{v:'jw',b:enc(board),s:turn,hand:{...jwHand},rep,time:L.t,depth:L.d}:qf?{v:'qf',b:enc(board),s:turn,rep,time:L.t,depth:L.d}:{b:enc(board),s:turn,rep,time:L.t,depth:L.d}).then(res=>{
     if(tok!==aiToken||mode!=='ai')return;
     setTimeout(()=>{
       if(tok!==aiToken||mode!=='ai')return;
@@ -2364,7 +2395,7 @@ function dkMaybeAI(){
   };
   if(!col){done(null);return;}
   const rep=hist.slice(-30).filter(h=>h.colors[h.turn]).map(h=>({b:dkEncB(h.board),s:h.colors[h.turn]}));
-  runEngine({v:'dk',b:dkEncB(board),s:col,pool:dkPool(),rep,chain:dkChain,time:L.t,depth:L.d}).then(done);
+  runEngine({v:'dk',b:dkEncB(board),s:col,pool:dkPool(),rep,chain:dkChain,quiet:dkQuiet,time:L.t,depth:L.d}).then(done);
 }
 function dkAnnounce(){
   if(!over)return;
@@ -5161,8 +5192,13 @@ function bgName(p){return p.s==='Q'?'清軍'+BG_QN[p.t]:BG_NATIONS[p.n].n+bgCNam
 function bgDescribe(p,q){return bgName(p)+(q?' 吃掉 '+bgName(q):' 移動');}
 function bgAfter(){bgPush();bgRender();bgSchedule();}
 function bgSchedule(){clearTimeout(BG.timer);const st=BG.st;if(!st||st.over||BG.role==='guest')return;const w=bgWho();if(!w||!w.ai)return;
-  const seq=st.seq;BG.timer=setTimeout(()=>{if(BG.st!==st||st.seq!==seq||st.over)return;
-    const mv=bgAI(st,w.nations?{only:p=>p.s==='Q'||w.nations.includes(p.n)}:null);if(mv)bgDo(mv[0],mv[1]);},st.turn==='A'?420:520);}
+  const seq=st.seq,old=()=>bgAI(st,w.nations?{only:p=>p.s==='Q'||w.nations.includes(p.n)}:null);
+  BG.timer=setTimeout(()=>{if(BG.st!==st||st.seq!==seq||st.over)return;
+    if(BR.ok){const t0=Date.now();   // 下棋模型：在 Worker 裡想，想完再確認局面沒變
+      brainThink('bg',{st:JSON.parse(JSON.stringify(st)),kinds:BG_KIND.slice(),only:w.nations||null},aiLevel,false).then(r=>{
+        if(BG.st!==st||st.seq!==seq||st.over)return;const mv=r&&r.res&&bgMoves(st,r.res[0],false).includes(r.res[1])?r.res:old();if(mv)bgDo(mv[0],mv[1]);});
+      return;}
+    const mv=old();if(mv)bgDo(mv[0],mv[1]);},st.turn==='A'?420:520);}
 function bgUndo(){if(BG.role!=='solo'||!BG.hist.length)return;clearTimeout(BG.timer);
   do{BG.st=BG.hist.pop();}while(BG.hist.length&&!bgMyTurn());BG.sel=-1;BG.tg=[];BG.msg='悔棋';bgRender();bgSchedule();}
 /* ---------- 畫面 ---------- */
@@ -6190,7 +6226,7 @@ function requestHint(){
   if(!hintOn||!humanTurn())return;
   const key=variant+':'+posKey();if(hint.key===key)return;
   hint={key,mv:null};const tok=++hintTok;let data;
-  if(variant==='xq')data=jw?{v:'jw',b:enc(board),s:turn,hand:{...jwHand},time:1200,depth:40}:qf?{v:'qf',b:enc(board),s:turn,time:1200,depth:40}:{b:enc(board),s:turn,rep:hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}))};
+  if(variant==='xq'){const rep=hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}));data=jw?{v:'jw',b:enc(board),s:turn,hand:{...jwHand},rep,time:1200,depth:40}:qf?{v:'qf',b:enc(board),s:turn,rep,time:1200,depth:40}:{b:enc(board),s:turn,rep};}
   else if(variant==='dk'){const col=dkColors[turn];if(!col)return;
     data={v:'dk',b:dkEncB(board),s:col,pool:dkPoolPublic(),chain:dkChain,rep:hist.slice(-30).filter(h=>h.colors[h.turn]).map(h=>({b:dkEncB(h.board),s:h.colors[h.turn]}))};}
   else if(variant==='ch')data={v:'ch',fen:chFen,rep:hist.slice(-100).map(h=>h.fen)};
@@ -6534,6 +6570,7 @@ $('layer').addEventListener('click',e=>{
 });
 syncVariant();modeNudge();syncOpt3d();syncF2f();syncAnim();if(opt3d&&webglOK())load3D();
 $('lvIn').addEventListener('input',e=>{aiLevel=+e.target.value;syncLv();});
+brainStart();
 syncLv();
 $('codeIn').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
 $('codeIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&R&&!busy)joinRoom(e.target.value.trim());});

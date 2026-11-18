@@ -1,0 +1,7 @@
+data/
+runs*/
+runs_laptop*.log
+runs_laptop*.err
+ai/ckpt.pt
+__pycache__/
+.playwright-mcp/
