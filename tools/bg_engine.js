@@ -1,11 +1,11 @@
 /* ===== 八國聯軍：規則引擎＋電腦玩家（十字形方格地圖：中央一塊空地，上、左、右、下四邊各貼一塊；清軍照象棋走、聯軍 8 國照西洋棋走） ===== */
-// 地圖 34×23：中央 24×8；上面那塊 24×3 站六國；左右各一塊 5×8（俄國、奧匈）；下面那塊 24×12 是清軍；四個角落沒有格子
-const BG_AW=5,BG_CW=24,BG_TH=3,BG_CH=8,BG_QH=12,BG_W=BG_AW*2+BG_CW,BG_H=BG_TH+BG_CH+BG_QH,BG_NY=BG_TH+2,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW,BG_PW=BG_CW;
-const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：上方國家的左邊界）
-  {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:0},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'t',at:0},
-  {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:4},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8},
-  {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:12},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:16},
-  {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'t',at:20},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:0}];
+// 地圖 40×30：中央 32×16；上面那塊 32×2 站四國；左右各一塊 4×16，各站兩國；下面那塊 32×12 是清軍；四個角落沒有格子。每國是一整副西洋棋（8 格寬、2 排）
+const BG_AW=4,BG_CW=32,BG_TH=2,BG_CH=16,BG_QH=12,BG_W=BG_AW*2+BG_CW,BG_H=BG_TH+BG_CH+BG_QH,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW,BG_PW=BG_CW;
+const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：沿著那一邊的起點）
+  {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:8},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'l',at:0},
+  {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:0},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8},
+  {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:16},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:24},
+  {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'r',at:0},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:8}];
 const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'},BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'},BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵'};
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y>=BG_TH&&y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
@@ -15,17 +15,17 @@ const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地
 // 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
 const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_PX+N.at,y:0,w:4,h:3}:N.side==='l'?{x:0,y:BG_NY,w:3,h:4}:{x:BG_W-3,y:BG_NY,w:3,h:4};};
+const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_PX+N.at,y:0,w:8,h:2}:N.side==='l'?{x:0,y:BG_TH+N.at,w:2,h:8}:{x:BG_W-2,y:BG_TH+N.at,w:2,h:8};};
 const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
-// 清軍陣形（24 格寬，每一排都排到左右邊）：前兩排將、炮馬炮（都是隔一格一顆、交錯）、三排車貼在最邊邊；最後三排整排填滿，由中間往外是 相馬車相馬車相馬車，中間是士相與慈、禧（兩個都被吃才算輸）
-const BG_QING=(()=>{const L='RHERHERHE',R='EHREHREHR',edge='R'+'.'.repeat(22)+'R';
-  return['G.'.repeat(12),'.G'.repeat(12),'.'.repeat(24),'C.'.repeat(12),'.H'.repeat(12),'C.'.repeat(12),edge,edge,edge,L+'HEAAEH'+R,L+'HA..AH'+R,L+'AX..YA'+R];})();
+// 清軍陣形（32 格寬，每一排都排到左右邊）：前兩排將、炮馬炮（都是隔一格一顆、交錯）、三排車貼在最邊邊；最後三排整排填滿，由邊邊往中間是 車馬相車馬相…車，中間是士相與慈、禧（兩個都被吃才算輸）
+const BG_QING=(()=>{const L='RHERHERHERHER',R='REHREHREHREHR',edge='R'+'.'.repeat(30)+'R';
+  return['G.'.repeat(16),'.G'.repeat(16),'.'.repeat(32),'C.'.repeat(16),'.H'.repeat(16),'C.'.repeat(16),edge,edge,edge,L+'HEAAEH'+R,L+'HA..AH'+R,L+'AX..YA'+R];})();
 function bgNew(){
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
-  BG_NATIONS.forEach((N,n)=>{const ranks=['rnnr','bkqb','pppp'];
-    for(let d=0;d<3;d++)for(let a=0;a<4;a++){const t=ranks[d][a];let x,y;
-      if(N.side==='t'){x=BG_PX+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_NY+a;}else{x=BG_W-1-d;y=BG_NY+a;}
+  BG_NATIONS.forEach((N,n)=>{const ranks=['rnbqkbnr','pppppppp'];
+    for(let d=0;d<2;d++)for(let a=0;a<8;a++){const t=ranks[d][a];let x,y;
+      if(N.side==='t'){x=BG_PX+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}
       b[bgIdx(x,y)]={s:'A',t,n};}});
   return{b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};}
 // 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
