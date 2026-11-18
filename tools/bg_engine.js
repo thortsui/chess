@@ -2,11 +2,17 @@
 // 地圖 40×34：中央 32×16；上面那塊 32×2 站四國；左右各一塊 4×16，各站兩國；下面那塊 20×16 是清軍（左右各內縮 6 格）；四個角落沒有格子。每國是一整副西洋棋（8 格寬、2 排）
 const BG_AW=4,BG_CW=32,BG_TH=2,BG_CH=16,BG_QH=16,BG_W=BG_AW*2+BG_CW,BG_H=BG_TH+BG_CH+BG_QH,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW+6,BG_PW=BG_CW-12;   // 清軍腹地左右各比中央內縮 6 格
 const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：沿著那一邊的起點）
-  {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:8},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'l',at:0},
-  {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:0},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8},
-  {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:16},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:24},
-  {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'r',at:0},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:8}];
-const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'},BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'},BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵'};
+  {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:8,g:'塔夫列利'},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'l',at:0,g:'將棋',d:3},
+  {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:0,g:'西洋棋'},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8,g:'菲舍爾任意制'},
+  {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:16,g:'西洋棋'},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:24,g:'信使棋'},
+  {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'r',at:0,g:'義式西洋棋'},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:8,g:'維也納棋'}];
+const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'};
+// 聯軍各國用自己國家的棋。棋種：k 國王 q 皇后 r 城堡 b 主教 n 騎士 p 士兵｜俄國 o 王前兵（升變成 e 赫爾吉＝皇后＋騎士）
+// ｜德國信使棋 c 信使 m 謀士 f 小后 w 弄臣 a 弓手｜日本將棋 g 金 s 銀 j 桂 l 香 u 歩，升變 d 龍 y 馬 t 成金
+const BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟',o:'♟',e:'勇',c:'信',m:'謀',f:'后',w:'弄',a:'弓',g:'金',s:'銀',j:'桂',l:'香',u:'歩',d:'龍',y:'馬',t:'と'};
+const BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵',o:'王前兵',e:'赫爾吉',c:'信使',m:'謀士',f:'小后',w:'弄臣',a:'弓手',g:'金將',s:'銀將',j:'桂馬',l:'香車',u:'步兵',d:'龍王',y:'龍馬',t:'成金'};
+const BG_JP={k:'王',r:'飛',b:'角'},BG_JPN={k:'王將',r:'飛車',b:'角行'},BG_JPUP={r:'d',b:'y',s:'t',j:'t',l:'t',u:'t'};   // 日本的王、飛、角用漢字；走進清軍腹地升變
+const bgGlyph=p=>(p.n===1&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(p.n===1&&BG_JPN[p.t])||BG_CN[p.t];
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y<BG_TH?[BG_AW,BG_AW+BG_CW-1]:y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
 const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
@@ -15,17 +21,24 @@ const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地
 // 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
 const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:2}:N.side==='l'?{x:0,y:BG_TH+N.at,w:2,h:8}:{x:BG_W-2,y:BG_TH+N.at,w:2,h:8};};
+const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:2}:N.side==='l'?{x:0,y:BG_TH+N.at,w:N.d||2,h:8}:{x:BG_W-(N.d||2),y:BG_TH+N.at,w:N.d||2,h:8};};
 const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
 // 清軍陣形（20 格寬、16 格深）：兩排將貼著腹地最前緣、空一排、炮馬炮（炮左右各內縮兩格，都是隔一格一顆、交錯）、空四排、三排車貼在最邊邊（左右各兩層）；
 // 最後三排相連：最左、最右兩層都是車；中間照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（不會被拐腳），最後一排的馬往前跳的落點也空出來；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
 const BG_QING=(()=>{const rev=t=>[...t].reverse().join(''),mir=h=>h+rev(h),E='.'.repeat(20),edge='RR'+'.'.repeat(16)+'RR',C='..'+'C.'.repeat(8)+'..';
   return['G.'.repeat(10),'.G'.repeat(10),E,C,'.H'.repeat(10),C,E,E,E,E,edge,edge,edge,mir('RRH..RH..R'),mir('RR.RHC.RHA'),mir('RRHCERHAX.').replace('X..X','X..Y')];})();
+const bgShuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+// 各國開局：俄國 塔夫列利（王前兵升變成赫爾吉）、日本 將棋（九路縮成八路，少一隻桂；三排）、英法義 西洋棋、美國 菲舍爾任意制（底線隨機：主教一黑一白、國王在兩城堡之間）、
+// 德國 信使棋（城堡 弓手 信使 謀士 國王 小后 弄臣 城堡）、奧匈 維也納棋（底線自由擺，只要求主教一黑一白）
+function bgRanks(n){const P='pppppppp';
+  if(n===0)return['rnbqkbnr','ppppoppp'];if(n===1)return['ljsgkgsl','.r....b.','uuuuuuuu'];if(n===5)return['racmkfwr',P];
+  if(n===3||n===7)for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(n===7||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
+  return['rnbqkbnr',P];}
 function bgNew(){
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
-  BG_NATIONS.forEach((N,n)=>{const ranks=['rnbqkbnr','pppppppp'];
-    for(let d=0;d<2;d++)for(let a=0;a<8;a++){const t=ranks[d][a];let x,y;
+  BG_NATIONS.forEach((N,n)=>{const ranks=bgRanks(n);
+    for(let d=0;d<ranks.length;d++)for(let a=0;a<8;a++){const t=ranks[d][a];if(t==='.')continue;let x,y;
       if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}
       b[bgIdx(x,y)]={s:'A',t,n};}});
   return{b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};}
@@ -41,8 +54,17 @@ function bgMoves(st,i,capsOnly){
       case 'k':for(const[dx,dy]of[...D4,...DG])add(x+dx,y+dy);break;
       case 'q':slide([...D4,...DG]);break;case 'r':slide(D4);break;case 'b':slide(DG);break;
       case 'n':for(const[dx,dy]of KN)add(x+dx,y+dy);break;
-      case 'p':{const[dx,dy]=bgDir(p.n),fx=x+dx,fy=y+dy;
-        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}
+      case 'e':slide([...D4,...DG]);for(const[dx,dy]of KN)add(x+dx,y+dy);break;   // 俄國赫爾吉：皇后＋騎士
+      case 'c':slide(DG);break;case 'm':for(const[dx,dy]of[...D4,...DG])add(x+dx,y+dy);break;   // 德國：信使（斜走）、謀士（八方向一步）
+      case 'f':for(const[dx,dy]of DG)add(x+dx,y+dy);break;case 'w':for(const[dx,dy]of D4)add(x+dx,y+dy);break;   // 小后（斜一步）、弄臣（直一步）
+      case 'a':for(const[dx,dy]of DG)add(x+2*dx,y+2*dy);break;   // 弓手：斜跳兩格，可以越子
+      case 'd':slide(D4);for(const[dx,dy]of DG)add(x+dx,y+dy);break;case 'y':slide(DG);for(const[dx,dy]of D4)add(x+dx,y+dy);break;   // 日本：龍、馬
+      case 'g':case 't':case 's':case 'j':case 'l':case 'u':{const[dx,dy]=bgDir(p.n),R=(f,sd)=>[x+f*dx+sd*dy,y+f*dy+sd*dx];   // f 往前幾格、sd 往旁邊幾格
+        if(p.t==='l'){slide([[dx,dy]]);break;}
+        const L=p.t==='u'?[[1,0]]:p.t==='j'?[[2,1],[2,-1]]:p.t==='s'?[[1,0],[1,1],[1,-1],[-1,1],[-1,-1]]:[[1,0],[1,1],[1,-1],[0,1],[0,-1],[-1,0]];
+        for(const[f,sd]of L){const[xx,yy]=R(f,sd);add(xx,yy);}break;}
+      case 'p':case 'o':{const[dx,dy]=bgDir(p.n),fx=x+dx,fy=y+dy;
+        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&p.n!==5&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}   // 信使棋的兵第一步不能走兩格
         for(const s of[-1,1]){const cx=fx+(dy?s:0),cy=fy+(dx?s:0);if(bgIn(cx,cy)&&enemy(b[bgIdx(cx,cy)]))out.push(bgIdx(cx,cy));}break;}
     }
   }else{
@@ -63,7 +85,9 @@ function bgAll(st,side,capsOnly){const out=[];for(let i=0;i<st.b.length;i++){con
 function bgApply(st,f,t){
   const b=st.b,p=b[f],q=b[t];let note='';
   b[t]=p;b[f]=null;
-  if(p.s==='A'){p.m=1;if(p.t==='p'){const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0;if(!bgIn(x+dx,y+dy)){b[t]={...p,t:'q'};note='升變皇后';}}}
+  if(p.s==='A'){p.m=1;const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0,end=!bgIn(x+dx,y+dy);
+    if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':p.n===5?'f':'q'};note='升變'+BG_CN[b[t].t];}   // 走到地圖盡頭升變：俄國王前兵變赫爾吉、信使棋的兵變小后、其餘變皇后
+    else if(p.n===1&&BG_JPUP[p.t]&&(bgPalm(x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}   // 日本：走進清軍腹地（或走到盡頭）升變
   if(q&&q.s==='A'&&q.t==='k'){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].s==='A'&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+'國王被吃，整隊撤退';}
   st.last={f,t};st.turn=st.turn==='Q'?'A':'Q';st.seq++;
   const gens=b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length,kings=st.dead.filter(d=>!d).length;
@@ -73,7 +97,7 @@ function bgApply(st,f,t){
   return{p,q,note};}
 function bgClone(st){return{b:st.b.map(p=>p&&{...p}),turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead.slice(),log:st.log};}
 // 電腦：每一步看自己吃到什麼、對方下一步最多能吃回什麼，再加一點往前推進的分數
-const BG_V={k:0,q:9,r:5,b:3.2,n:3,p:1,R:9,H:4,C:4.5,P:1,A:2,E:2,G:1.6,X:30,Y:30};
+const BG_V={k:0,q:9,r:5,b:3.2,n:3,p:1,o:1.3,e:12,c:3.2,m:3,f:1.5,w:1.2,a:1.5,g:2.6,s:2.3,j:1.6,l:1.8,u:1,d:7,y:5.2,t:2.6,R:9,H:4,C:4.5,P:1,A:2,E:2,G:1.6,X:30,Y:30};
 function bgNationVal(st,n){let v=12;for(const p of st.b)if(p&&p.s==='A'&&p.n===n&&p.t!=='k')v+=BG_V[p.t];return v;}
 function bgVal(st,p,i){if(p.s==='A')return p.t==='k'?bgNationVal(st,p.n):BG_V[p.t];
   if(p.t==='X'||p.t==='Y'){const g=st.b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length;return g<=1?500:30;}
