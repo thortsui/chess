@@ -711,6 +711,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .jwon #app:not(.xqskin) .pc.b .face{font-family:"Noto Serif TC","Songti TC",serif;font-weight:900;color:#1b1b1b;background:radial-gradient(circle at 35% 30%,#fff8e2,#ecd6a2 60%,#c9a35c);box-shadow:inset 0 0 0 2px #7a5326,0 2px 0 #5b3a1a,0 3px 8px rgba(0,0,0,.3)}
 .jwon #app:not(.xqskin) .pc.b:is([data-k="bZ"],[data-k="bX"],[data-k="bQ"],[data-k="bJ"],[data-k="bE"],[data-k="bO"]) .face{color:#c62828}
 .pc.jwr .face{transform:rotate(180deg)}
+.jwon #app.xqskin .board:not(.d3) .pc.b .face{box-shadow:none!important;border-radius:0;background-color:transparent;filter:drop-shadow(0 2px 1px rgba(60,35,10,.55)) drop-shadow(0 3px 5px rgba(0,0,0,.3))}   /* 駒形：不要圓形的邊與陰影 */
 .jwtray{min-height:36px;gap:6px;flex-wrap:wrap;padding-top:4px}
 .jwlab{font-family:var(--serif);font-weight:900;font-size:12px;color:var(--muted);flex:none}.jwnone{font-size:11px;color:var(--muted)}
 .jwh{font-family:var(--serif);font-weight:900;font-size:16px;line-height:1;min-width:40px;height:32px;border-radius:7px;border:1.5px solid #7a5326;background:linear-gradient(#fbeec6,#e3c482);color:#1b1b1b;padding:0 6px;cursor:pointer}
@@ -763,6 +764,12 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .bgkrow select{font:inherit;font-size:14px;padding:7px 8px;border-radius:9px;border:1px solid rgba(0,0,0,.25);background:#fff;color:#222;min-width:150px}
 .bgkall{display:flex;gap:8px;padding-bottom:10px}.bgkall button{flex:1;padding:9px 6px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:rgba(255,255,255,.6);color:inherit;font-weight:700;font-size:14px;cursor:pointer}.bgkall button.on{background:var(--hint-strong);color:#fff;border-color:transparent}
 .bgkhelp{margin:0 0 6px;padding-left:18px;font-size:12.5px;line-height:1.55;color:var(--muted)}.bgknote{margin:0 0 12px;font-size:12px;color:var(--muted)}
+/* 將棋的駒：外層是國家顏色的五角形，裡面一層木色，尖端朝前進方向 */
+.bgp.a.koma span{width:40px;height:42px;border-radius:0;background:var(--nc);box-shadow:none;clip-path:polygon(50% 0,86% 20%,100% 100%,0 100%,14% 20%);transform:rotate(var(--kr));position:relative;filter:none}
+.bgp.a.koma span::before{content:"";position:absolute;inset:3px 4px 3px;background:linear-gradient(#fff3cf,#e9cf96 60%,#cfa862);clip-path:polygon(50% 0,86% 20%,100% 100%,0 100%,14% 20%)}
+.bgp.a.koma span b{position:relative;transform:rotate(calc(var(--kr) * -1));font-family:var(--serif);font-weight:900;font-size:19px;line-height:1;color:#1b1b1b;margin-top:4px}
+.bgp.a.koma.up span b{color:#c62828}.bgp.a.koma.king span{background:#f2c230}
+.bgp.a.koma{filter:drop-shadow(0 2px 1px rgba(0,0,0,.45))}.bgp.a.koma.sel span{transform:rotate(var(--kr)) scale(1.12)}
 /* 各國自己的棋：漢字棋子、升變的棋、俄國的王前兵 */
 .bgp.a.han span{font-family:var(--serif);font-weight:900;font-size:20px}.bgp.a.up span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 3px #c62828,0 3px 6px rgba(0,0,0,.35)}.bgp.a.kp span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 2px #f2c230,0 3px 6px rgba(0,0,0,.35)}
 .bgp.a.king span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 3px #f2c230,0 4px 10px rgba(0,0,0,.4)}
@@ -803,7 +810,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.17.0">v0.17.0</span>
+  <span class="ver" aria-label="版本 0.17.1">v0.17.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -841,7 +848,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
       <details class="bgcfg" id="bgCfg"><summary>各國用什麼棋<b id="bgCfgSum"></b></summary>
         <div class="bgklist" id="bgCfgList"></div>
         <div class="bgkall"><button data-act="bgKindAll" data-v="own">各國代表棋</button><button data-act="bgKindAll" data-v="ch">全部改成西洋棋</button></div>
-        <ul class="bgkhelp"><li><b>西洋棋</b>：標準擺法。</li><li><b>菲舍爾任意制</b>：走法同西洋棋，底線每局隨機排。</li><li><b>維也納棋</b>：走法同西洋棋，底線自由隨機排（國王可在任何位置）。</li><li><b>信使棋</b>：信使斜走、謀士八方一步、小后斜一步、弄臣直一步、弓手斜跳兩格；兵第一步只能走一格。</li><li><b>將棋</b>：三排 18 子；金銀桂香歩只往前；走進清軍腹地會升變；沒有打入。</li><li><b>塔夫列利</b>：同西洋棋，國王前面的兵走到底變「赫爾吉」（皇后＋騎士）。</li></ul>
+        <ul class="bgkhelp"><li><b>西洋棋</b>：標準擺法。</li><li><b>菲舍爾任意制</b>：走法同西洋棋，底線每局隨機排。</li><li><b>維也納棋</b>：走法同西洋棋，底線自由隨機排（國王可在任何位置）。</li><li><b>信使棋</b>：信使（信封）斜走、謀士（人像）八方一步、小后（小皇冠）斜一步、弄臣（小丑帽）直一步、弓手（弓箭）斜跳兩格；兵第一步只能走一格。</li><li><b>將棋</b>：三排 18 子；金銀桂香歩只往前；走進清軍腹地會升變；沒有打入。</li><li><b>塔夫列利</b>：同西洋棋，國王前面的兵走到底變「赫爾吉」（皇后＋騎士）。</li></ul>
         <p class="bgknote">連線對戰時用房主的設定。</p>
       </details>
       <button class="big" data-act="bgSoloQ">我當清軍<small>八國聯軍由電腦控制</small></button>
@@ -3278,7 +3285,13 @@ function boardCanvas(B){return new Promise(res=>{
   im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
 });}
 // 法軍棋子：白底藍框，外圈藍白紅三色，深藍色西洋棋符號
-function jwDrawFace(g,S,ch,rot,up){const R=S/2;g.save();g.translate(R,R);
+function jwDrawFace(g,S,ch,rot,up,flat){const R=S/2;g.save();g.translate(R,R);
+  if(flat){   // 2D：整顆就是五角形的駒
+    g.beginPath();g.moveTo(0,-R*.94);g.lineTo(R*.6,-R*.62);g.lineTo(R*.8,R*.9);g.lineTo(-R*.8,R*.9);g.lineTo(-R*.6,-R*.62);g.closePath();
+    const gr=g.createLinearGradient(0,-R,0,R);gr.addColorStop(0,'#fff3cf');gr.addColorStop(.55,'#f0d9a0');gr.addColorStop(1,'#d2ad66');g.fillStyle=gr;g.fill();
+    g.strokeStyle='#5b3a1a';g.lineWidth=R*.07;g.lineJoin='round';g.stroke();
+    g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=R*.03;g.beginPath();g.moveTo(-R*.52,-R*.56);g.lineTo(0,-R*.84);g.lineTo(R*.52,-R*.56);g.stroke();
+    g.fillStyle=up?'#c62828':'#1b1b1b';g.textAlign='center';g.textBaseline='middle';g.font=`900 ${Math.round(S*.5)}px "Noto Serif TC","Songti TC","PMingLiU",serif`;g.fillText(ch,0,S*.1);g.restore();return;}
   const gr=g.createRadialGradient(-R*.3,-R*.35,R*.1,0,0,R);gr.addColorStop(0,'#fff8e2');gr.addColorStop(.6,'#ecd6a2');gr.addColorStop(1,'#c9a35c');
   g.fillStyle=gr;g.beginPath();g.arc(0,0,R*.98,0,7);g.fill();g.strokeStyle='#7a5326';g.lineWidth=R*.07;g.beginPath();g.arc(0,0,R*.94,0,7);g.stroke();
   g.rotate(rot||0);g.beginPath();g.moveTo(0,-R*.8);g.lineTo(R*.46,-R*.56);g.lineTo(R*.6,R*.68);g.lineTo(-R*.6,R*.68);g.lineTo(-R*.46,-R*.56);g.closePath();   // 將棋的駒形
@@ -4991,6 +5004,12 @@ const BG_JP={k:'王',r:'飛',b:'角'},BG_JPN={k:'王將',r:'飛車',b:'角行'},
 const BG_KINDS={ch:'西洋棋',f9:'菲舍爾任意制',vi:'維也納棋',co:'信使棋',sh:'將棋',ta:'塔夫列利'},BG_OWN=['ta','sh','ch','f9','ch','co','ch','vi'];
 let BG_KIND=BG_OWN.slice();
 const bgKindsOk=k=>Array.isArray(k)&&k.length===8&&k.every(x=>typeof x==='string'&&BG_KINDS.hasOwnProperty(x));
+// 信使棋特有的棋用圖示（信使＝信封、謀士＝人像、小后＝小皇冠、弄臣＝小丑帽、弓手＝弓箭）
+const BG_SVG={c:'<path d="M3 6h18v12H3z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M3.5 6.5l8.5 7 8.5-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>',
+  m:'<circle cx="12" cy="7.5" r="4.2" fill="currentColor"/><path d="M3.5 21c0-5.5 3.6-8 8.5-8s8.5 2.5 8.5 8z" fill="currentColor"/>',
+  f:'<path d="M4 18l-1.5-9.5 5 4L12 5l4.5 7.5 5-4L20 18z" fill="currentColor"/><rect x="4" y="19" width="16" height="2.4" rx="1" fill="currentColor"/>',
+  w:'<path d="M4 17c0-4 1-9 3.5-11.5C8.5 8 10 9 12 9s3.5-1 4.5-3.5C19 8 20 13 20 17z" fill="currentColor"/><circle cx="7.4" cy="4.6" r="1.7" fill="currentColor"/><circle cx="16.6" cy="4.6" r="1.7" fill="currentColor"/><circle cx="12" cy="7" r="1.7" fill="currentColor"/><rect x="3.5" y="18" width="17" height="2.6" rx="1.2" fill="currentColor"/>',
+  a:'<path d="M7 3c8 3 8 15 0 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M7 3v18" stroke="currentColor" stroke-width="1.2"/><path d="M3 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 8.5l5 3.5-5 3.5z" fill="currentColor"/>'};
 const bgJP=p=>BG_KIND[p.n]==='sh',bgGlyph=p=>(bgJP(p)&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(bgJP(p)&&BG_JPN[p.t])||BG_CN[p.t];
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y<BG_TH?[BG_AW,BG_AW+BG_CW-1]:y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
@@ -5161,7 +5180,10 @@ function bgRender(){const st=BG.st;if(!st)return;const CS=BG_CS;
   if(st.last){h+=`<div class="bglast" style="${P(st.last.f)}"></div><div class="bglast to" style="${P(st.last.t)}"></div>`;}
   st.b.forEach((p,i)=>{if(!p)return;const sel=i===BG.sel,cap=BG.tg.includes(i);
     if(p.s==='Q')h+=`<div class="bgp q${p.t==='X'||p.t==='Y'?' gen':''}${sel?' sel':''}${cap?' cap':''}" style="${P(i)}"><span>${BG_QN[p.t]}</span></div>`;
-    else{const N=BG_NATIONS[p.n],g=bgGlyph(p),han=g.charCodeAt(0)>0x3000;h+=`<div class="bgp a${p.t==='k'?' king':''}${han?' han':''}${p.t==='o'?' kp':''}${'dyte'.includes(p.t)?' up':''}${sel?' sel':''}${cap?' cap':''}" style="${P(i)};--nc:${N.c};--nf:${N.fg}"><span>${g}${han?'':'︎'}</span></div>`;}});
+    else{const N=BG_NATIONS[p.n],g=bgGlyph(p),han=g.charCodeAt(0)>0x3000,st2=`${P(i)};--nc:${N.c};--nf:${N.fg}`,cl=`${sel?' sel':''}${cap?' cap':''}`;
+      if(bgJP(p))h+=`<div class="bgp a koma${p.t==='k'?' king':''}${'dyt'.includes(p.t)?' up':''}${cl}" style="${st2};--kr:${N.side==='t'?180:N.side==='l'?90:-90}deg"><span><b>${g}</b></span></div>`;   // 將棋：五角形的駒，尖端朝前進方向，字保持正的
+      else if(BG_SVG[p.t])h+=`<div class="bgp a${cl}" style="${st2}"><span><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${BG_SVG[p.t]}</svg></span></div>`;
+      else h+=`<div class="bgp a${p.t==='k'?' king':''}${han?' han':''}${p.t==='o'?' kp':''}${p.t==='e'?' up':''}${cl}" style="${st2}"><span>${g}${han?'':'︎'}</span></div>`;}});
   BG.tg.forEach(t=>{if(!st.b[t])h+=`<div class="bgtg" style="${P(t)}"></div>`;});
   $('bgLayer').innerHTML=h;
   // 國家列
@@ -5460,7 +5482,7 @@ function skDrawFace(g,S,mat,col,ch,fd,rot){
 }
 const skImgCache=new Map();
 function skTile(S,s,t,X){
-  if(s==='b'&&(jw?JW_N[t]:QF_N[t])){const k=(jw?'jw|':'qf|')+t+'|'+S;if(skImgCache.has(k))return skImgCache.get(k);const cv=document.createElement('canvas');cv.width=cv.height=S;(jw?jwDrawFace:qfDrawFace)(cv.getContext('2d'),S,(jw?JW_CH:QF_CH)[t],0,JW_UP.includes(t));const u=cv.toDataURL('image/png');skImgCache.set(k,u);return u;}
+  if(s==='b'&&(jw?JW_N[t]:QF_N[t])){const k=(jw?'jw2|':'qf|')+t+'|'+S;if(skImgCache.has(k))return skImgCache.get(k);const cv=document.createElement('canvas');cv.width=cv.height=S;(jw?jwDrawFace:qfDrawFace)(cv.getContext('2d'),S,(jw?JW_CH:QF_CH)[t],0,JW_UP.includes(t),true);const u=cv.toDataURL('image/png');skImgCache.set(k,u);return u;}
   const ok=skEnsureFont(X.fd,skRefresh),key=[X.fd.id,X.mat.id,X.ink.id,s,t,S,ok,pers[s],pers[s]==='figure'&&figReady()].join('|');if(skImgCache.has(key))return skImgCache.get(key);
   const cv=document.createElement('canvas');cv.width=cv.height=S;skDrawFace(cv.getContext('2d'),S,X.mat,X.ink.c,NAMES[s][t],X.fd,0);
   const u=cv.toDataURL('image/png');skImgCache.set(key,u);return u;
