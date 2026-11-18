@@ -747,8 +747,8 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .bgnc.q{background:#fff3d6}.bgnc.q i{background:radial-gradient(circle at 35% 30%,#e6c38e,#cf9f63 62%,#b4834a)}
 .bgnc.dead{opacity:.45;text-decoration:line-through}
 .bgview{position:relative;overflow:hidden;border-radius:14px;background:#7c5a36;box-shadow:inset 0 0 0 2px rgba(0,0,0,.2);touch-action:none;cursor:grab}
-.bgworld{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.bgworld svg{display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+.bgworld{position:absolute;left:0;top:0;transform-origin:0 0}
+.bgworld svg{display:block}   /* 不加陰影濾鏡、不強制獨立圖層：大地圖放大時手機比較不會有畫不出來的區塊 */
 .bglayer{position:absolute;inset:0}
 .bgp{position:absolute;width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
 .bgp span{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:22px;line-height:1;transition:transform .15s}
@@ -756,9 +756,10 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .bgp.q.gen span{background:radial-gradient(circle at 35% 30%,#fff2b8,#f2c230 60%,#c9961a);color:#7a0d0a;box-shadow:0 2px 0 #7a5a10,0 0 0 3px #b8100d,0 4px 10px rgba(0,0,0,.4)}
 .bgp.a span{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),var(--nc) 55%);color:var(--nf);font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-size:25px;box-shadow:0 2px 0 rgba(0,0,0,.45),0 3px 6px rgba(0,0,0,.35),inset 0 0 0 2px rgba(0,0,0,.25)}
 .bgp.a.king span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 3px #f2c230,0 4px 10px rgba(0,0,0,.4)}
-.bgp.sel span{transform:scale(1.12);box-shadow:0 0 0 3px #2f9fd8,0 6px 12px rgba(0,0,0,.4)}
-.bgp.cap span{box-shadow:0 0 0 4px rgba(217,48,37,.85),0 3px 6px rgba(0,0,0,.35)}
-.bgtg{position:absolute;width:44px;height:44px;pointer-events:none}.bgtg::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:rgba(47,159,216,.75)}
+.bgp.sel{background:rgba(47,159,216,.4);box-shadow:inset 0 0 0 3px #1565c0}.bgp.sel span{transform:scale(1.12);box-shadow:0 0 0 3px #2f9fd8,0 6px 12px rgba(0,0,0,.4)}
+.bgp.cap{background:rgba(217,48,37,.4);box-shadow:inset 0 0 0 3px rgba(198,40,40,.95)}.bgp.cap span{box-shadow:0 0 0 4px rgba(217,48,37,.85),0 3px 6px rgba(0,0,0,.35)}
+/* 可以走的格子：整格上色加外框（地圖縮小時也看得到），中間再一個圓點 */
+.bgtg{position:absolute;width:44px;height:44px;pointer-events:none;background:rgba(47,159,216,.38);box-shadow:inset 0 0 0 3px rgba(21,101,192,.95)}.bgtg::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px;border-radius:50%;background:#1565c0;box-shadow:0 0 0 2px #fff}
 .bglast{position:absolute;width:44px;height:44px;background:rgba(46,125,50,.28);pointer-events:none}.bglast.to{background:rgba(46,125,50,.45)}
 .bgfoot{display:grid;gap:6px}
 .bgturn{text-align:center;font-weight:700;font-size:15px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.55)}
@@ -792,7 +793,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.15.0">v0.15.0</span>
+  <span class="ver" aria-label="版本 0.15.1">v0.15.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -2230,7 +2231,10 @@ function tap(r,c){
     return;
   }
   const p=board[r][c];
-  if(p&&p.s===turn&&!(sel&&sel[0]===r&&sel[1]===c)){sel=[r,c];targets=legalNP(r,c);}
+  if(p&&p.s===turn&&!(sel&&sel[0]===r&&sel[1]===c)){sel=[r,c];targets=legalNP(r,c);
+    // 這顆棋沒有路可以走時說明原因（規則擋掉的走法不會顯示）
+    if(!targets.length){const raw=pseudo(board,r,c).length,king=turn==='r'?'帥':qf?'國王':jw?'王':'將';sel=null;
+      setNote(!raw?'這顆棋現在沒有地方可以走':inCheck(board,turn)?`正在被將軍，這顆棋解不了`:legal(board,r,c).length?'這步會變成長將，不能走':`這顆棋一動，${king}就會被吃`);return;}}
   else{sel=null;targets=[];}
   render();
 }
@@ -5148,7 +5152,10 @@ function bgZoomAt(f,cx,cy){const v=BG.view,vp=$('bgView').getBoundingClientRect(
   document.addEventListener('wheel',e=>{if(!e.target.closest('#bgView'))return;e.preventDefault();const[x,y]=loc(e);bgZoomAt(Math.exp(-e.deltaY*.0015),x,y);},{passive:false});})();
 function bgTap(sx,sy){const st=BG.st;if(!st||st.over)return;const v=BG.view,x=Math.floor((sx-v.tx)/v.s/BG_CS),y=Math.floor((sy-v.ty)/v.s/BG_CS);if(!bgIn(x,y))return;const i=bgIdx(x,y);
   if(BG.sel>=0&&BG.tg.includes(i)){bgMine(BG.sel,i);return;}
-  if(bgCanPick(i)){BG.sel=i===BG.sel?-1:i;BG.tg=BG.sel>=0?bgMoves(st,i,false):[];}else{BG.sel=-1;BG.tg=[];}
+  if(bgCanPick(i)){BG.sel=i===BG.sel?-1:i;BG.tg=BG.sel>=0?bgMoves(st,i,false):[];
+    if(BG.sel>=0){const vp=$('bgView').getBoundingClientRect(),c=v.s*BG_CS,out=BG.tg.filter(t=>{const cx=v.tx+(t%BG_W+.5)*c,cy=v.ty+(((t/BG_W)|0)+.5)*c;return cx<0||cy<0||cx>vp.width||cy>vp.height;}).length;   // 提醒：有些落點在畫面外
+      BG.msg=!BG.tg.length?'這顆棋現在沒有地方可以走':out?`可以走 ${BG.tg.length} 格，其中 ${out} 格在畫面外（縮小或拖動地圖就看得到）`:`可以走 ${BG.tg.length} 格`;}}
+  else{BG.sel=-1;BG.tg=[];}
   bgRender();}
 function bgMine(f,t){if(BG.role==='guest'){if(BG.net)BG.net.sendHost({k:'mv',f,t,seq:BG.st.seq});BG.sel=-1;BG.tg=[];bgRender();return;}bgDo(f,t);}
 /* ---------- 連線 ---------- */
@@ -6196,7 +6203,7 @@ function result(s){if(over.txt)return over.winner===s?{t:'獲勝 · '+over.txt,c
 function renderBars(chk){
   const T=$('barT'),M=$('barM');
   if(mode==='local'){
-    const st=s=>over?result(s):turn===s?(chk?{t:'被將軍！',c:'check'}:{t:'輪到你'}):{t:'等待對手'};
+    const st=s=>over?result(s):turn===s?(note?{t:note,c:'check'}:chk?{t:'被將軍！',c:'check'}:{t:'輪到你'}):{t:'等待對手'};
     const common=btn('undo','悔棋',{dis:!hist.length})+(over?btn('again','再來一局',{cls:'go'}):btn('reset','重來'));
     T.className='bar rot'+(!over&&turn==='b'?' active':'')+(over&&over.winner==='b'?' won':'');
     M.className='bar'+(!over&&turn==='r'?' active':'')+(over&&over.winner==='r'?' won':'');
@@ -6209,7 +6216,7 @@ function renderBars(chk){
     const ts=over?result(o):thinking?{t:'思考中…'}:(turn===o&&chk?{t:'被將軍！',c:'check'}:{t:'等待中'});
     T.className='bar'+(!over&&turn===o?' active':'')+(over&&over.winner===o?' won':'');
     T.innerHTML=barHTML(o,`AI · ${SIDE[o]}`,ts,`<span class="chip">Lv ${aiLevel}</span>`);
-    const ms=over?result(mySide):turn===mySide?(chk?{t:'被將軍！',c:'check'}:{t:'輪到你'}):{t:'對手回合'};
+    const ms=over?result(mySide):turn===mySide?(note?{t:note,c:'check'}:chk?{t:'被將軍！',c:'check'}:{t:'輪到你'}):{t:'對手回合'};
     M.className='bar'+(!over&&turn===mySide?' active':'')+(over&&over.winner===mySide?' won':'');
     M.innerHTML=barHTML(mySide,`你 · ${SIDE[mySide]}`,ms,
       btn('undo','悔棋',{dis:!hist.some(h=>h.turn===mySide)})+(over?btn('again','再來一局',{cls:'go'}):btn('reset','重來'))+btn('menu','選單'));
