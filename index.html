@@ -677,6 +677,27 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .menu[data-th="pk"] .seg button.on,.menu[data-th="ww"] .seg button.on{color:#1d1406}
 /* ---------- 清法戰爭 ---------- */
 .qfon #app:not(.xqskin) .pc.b:is([data-k="bT"],[data-k="bH"],[data-k="bF"],[data-k="bD"],[data-k="bY"],[data-k="bI"]) .face{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-weight:400;color:#14213d;background:radial-gradient(circle at 35% 30%,#ffffff,#e8edf6 60%,#c7d1e3);box-shadow:inset 0 0 0 3px #1f3a8a,inset 0 0 0 5px #fff,inset 0 0 0 7px #c62828,0 2px 0 #23306b,0 3px 8px rgba(0,0,0,.3)}
+.qfhist{position:relative;margin:0 -4px}
+.qfhtrack{display:flex;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x pan-y;padding:2px 4px 4px;scroll-padding:0 4px}
+.qfhtrack::-webkit-scrollbar{display:none}
+.qfcard{flex:0 0 86%;scroll-snap-align:start;box-sizing:border-box;padding:14px 16px 16px;border-radius:14px;background:var(--bar);border:1px solid var(--sc-line,rgba(0,0,0,.1));box-shadow:0 2px 10px rgba(0,0,0,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);min-height:132px}
+.qfcard:last-child{margin-right:4px}
+.qfcd{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--hint-strong);letter-spacing:.04em}
+.qfic{font-size:18px}
+.qfcard h3{margin:4px 0 6px;font-family:var(--serif);font-size:19px;font-weight:900;letter-spacing:.06em}
+.qfcard p{margin:0;font-size:13.5px;line-height:1.65;color:var(--bar-fg)}.qfcard p+p{margin-top:5px}.qfcard p b{color:var(--hint-strong)}
+.qfnav{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px}
+.qfdots{display:flex;gap:6px}.qfdots i{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.35;transition:all .25s}
+.qfdots i.on{width:20px;border-radius:4px;background:var(--hint-strong);opacity:1}
+.qfpg{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:3em;text-align:center}
+.qfarr{width:30px;height:30px;border:0;border-radius:50%;background:var(--bar);color:var(--hint-strong);font-size:20px;line-height:1;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.qfarr:disabled{opacity:.3}
+.qfhint{position:absolute;right:10px;top:10px;display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:12px;font-weight:700;pointer-events:none;animation:qfSwipe 1.6s ease-in-out infinite;transition:opacity .4s}
+.qfhint span{display:inline-block;animation:qfHand 1.6s ease-in-out infinite}
+.qfhint.off{opacity:0}
+@keyframes qfHand{0%,100%{transform:translateX(6px)}50%{transform:translateX(-8px)}}
+@keyframes qfSwipe{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,.25)}50%{box-shadow:0 0 0 5px rgba(0,0,0,0)}}
+@media (prefers-reduced-motion:reduce){.qfhint,.qfhint span{animation:none}}
 .dot.qfdot{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",sans-serif;background:radial-gradient(circle at 35% 30%,#fff,#dbe2ef);color:#14213d;box-shadow:inset 0 0 0 2px #1f3a8a}
 .logo.qfl .duo span:last-child{font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",sans-serif;font-weight:400;transform:none;color:#14213d;background:radial-gradient(circle at 35% 30%,#fff,#dbe2ef 60%,#b7c3da);box-shadow:inset 0 0 0 3px #1f3a8a,0 3px 8px rgba(0,0,0,.25)}
 .qfrule{margin:0}
@@ -688,14 +709,27 @@ html,body{overflow:hidden;overscroll-behavior:none}
 
 <div class="menu" id="menu">
   <div class="scene" id="scene" aria-hidden="true"></div>
-  <span class="ver" aria-label="版本 0.13.8">v0.13.8</span>
+  <span class="ver" aria-label="版本 0.13.9">v0.13.9</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
     <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
-    <p class="pkrule qfrule" id="qfRule" hidden>1884 年清法戰爭：清軍用象棋（紅方，先走），法軍用西洋棋（黑方，後走）。法軍照西洋棋佈局擴成九路：底線城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。清軍兵力調整：底線照象棋原本的擺法；俥左右各 3 隻（1、9 路底線往上疊三隻）；炮 2 隻在原本的位置；兵 5 隻擺在河邊（原本位置的前面一格）。法軍在交叉點上照西洋棋走法：城堡直走、主教斜走、皇后直斜都能走、騎士走日字而且不會被拐腳、國王八方向走一步（不受九宮限制）、士兵往前一步（第一步可走兩步）、斜前方吃子，走到底升變成皇后。法軍沒有過河限制，雙方的王（將與國王）一樣不能照面。把對方將死或困死就贏。</p>
+    <div class="qfhist" id="qfRule" hidden>
+      <div class="qfhtrack" id="qfTrack" role="region" aria-roledescription="輪播" aria-label="清法戰爭的歷史，左右滑動翻頁">
+        <article class="qfcard" aria-label="第 1 頁，共 8 頁"><div class="qfcd"><span class="qfic">⚔️</span><span>1883–1885</span></div><h3>戰爭起因</h3><p>法國想把越南北部（當時叫「東京」）納入自己的保護，清朝則是越南的宗主國。雙方先在越南北部交戰，1884 年談判破裂，戰火擴大到中國東南沿海與台灣。</p></article>
+        <article class="qfcard" aria-label="第 2 頁，共 8 頁"><div class="qfcd"><span class="qfic">⚓</span><span>1884 年 8 月 23 日</span></div><h3>馬江海戰</h3><p>法國遠東艦隊司令孤拔率艦駛進福州馬尾港，開戰不到一小時，福建水師大部分軍艦被擊沉，馬尾造船廠也遭砲擊。</p></article>
+        <article class="qfcard" aria-label="第 3 頁，共 8 頁"><div class="qfcd"><span class="qfic">🏯</span><span>1884 年 8–10 月</span></div><h3>基隆與滬尾之役</h3><p>法軍轉攻台灣，督辦台灣軍務的劉銘傳坐鎮防守。法軍一度佔領基隆，但 10 月 8 日在滬尾（今淡水）登陸時，被孫開華等率領的守軍擊退。</p></article>
+        <article class="qfcard" aria-label="第 4 頁，共 8 頁"><div class="qfcd"><span class="qfic">🌊</span><span>1884 年底–1885 年</span></div><h3>封鎖台灣、攻佔澎湖</h3><p>法國艦隊封鎖台灣海峽，1885 年 3 月攻佔澎湖。孤拔同年 6 月在澎湖病逝。</p></article>
+        <article class="qfcard" aria-label="第 5 頁，共 8 頁"><div class="qfcd"><span class="qfic">🚩</span><span>1885 年 3 月</span></div><h3>鎮南關大捷</h3><p>老將馮子材在中越邊境的鎮南關擊敗法軍，接著收復諒山。消息傳回巴黎，茹費理內閣因此下台。</p></article>
+        <article class="qfcard" aria-label="第 6 頁，共 8 頁"><div class="qfcd"><span class="qfic">📜</span><span>1885 年 6 月 9 日</span></div><h3>中法新約</h3><p>雙方在天津簽約停戰，清朝承認法國對越南的保護權。這一年清廷決定讓台灣建省，由劉銘傳擔任首任巡撫，開始建設台灣。</p></article>
+        <article class="qfcard" aria-label="第 7 頁，共 8 頁"><div class="qfcd"><span class="qfic">♟️</span><span>這個模式</span></div><h3>雙方陣容</h3><p>清軍用象棋（紅方，先走），法軍用西洋棋（黑方，後走）。</p><p><b>法軍</b>：西洋棋佈局擴成九路，底線 城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。</p><p><b>清軍</b>：底線照象棋擺法，俥左右各 3 隻（1、9 路疊三隻），炮 2 隻，兵 5 隻擺在河邊。</p></article>
+        <article class="qfcard" aria-label="第 8 頁，共 8 頁"><div class="qfcd"><span class="qfic">📖</span><span>這個模式</span></div><h3>法軍走法</h3><p>法軍在交叉點上照西洋棋走：城堡直走、主教斜走、皇后直斜都能走、騎士走日字不會被拐腳、國王八方向一步（不受九宮限制）；士兵往前一步（第一步可走兩步）、吃斜前方，走到底變皇后。</p><p>法軍沒有過河限制；帥與國王不能照面。將死或困死對方就贏。</p></article>
+      </div>
+      <div class="qfnav"><button class="qfarr" data-act="qfPrev" aria-label="上一頁">‹</button><span class="qfdots" id="qfDots"><i data-n="0"></i><i data-n="1"></i><i data-n="2"></i><i data-n="3"></i><i data-n="4"></i><i data-n="5"></i><i data-n="6"></i><i data-n="7"></i></span><span class="qfpg" id="qfPg">1 / 8</span><button class="qfarr" data-act="qfNext" aria-label="下一頁">›</button></div>
+      <div class="qfhint" id="qfHint" aria-hidden="true"><span>👆</span>左右滑動看更多</div>
+    </div>
     <div class="pkmenu" id="pkMenu" hidden>
       <div class="seg" id="pkGameSeg"><button data-act="pkGame" data-v="b2">大老二</button><button data-act="pkGame" data-v="hh">心臟病</button><button data-act="pkGame" data-v="om">抽鬼牌</button></div>
       <p class="pkrule" id="pkRule"></p>
@@ -2300,6 +2334,17 @@ SCENES.qf=`<svg ${SCENE_VB}><defs><linearGradient id="sqS" x1="0" y1="0" x2="0" 
 <path d="M0 820 Q200 790 400 820 V860 H0z" fill="#1f354b"/></svg>`;
 function sceneSet(v){const el=$('scene');if(!el)return;const k=SCENES[v]?v:'xq';if(el.dataset.v===k)return;el.dataset.v=k;$('menu').dataset.th=k;
   el.innerHTML=`<div class="scenein">${SCENES[k]}</div>`;}
+
+// 清法戰爭選單的歷史卡片：直接左右滑動翻頁，圓點與頁碼跟著變；第一次打開時自己輕輕滑一下提示可以滑
+function qfHistInit(){const tr=$('qfTrack');if(!tr||tr.dataset.ok)return;tr.dataset.ok=1;const cards=[...tr.children],dots=[...$('qfDots').children];
+  const cur=()=>{const w=cards[0].offsetWidth+10;return Math.max(0,Math.min(cards.length-1,Math.round(tr.scrollLeft/w)));};
+  const sync=()=>{const n=cur();dots.forEach((d,i)=>d.classList.toggle('on',i===n));$('qfPg').textContent=`${n+1} / ${cards.length}`;
+    document.querySelector('[data-act=qfPrev]').disabled=n===0;document.querySelector('[data-act=qfNext]').disabled=n===cards.length-1;if(n>0)$('qfHint').classList.add('off');};
+  tr.addEventListener('scroll',()=>{cancelAnimationFrame(tr._r);tr._r=requestAnimationFrame(sync);},{passive:true});
+  dots.forEach((d,i)=>d.addEventListener('click',()=>qfGo(i)));sync();}
+function qfGo(n){const tr=$('qfTrack');if(!tr)return;const c=tr.children,i=Math.max(0,Math.min(c.length-1,n));try{tr.scrollTo({left:c[i].offsetLeft-tr.offsetLeft-4,behavior:'smooth'});}catch(e){tr.scrollLeft=c[i].offsetLeft;}}
+function qfNudge(){const tr=$('qfTrack');if(!tr||tr.scrollLeft>2)return;if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  setTimeout(()=>{if(tr.scrollLeft>2||$('qfRule').hidden)return;try{tr.scrollTo({left:70,behavior:'smooth'});setTimeout(()=>{if(tr.scrollLeft<=80)tr.scrollTo({left:0,behavior:'smooth'});},650);}catch(e){}},500);}
 function syncVariant(){
   const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7}[v],T=(...a)=>a[i]??'';sceneSet(v);
   document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
@@ -2308,7 +2353,7 @@ function syncVariant(){
   $('skinBtn').hidden=v==='ch';
   $('skinBtn').innerHTML=v==='gm'||v==='go'?'<span>棋子顏色</span><b>黑方・白方</b>':`<span>${v==='dk'?'暗棋':'象棋'}外觀設定</span><b>字體・顏色・材質</b>`;
   const lg=document.querySelector('.logo');lg.classList.toggle('dk',v==='dk');lg.classList.toggle('ch',v==='ch');lg.classList.toggle('gm',v==='gm'||v==='go');
-  $('logoA').textContent=v==='ch'?'♔\uFE0E':'帥';$('logoB').textContent=v==='ch'||v==='qf'?'♚\uFE0E':'將';lg.classList.toggle('qfl',v==='qf');$('qfRule').hidden=v!=='qf';
+  $('logoA').textContent=v==='ch'?'♔\uFE0E':'帥';$('logoB').textContent=v==='ch'||v==='qf'?'♚\uFE0E':'將';lg.classList.toggle('qfl',v==='qf');$('qfRule').hidden=v!=='qf';if(v==='qf'){qfHistInit();qfNudge();}
   $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（先走）');
   $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍（後走）');
   $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍（先走）')+'，取得 4 位數房號給朋友';
@@ -5755,6 +5800,7 @@ document.addEventListener('click',e=>{
   const act=b.dataset.act;
   if(act.startsWith('pk')&&pkClick(b))return;
   if(act.startsWith('ww')&&wwClick(b))return;
+  if(act==='qfPrev'||act==='qfNext'){const tr=$('qfTrack'),w=tr.children[0].offsetWidth+10;qfGo(Math.round(tr.scrollLeft/w)+(act==='qfNext'?1:-1));return;}
   if(CONFIRM.has(act)&&armed!==act){armed=act;clearTimeout(armTimer);armTimer=setTimeout(()=>{armed=null;render();},2500);render();return;}
   armed=null;clearTimeout(armTimer);
   switch(act){
