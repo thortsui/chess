@@ -12,7 +12,11 @@ const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'
 const BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟',o:'♟',e:'勇',c:'信',m:'謀',f:'后',w:'弄',a:'弓',g:'金',s:'銀',j:'桂',l:'香',u:'歩',d:'龍',y:'馬',t:'と'};
 const BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵',o:'王前兵',e:'赫爾吉',c:'信使',m:'謀士',f:'小后',w:'弄臣',a:'弓手',g:'金將',s:'銀將',j:'桂馬',l:'香車',u:'步兵',d:'龍王',y:'龍馬',t:'成金'};
 const BG_JP={k:'王',r:'飛',b:'角'},BG_JPN={k:'王將',r:'飛車',b:'角行'},BG_JPUP={r:'d',b:'y',s:'t',j:'t',l:'t',u:'t'};   // 日本的王、飛、角用漢字；走進清軍腹地升變
-const bgGlyph=p=>(p.n===1&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(p.n===1&&BG_JPN[p.t])||BG_CN[p.t];
+// 可以選的棋種；BG_OWN 是各國的代表棋（順序同 BG_NATIONS：俄 日 英 美 法 德 義 奧）；BG_KIND 是這一局各國實際用的棋（可在選單設定，不會下的可以換成西洋棋）
+const BG_KINDS={ch:'西洋棋',f9:'菲舍爾任意制',vi:'維也納棋',co:'信使棋',sh:'將棋',ta:'塔夫列利'},BG_OWN=['ta','sh','ch','f9','ch','co','ch','vi'];
+let BG_KIND=BG_OWN.slice();
+const bgKindsOk=k=>Array.isArray(k)&&k.length===8&&k.every(x=>typeof x==='string'&&BG_KINDS.hasOwnProperty(x));
+const bgJP=p=>BG_KIND[p.n]==='sh',bgGlyph=p=>(bgJP(p)&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(bgJP(p)&&BG_JPN[p.t])||BG_CN[p.t];
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y<BG_TH?[BG_AW,BG_AW+BG_CW-1]:y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
 const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
@@ -21,20 +25,21 @@ const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地
 // 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
 const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:2}:N.side==='l'?{x:0,y:BG_TH+N.at,w:N.d||2,h:8}:{x:BG_W-(N.d||2),y:BG_TH+N.at,w:N.d||2,h:8};};
+const bgHome=n=>{const N=BG_NATIONS[n],d=BG_KIND[n]==='sh'?3:2;return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:d}:N.side==='l'?{x:0,y:BG_TH+N.at,w:d,h:8}:{x:BG_W-d,y:BG_TH+N.at,w:d,h:8};};   // 將棋有三排
 const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
 // 清軍陣形（20 格寬、16 格深）：兩排將貼著腹地最前緣、空一排、炮馬炮（炮左右各內縮兩格，都是隔一格一顆、交錯）、空四排、三排車貼在最邊邊（左右各兩層）；
 // 最後三排相連：最左、最右兩層都是車；中間照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（不會被拐腳），最後一排的馬往前跳的落點也空出來；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
 const BG_QING=(()=>{const rev=t=>[...t].reverse().join(''),mir=h=>h+rev(h),E='.'.repeat(20),edge='RR'+'.'.repeat(16)+'RR',C='..'+'C.'.repeat(8)+'..';
   return['G.'.repeat(10),'.G'.repeat(10),E,C,'.H'.repeat(10),C,E,E,E,E,edge,edge,edge,mir('RRH..RH..R'),mir('RR.RHC.RHA'),mir('RRHCERHAX.').replace('X..X','X..Y')];})();
 const bgShuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
-// 各國開局：俄國 塔夫列利（王前兵升變成赫爾吉）、日本 將棋（九路縮成八路，少一隻桂；三排）、英法義 西洋棋、美國 菲舍爾任意制（底線隨機：主教一黑一白、國王在兩城堡之間）、
-// 德國 信使棋（城堡 弓手 信使 謀士 國王 小后 弄臣 城堡）、奧匈 維也納棋（底線自由擺，只要求主教一黑一白）
-function bgRanks(n){const P='pppppppp';
-  if(n===0)return['rnbqkbnr','ppppoppp'];if(n===1)return['ljsgkgsl','.r....b.','uuuuuuuu'];if(n===5)return['racmkfwr',P];
-  if(n===3||n===7)for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(n===7||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
+// 各種棋的開局：塔夫列利（王前兵升變成赫爾吉）、將棋（九路縮成八路，少一隻桂；三排）、西洋棋、菲舍爾任意制（底線隨機：主教一黑一白、國王在兩城堡之間）、
+// 信使棋（城堡 弓手 信使 謀士 國王 小后 弄臣 城堡）、維也納棋（底線自由擺，只要求主教一黑一白）
+function bgRanks(n){const P='pppppppp',k=BG_KIND[n];
+  if(k==='ta')return['rnbqkbnr','ppppoppp'];if(k==='sh')return['ljsgkgsl','.r....b.','uuuuuuuu'];if(k==='co')return['racmkfwr',P];
+  if(k==='f9'||k==='vi')for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(k==='vi'||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
   return['rnbqkbnr',P];}
-function bgNew(){
+function bgNew(kinds){
+  if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
   BG_NATIONS.forEach((N,n)=>{const ranks=bgRanks(n);
@@ -64,7 +69,7 @@ function bgMoves(st,i,capsOnly){
         const L=p.t==='u'?[[1,0]]:p.t==='j'?[[2,1],[2,-1]]:p.t==='s'?[[1,0],[1,1],[1,-1],[-1,1],[-1,-1]]:[[1,0],[1,1],[1,-1],[0,1],[0,-1],[-1,0]];
         for(const[f,sd]of L){const[xx,yy]=R(f,sd);add(xx,yy);}break;}
       case 'p':case 'o':{const[dx,dy]=bgDir(p.n),fx=x+dx,fy=y+dy;
-        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&p.n!==5&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}   // 信使棋的兵第一步不能走兩格
+        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&BG_KIND[p.n]!=='co'&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}   // 信使棋的兵第一步不能走兩格
         for(const s of[-1,1]){const cx=fx+(dy?s:0),cy=fy+(dx?s:0);if(bgIn(cx,cy)&&enemy(b[bgIdx(cx,cy)]))out.push(bgIdx(cx,cy));}break;}
     }
   }else{
@@ -86,8 +91,8 @@ function bgApply(st,f,t){
   const b=st.b,p=b[f],q=b[t];let note='';
   b[t]=p;b[f]=null;
   if(p.s==='A'){p.m=1;const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0,end=!bgIn(x+dx,y+dy);
-    if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':p.n===5?'f':'q'};note='升變'+BG_CN[b[t].t];}   // 走到地圖盡頭升變：俄國王前兵變赫爾吉、信使棋的兵變小后、其餘變皇后
-    else if(p.n===1&&BG_JPUP[p.t]&&(bgPalm(x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}   // 日本：走進清軍腹地（或走到盡頭）升變
+    if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':BG_KIND[p.n]==='co'?'f':'q'};note='升變'+BG_CN[b[t].t];}   // 走到地圖盡頭升變：俄國王前兵變赫爾吉、信使棋的兵變小后、其餘變皇后
+    else if(bgJP(p)&&BG_JPUP[p.t]&&(bgPalm(x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}   // 日本：走進清軍腹地（或走到盡頭）升變
   if(q&&q.s==='A'&&q.t==='k'){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].s==='A'&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+'國王被吃，整隊撤退';}
   st.last={f,t};st.turn=st.turn==='Q'?'A':'Q';st.seq++;
   const gens=b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length,kings=st.dead.filter(d=>!d).length;
@@ -118,4 +123,4 @@ function bgAI(st,opts){
     s+=Math.random()*0.05;
     if(s>bs){bs=s;best=[f,t];}}
   return best;}
-if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS};
+if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};

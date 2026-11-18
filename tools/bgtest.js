@@ -44,3 +44,11 @@ console.log(fail?'失敗 '+fail:'陣形檢查通過');
  // 俄國王前兵走到盡頭變赫爾吉
  const s3=E.bgNew();s3.b.fill(null);const a=E.bgIdx(W-2,12);s3.b[a]={s:'A',t:'o',n:0,m:1};s3.b[E.bgIdx(0,12)]={s:'A',t:'k',n:0};s3.b[E.bgIdx(20,33)]={s:'Q',t:'X',n:-1};s3.turn='A';E.bgApply(s3,a,a+1);ok(s3.b[a+1].t==='e','王前兵升變成赫爾吉');}
 console.log(fail?'失敗 '+fail:'各國棋種檢查通過');
+// 各國棋種可以設定（0.17.0）：全部換成西洋棋、全部換成將棋都要能開局並下完
+{const cntA=st=>{const A=[0,0,0,0,0,0,0,0];st.b.forEach(p=>{if(p&&p.s==='A')A[p.n]++;});return A;};
+ const all=E.bgNew(Array(8).fill('ch'));ok(cntA(all).every(n=>n===16),'全部西洋棋：各 16 子');ok(!all.b.some(p=>p&&p.s==='A'&&!'kqrbnp'.includes(p.t)),'全部西洋棋：只有西洋棋子');
+ ok(all.b.filter((p,i)=>p&&p.s==='A'&&p.n===1).map(p=>p.t).sort().join('')==='bbknnpppppppprrq'.split('').sort().join(''),'日本換成西洋棋');
+ for(const k of Object.keys(E.BG_KINDS)){const st=E.bgNew(Array(8).fill(k));ok(cntA(st).every(n=>n===(k==='sh'?18:16)),'全部 '+k+' 子數');st.b.forEach((p,i)=>{if(p)ok(E.BG_VALID[i],'棋子在地圖外 '+k);});
+   let n=0;for(;n<200&&!st.over;n++){const mv=E.bgAI(st);if(!mv)break;E.bgApply(st,mv[0],mv[1]);}ok(n>20,'全部 '+k+' 可以對局');}
+ E.bgNew(E.BG_OWN);}
+console.log(fail?'失敗 '+fail:'棋種設定檢查通過');

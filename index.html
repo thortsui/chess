@@ -755,6 +755,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .bgp.q span{background:radial-gradient(circle at 35% 30%,#f0d3a2,#d4a46a 62%,#b4834a);color:#b8100d;font-family:var(--serif);font-weight:900;box-shadow:0 2px 0 #7f5226,0 3px 6px rgba(0,0,0,.35),inset 0 0 0 2px rgba(184,16,13,.5)}
 .bgp.q.gen span{background:radial-gradient(circle at 35% 30%,#fff2b8,#f2c230 60%,#c9961a);color:#7a0d0a;box-shadow:0 2px 0 #7a5a10,0 0 0 3px #b8100d,0 4px 10px rgba(0,0,0,.4)}
 .bgp.a span{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),var(--nc) 55%);color:var(--nf);font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-size:25px;box-shadow:0 2px 0 rgba(0,0,0,.45),0 3px 6px rgba(0,0,0,.35),inset 0 0 0 2px rgba(0,0,0,.25)}
+/* 選單：各國用什麼棋 */
+.bgcfg{border-radius:14px;background:var(--bar);color:var(--bar-fg);border:1px solid var(--sc-line,transparent);padding:0 14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.bgcfg summary{cursor:pointer;font-weight:800;font-size:16px;padding:13px 0;display:flex;justify-content:space-between;align-items:center;list-style:none}.bgcfg summary::-webkit-details-marker{display:none}
+.bgcfg summary b{font-size:13px;font-weight:700;color:var(--hint-strong)}.bgcfg summary b::after{content:" ▾"}.bgcfg[open] summary b::after{content:" ▴"}
+.bgklist{display:grid;gap:6px;padding-bottom:10px}.bgkrow{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}.bgkrow i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 1.5px rgba(0,0,0,.35);flex:none}.bgkrow span{flex:1}
+.bgkrow select{font:inherit;font-size:14px;padding:7px 8px;border-radius:9px;border:1px solid rgba(0,0,0,.25);background:#fff;color:#222;min-width:150px}
+.bgkall{display:flex;gap:8px;padding-bottom:10px}.bgkall button{flex:1;padding:9px 6px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:rgba(255,255,255,.6);color:inherit;font-weight:700;font-size:14px;cursor:pointer}.bgkall button.on{background:var(--hint-strong);color:#fff;border-color:transparent}
+.bgkhelp{margin:0 0 6px;padding-left:18px;font-size:12.5px;line-height:1.55;color:var(--muted)}.bgknote{margin:0 0 12px;font-size:12px;color:var(--muted)}
 /* 各國自己的棋：漢字棋子、升變的棋、俄國的王前兵 */
 .bgp.a.han span{font-family:var(--serif);font-weight:900;font-size:20px}.bgp.a.up span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 3px #c62828,0 3px 6px rgba(0,0,0,.35)}.bgp.a.kp span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 2px #f2c230,0 3px 6px rgba(0,0,0,.35)}
 .bgp.a.king span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 3px #f2c230,0 4px 10px rgba(0,0,0,.4)}
@@ -795,7 +803,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.16.0">v0.16.0</span>
+  <span class="ver" aria-label="版本 0.17.0">v0.17.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -829,7 +837,13 @@ html,body{overflow:hidden;overscroll-behavior:none}
       <p class="msg" id="pkMenuMsg"></p>
     </div>
     <div class="pkmenu" id="bgMenu" hidden>
-      <p class="pkrule">1900 年八國聯軍：十字形的西洋棋盤：中央一塊空地，上面站四國、左右各兩國，下面是清軍的腹地，八國都朝中央殺過來。清軍照象棋走（將、士、相只能在腹地）。<b>八國各用自己國家的棋</b>：英國、法國、義大利是西洋棋；美國是菲舍爾任意制（底線每局隨機排）；奧匈是維也納棋（底線自由擺陣）；德國是中世紀的信使棋（信使斜走、謀士八方一步、小后斜一步、弄臣直一步、弓手斜跳兩格）；日本是將棋（走進清軍腹地會升變，沒有打入）；俄國是塔夫列利（王前面那個兵走到底會變成「赫爾吉」＝皇后加騎士）。清軍走一步、聯軍挑一國走一步，輪流進行。哪一國的國王被吃，那一國整隊撤退；八國國王全被吃清軍贏，「慈」「禧」兩顆都被吃聯軍贏。地圖可以兩指縮放、單指拖動。</p>
+      <p class="pkrule">1900 年八國聯軍：十字形的西洋棋盤：中央一塊空地，上面站四國、左右各兩國，下面是清軍的腹地，八國都朝中央殺過來。清軍照象棋走（將、士、相只能在腹地）。<b>八國預設各用自己國家的代表棋</b>（英、法、義 西洋棋；美國 菲舍爾任意制；奧匈 維也納棋；德國 信使棋；日本 將棋；俄國 塔夫列利），不會下的可以在下面「各國用什麼棋」換成西洋棋或別種。清軍走一步、聯軍挑一國走一步，輪流進行。哪一國的國王被吃，那一國整隊撤退；八國國王全被吃清軍贏，「慈」「禧」兩顆都被吃聯軍贏。地圖可以兩指縮放、單指拖動。</p>
+      <details class="bgcfg" id="bgCfg"><summary>各國用什麼棋<b id="bgCfgSum"></b></summary>
+        <div class="bgklist" id="bgCfgList"></div>
+        <div class="bgkall"><button data-act="bgKindAll" data-v="own">各國代表棋</button><button data-act="bgKindAll" data-v="ch">全部改成西洋棋</button></div>
+        <ul class="bgkhelp"><li><b>西洋棋</b>：標準擺法。</li><li><b>菲舍爾任意制</b>：走法同西洋棋，底線每局隨機排。</li><li><b>維也納棋</b>：走法同西洋棋，底線自由隨機排（國王可在任何位置）。</li><li><b>信使棋</b>：信使斜走、謀士八方一步、小后斜一步、弄臣直一步、弓手斜跳兩格；兵第一步只能走一格。</li><li><b>將棋</b>：三排 18 子；金銀桂香歩只往前；走進清軍腹地會升變；沒有打入。</li><li><b>塔夫列利</b>：同西洋棋，國王前面的兵走到底變「赫爾吉」（皇后＋騎士）。</li></ul>
+        <p class="bgknote">連線對戰時用房主的設定。</p>
+      </details>
       <button class="big" data-act="bgSoloQ">我當清軍<small>八國聯軍由電腦控制</small></button>
       <button class="big" data-act="bgSoloA">我當聯軍<small>你指揮八國，清軍由電腦控制</small></button>
       <button class="big" data-act="bgCreate" id="bgCreateBtn">創建房間<small>最多 9 人，各自選清軍或一個國家，空位由電腦補上</small></button>
@@ -4973,7 +4987,11 @@ const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'
 const BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟',o:'♟',e:'勇',c:'信',m:'謀',f:'后',w:'弄',a:'弓',g:'金',s:'銀',j:'桂',l:'香',u:'歩',d:'龍',y:'馬',t:'と'};
 const BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵',o:'王前兵',e:'赫爾吉',c:'信使',m:'謀士',f:'小后',w:'弄臣',a:'弓手',g:'金將',s:'銀將',j:'桂馬',l:'香車',u:'步兵',d:'龍王',y:'龍馬',t:'成金'};
 const BG_JP={k:'王',r:'飛',b:'角'},BG_JPN={k:'王將',r:'飛車',b:'角行'},BG_JPUP={r:'d',b:'y',s:'t',j:'t',l:'t',u:'t'};   // 日本的王、飛、角用漢字；走進清軍腹地升變
-const bgGlyph=p=>(p.n===1&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(p.n===1&&BG_JPN[p.t])||BG_CN[p.t];
+// 可以選的棋種；BG_OWN 是各國的代表棋（順序同 BG_NATIONS：俄 日 英 美 法 德 義 奧）；BG_KIND 是這一局各國實際用的棋（可在選單設定，不會下的可以換成西洋棋）
+const BG_KINDS={ch:'西洋棋',f9:'菲舍爾任意制',vi:'維也納棋',co:'信使棋',sh:'將棋',ta:'塔夫列利'},BG_OWN=['ta','sh','ch','f9','ch','co','ch','vi'];
+let BG_KIND=BG_OWN.slice();
+const bgKindsOk=k=>Array.isArray(k)&&k.length===8&&k.every(x=>typeof x==='string'&&BG_KINDS.hasOwnProperty(x));
+const bgJP=p=>BG_KIND[p.n]==='sh',bgGlyph=p=>(bgJP(p)&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(bgJP(p)&&BG_JPN[p.t])||BG_CN[p.t];
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y<BG_TH?[BG_AW,BG_AW+BG_CW-1]:y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
 const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
@@ -4982,20 +5000,21 @@ const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地
 // 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
 const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:2}:N.side==='l'?{x:0,y:BG_TH+N.at,w:N.d||2,h:8}:{x:BG_W-(N.d||2),y:BG_TH+N.at,w:N.d||2,h:8};};
+const bgHome=n=>{const N=BG_NATIONS[n],d=BG_KIND[n]==='sh'?3:2;return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:d}:N.side==='l'?{x:0,y:BG_TH+N.at,w:d,h:8}:{x:BG_W-d,y:BG_TH+N.at,w:d,h:8};};   // 將棋有三排
 const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
 // 清軍陣形（20 格寬、16 格深）：兩排將貼著腹地最前緣、空一排、炮馬炮（炮左右各內縮兩格，都是隔一格一顆、交錯）、空四排、三排車貼在最邊邊（左右各兩層）；
 // 最後三排相連：最左、最右兩層都是車；中間照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（不會被拐腳），最後一排的馬往前跳的落點也空出來；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
 const BG_QING=(()=>{const rev=t=>[...t].reverse().join(''),mir=h=>h+rev(h),E='.'.repeat(20),edge='RR'+'.'.repeat(16)+'RR',C='..'+'C.'.repeat(8)+'..';
   return['G.'.repeat(10),'.G'.repeat(10),E,C,'.H'.repeat(10),C,E,E,E,E,edge,edge,edge,mir('RRH..RH..R'),mir('RR.RHC.RHA'),mir('RRHCERHAX.').replace('X..X','X..Y')];})();
 const bgShuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
-// 各國開局：俄國 塔夫列利（王前兵升變成赫爾吉）、日本 將棋（九路縮成八路，少一隻桂；三排）、英法義 西洋棋、美國 菲舍爾任意制（底線隨機：主教一黑一白、國王在兩城堡之間）、
-// 德國 信使棋（城堡 弓手 信使 謀士 國王 小后 弄臣 城堡）、奧匈 維也納棋（底線自由擺，只要求主教一黑一白）
-function bgRanks(n){const P='pppppppp';
-  if(n===0)return['rnbqkbnr','ppppoppp'];if(n===1)return['ljsgkgsl','.r....b.','uuuuuuuu'];if(n===5)return['racmkfwr',P];
-  if(n===3||n===7)for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(n===7||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
+// 各種棋的開局：塔夫列利（王前兵升變成赫爾吉）、將棋（九路縮成八路，少一隻桂；三排）、西洋棋、菲舍爾任意制（底線隨機：主教一黑一白、國王在兩城堡之間）、
+// 信使棋（城堡 弓手 信使 謀士 國王 小后 弄臣 城堡）、維也納棋（底線自由擺，只要求主教一黑一白）
+function bgRanks(n){const P='pppppppp',k=BG_KIND[n];
+  if(k==='ta')return['rnbqkbnr','ppppoppp'];if(k==='sh')return['ljsgkgsl','.r....b.','uuuuuuuu'];if(k==='co')return['racmkfwr',P];
+  if(k==='f9'||k==='vi')for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(k==='vi'||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
   return['rnbqkbnr',P];}
-function bgNew(){
+function bgNew(kinds){
+  if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
   BG_NATIONS.forEach((N,n)=>{const ranks=bgRanks(n);
@@ -5025,7 +5044,7 @@ function bgMoves(st,i,capsOnly){
         const L=p.t==='u'?[[1,0]]:p.t==='j'?[[2,1],[2,-1]]:p.t==='s'?[[1,0],[1,1],[1,-1],[-1,1],[-1,-1]]:[[1,0],[1,1],[1,-1],[0,1],[0,-1],[-1,0]];
         for(const[f,sd]of L){const[xx,yy]=R(f,sd);add(xx,yy);}break;}
       case 'p':case 'o':{const[dx,dy]=bgDir(p.n),fx=x+dx,fy=y+dy;
-        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&p.n!==5&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}   // 信使棋的兵第一步不能走兩格
+        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&BG_KIND[p.n]!=='co'&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}   // 信使棋的兵第一步不能走兩格
         for(const s of[-1,1]){const cx=fx+(dy?s:0),cy=fy+(dx?s:0);if(bgIn(cx,cy)&&enemy(b[bgIdx(cx,cy)]))out.push(bgIdx(cx,cy));}break;}
     }
   }else{
@@ -5047,8 +5066,8 @@ function bgApply(st,f,t){
   const b=st.b,p=b[f],q=b[t];let note='';
   b[t]=p;b[f]=null;
   if(p.s==='A'){p.m=1;const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0,end=!bgIn(x+dx,y+dy);
-    if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':p.n===5?'f':'q'};note='升變'+BG_CN[b[t].t];}   // 走到地圖盡頭升變：俄國王前兵變赫爾吉、信使棋的兵變小后、其餘變皇后
-    else if(p.n===1&&BG_JPUP[p.t]&&(bgPalm(x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}   // 日本：走進清軍腹地（或走到盡頭）升變
+    if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':BG_KIND[p.n]==='co'?'f':'q'};note='升變'+BG_CN[b[t].t];}   // 走到地圖盡頭升變：俄國王前兵變赫爾吉、信使棋的兵變小后、其餘變皇后
+    else if(bgJP(p)&&BG_JPUP[p.t]&&(bgPalm(x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}   // 日本：走進清軍腹地（或走到盡頭）升變
   if(q&&q.s==='A'&&q.t==='k'){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].s==='A'&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+'國王被吃，整隊撤退';}
   st.last={f,t};st.turn=st.turn==='Q'?'A':'Q';st.seq++;
   const gens=b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length,kings=st.dead.filter(d=>!d).length;
@@ -5087,7 +5106,15 @@ const BG_CS=44;   // 每格的世界座標大小
 function bgShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=true;$('ww').hidden=true;$('bg').hidden=false;}
 function bgExit(){clearTimeout(BG.timer);if(BG.net){try{BG.net.close();}catch(e){}BG.net=null;}BG.role=null;BG.st=null;$('bg').hidden=true;showMenu('');}
 function bgMenuMsg(t,err){const m=$('bgMenuMsg');if(m){m.textContent=t;m.classList.toggle('err',!!err);}}
-function bgSyncMenu(){const ok=!!R;$('bgCreateBtn').disabled=!ok;$('bgJoinBtn').disabled=!ok;}
+// 各國用什麼棋（存在這台裝置；連線時用房主的設定）
+function bgCfgKinds(){try{const k=JSON.parse(localStorage.getItem('xq-bg-kinds')||'null');if(bgKindsOk(k))return k;}catch(e){}return BG_OWN.slice();}
+function bgCfgSave(k){try{localStorage.setItem('xq-bg-kinds',JSON.stringify(k));}catch(e){}bgCfgRender();}
+function bgCfgRender(){const k=bgCfgKinds(),own=k.every((x,i)=>x===BG_OWN[i]),allCh=k.every(x=>x==='ch');
+  $('bgCfgSum').textContent=own?'各國代表棋':allCh?'全部西洋棋':'自訂';
+  $('bgCfgList').innerHTML=BG_NATIONS.map((N,n)=>`<label class="bgkrow"><i style="background:${N.c}"></i><span>${N.n}</span><select data-act="bgKindSel" data-n="${n}" aria-label="${N.n}用什麼棋">${Object.keys(BG_KINDS).map(x=>`<option value="${x}"${k[n]===x?' selected':''}>${BG_KINDS[x]}${x===BG_OWN[n]&&x!=='ch'?'（代表棋）':''}</option>`).join('')}</select></label>`).join('');
+  document.querySelectorAll('#bgCfg [data-act=bgKindAll]').forEach(b=>b.classList.toggle('on',b.dataset.v==='own'?own:allCh));}
+document.addEventListener('change',e=>{const el=e.target;if(!el||el.tagName!=='SELECT'||el.dataset.act!=='bgKindSel')return;const k=bgCfgKinds();if(BG_KINDS[el.value]){k[+el.dataset.n]=el.value;bgCfgSave(k);}});
+function bgSyncMenu(){const ok=!!R;$('bgCreateBtn').disabled=!ok;$('bgJoinBtn').disabled=!ok;bgCfgRender();}
 /* ---------- 誰可以走 ---------- */
 // 聯軍的「操作者」：連線時每位選了國家的真人各算一位，其他由電腦接手的國家合起來算一位；聯軍的回合依序輪流
 function bgCtrls(){const st=BG.st,out=[];if(!st)return out;
@@ -5106,7 +5133,7 @@ function bgCanPick(i){const st=BG.st,p=st.b[i];if(!p||p.s!==st.turn||!bgMyTurn()
   if(p.s==='A'&&w.nations&&!w.nations.includes(p.n))return false;return true;}
 /* ---------- 開局 ---------- */
 function bgStartSolo(me){BG.role='solo';BG.me=me;BG.code=null;BG.seats=[];BG.mySeat=me==='Q'?0:1;bgNewGame();bgShow();bgFit(me==='Q'?'mine':'all');}
-function bgNewGame(){clearTimeout(BG.timer);BG.st=bgNew();BG.hist=[];BG.sel=-1;BG.tg=[];BG.ac=0;BG.msg='';bgAfter();}
+function bgNewGame(){clearTimeout(BG.timer);BG.st=bgNew(bgCfgKinds());BG.hist=[];BG.sel=-1;BG.tg=[];BG.ac=0;BG.msg='';bgAfter();}
 function bgDo(f,t){const st=BG.st;if(!st||st.over)return false;const p=st.b[f];if(!p||p.s!==st.turn||!bgMoves(st,f,false).includes(t))return false;
   if(BG.role==='solo'){BG.hist.push(bgClone(st));if(BG.hist.length>80)BG.hist.shift();}   // 悔棋紀錄最多留 80 步，長局不會一直吃記憶體
   const wasA=st.turn==='A',q=st.b[t];const r=bgApply(st,f,t);
@@ -5126,10 +5153,10 @@ function bgBoardSVG(){const CS=BG_CS;let r='';
   BG_NATIONS.forEach((N,n)=>{const{x,y,w,h}=bgHome(n);
     r+=`<rect x="${x*CS}" y="${y*CS}" width="${w*CS}" height="${h*CS}" fill="${N.c}" opacity=".28"/>`;
     const lx=N.side==='t'?(x+w/2)*CS:N.side==='l'?(x+w+1)*CS:(x-1)*CS,ly=N.side==='t'?(h+.5)*CS:(y+h/2)*CS;
-    r+=`<text x="${lx}" y="${ly}" font-size="${CS*.42}" text-anchor="middle" dominant-baseline="middle" fill="#6b4a2a" font-weight="700" opacity=".7">${N.n}・${N.g}</text>`;});
+    r+=`<text x="${lx}" y="${ly}" font-size="${CS*.42}" text-anchor="middle" dominant-baseline="middle" fill="#6b4a2a" font-weight="700" opacity=".7">${N.n}・${BG_KINDS[BG_KIND[n]]}</text>`;});
   return`<svg width="${BG_W*CS}" height="${BG_H*CS}" viewBox="0 0 ${BG_W*CS} ${BG_H*CS}" aria-hidden="true">${r}</svg>`;}
 function bgRender(){const st=BG.st;if(!st)return;const CS=BG_CS;
-  const w=$('bgWorld');if(!w.dataset.ok){w.innerHTML=bgBoardSVG()+'<div class="bglayer" id="bgLayer"></div>';w.style.width=BG_W*CS+'px';w.style.height=BG_H*CS+'px';w.dataset.ok=1;}
+  const w=$('bgWorld'),bk=BG_KIND.join();if(w.dataset.ok!==bk){w.innerHTML=bgBoardSVG()+'<div class="bglayer" id="bgLayer"></div>';w.style.width=BG_W*CS+'px';w.style.height=BG_H*CS+'px';w.dataset.ok=bk;}   // 棋種換了要重畫底圖（國名旁的棋種、陣地大小）
   let h='';const P=i=>`left:${(i%BG_W)*CS}px;top:${((i/BG_W)|0)*CS}px`;
   if(st.last){h+=`<div class="bglast" style="${P(st.last.f)}"></div><div class="bglast to" style="${P(st.last.t)}"></div>`;}
   st.b.forEach((p,i)=>{if(!p)return;const sel=i===BG.sel,cap=BG.tg.includes(i);
@@ -5185,8 +5212,8 @@ function bgTap(sx,sy){const st=BG.st;if(!st||st.over)return;const v=BG.view,x=Ma
   bgRender();}
 function bgMine(f,t){if(BG.role==='guest'){if(BG.net)BG.net.sendHost({k:'mv',f,t,seq:BG.st.seq});BG.sel=-1;BG.tg=[];bgRender();return;}bgDo(f,t);}
 /* ---------- 連線 ---------- */
-function bgPack(st){const pc=[];st.b.forEach((p,i)=>{if(p)pc.push([i,p.s==='Q'?p.t:p.t+p.n,p.m?1:0]);});return{pc,turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead};}
-function bgUnpack(o){const b=Array(BG_W*BG_H).fill(null);o.pc.forEach(([i,c,m])=>{b[i]=c.length===1&&/[RHCPAEGXY]/.test(c)?{s:'Q',t:c,n:-1}:{s:'A',t:c[0],n:+c.slice(1),m};});return{b,turn:o.turn,over:o.over,last:o.last,seq:o.seq,dead:o.dead,log:[]};}
+function bgPack(st){const pc=[];st.b.forEach((p,i)=>{if(p)pc.push([i,p.s==='Q'?p.t:p.t+p.n,p.m?1:0]);});return{pc,turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead,kinds:BG_KIND};}
+function bgUnpack(o){if(bgKindsOk(o.kinds))BG_KIND=o.kinds.slice();const b=Array(BG_W*BG_H).fill(null);o.pc.forEach(([i,c,m])=>{b[i]=c.length===1&&/[RHCPAEGXY]/.test(c)?{s:'Q',t:c,n:-1}:{s:'A',t:c[0],n:+c.slice(1),m};});return{b,turn:o.turn,over:o.over,last:o.last,seq:o.seq,dead:o.dead,log:[]};}
 function bgSeatsPub(){return BG.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind}:null);}
 function bgPush(){if(BG.role!=='host'||!BG.net)return;const pk=BG.st?bgPack(BG.st):null;
   BG.guests.forEach(g=>BG.net.sendTo(g.peer,{k:pk?'st':'lobby',st:pk,seats:bgSeatsPub(),mySeat:BG.seats.findIndex(s=>s&&s.peer===g.peer),ac:BG.ac,msg:BG.msg,code:BG.code}));}
@@ -5228,6 +5255,7 @@ async function bgJoin(c){if(!/^\d{4}$/.test(c)){bgMenuMsg('請輸入 4 位數字
 function bgClick(b){const act=b.dataset.act;
   switch(act){
     case 'bgSoloQ':bgStartSolo('Q');return true;case 'bgSoloA':bgStartSolo('A');return true;
+    case 'bgKindAll':bgCfgSave(b.dataset.v==='ch'?Array(8).fill('ch'):BG_OWN.slice());return true;
     case 'bgCreate':bgCreate();return true;case 'bgJoin':bgJoin($('bgCodeIn').value.trim());return true;
     case 'bgExit':bgExit();return true;case 'bgUndo':bgUndo();return true;
     case 'bgAgain':if(BG.role==='host'){bgNewGame();}else if(BG.role==='solo')bgNewGame();return true;
