@@ -721,6 +721,57 @@ html,body{overflow:hidden;overscroll-behavior:none}
 @keyframes eTabL{0%,100%{transform:translate(0,-50%)}50%{transform:translate(4px,-50%)}}
 .edgetab.drag{animation:none;transition:none;opacity:1}
 @media (prefers-reduced-motion:reduce){.varr,.edgetab{animation:none!important}}
+/* ---------- 八國聯軍 ---------- */
+.bg{position:fixed;inset:0;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:6px;color:#2a1d10;
+  background:radial-gradient(ellipse at 50% 30%,#f3e2c2,#d9b98a 70%,#b98f5c);
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.bghead{display:flex;align-items:center;gap:10px}
+.bghead button{border:0;border-radius:10px;padding:7px 12px;background:rgba(0,0,0,.12);color:inherit;font-size:14px;cursor:pointer}
+.bghead b{font-family:var(--serif);font-size:18px;letter-spacing:.1em}.bghead span{margin-left:auto;font-size:13px;opacity:.8}
+.bgnat{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.bgnat::-webkit-scrollbar{display:none}
+.bgnc{flex:0 0 auto;display:flex;align-items:center;gap:5px;border:0;border-radius:999px;padding:4px 10px 4px 6px;background:rgba(255,255,255,.6);font-size:12px;font-weight:700;color:#2a1d10;cursor:pointer;white-space:nowrap}
+.bgnc i{width:14px;height:14px;border-radius:50%;background:var(--nc,#b8100d);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.35)}
+.bgnc b{font-weight:500;opacity:.7;font-variant-numeric:tabular-nums}
+.bgnc.q{background:#fff3d6}.bgnc.q i{background:radial-gradient(circle at 35% 30%,#e6c38e,#cf9f63 62%,#b4834a)}
+.bgnc.dead{opacity:.45;text-decoration:line-through}
+.bgview{position:relative;overflow:hidden;border-radius:14px;background:#7c5a36;box-shadow:inset 0 0 0 2px rgba(0,0,0,.2);touch-action:none;cursor:grab}
+.bgworld{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.bgworld svg{display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+.bglayer{position:absolute;inset:0}
+.bgp{position:absolute;width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
+.bgp span{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:22px;line-height:1;transition:transform .15s}
+.bgp.q span{background:radial-gradient(circle at 35% 30%,#f0d3a2,#d4a46a 62%,#b4834a);color:#b8100d;font-family:var(--serif);font-weight:900;box-shadow:0 2px 0 #7f5226,0 3px 6px rgba(0,0,0,.35),inset 0 0 0 2px rgba(184,16,13,.5)}
+.bgp.q.gen span{background:radial-gradient(circle at 35% 30%,#fff2b8,#f2c230 60%,#c9961a);color:#7a0d0a;box-shadow:0 2px 0 #7a5a10,0 0 0 3px #b8100d,0 4px 10px rgba(0,0,0,.4)}
+.bgp.a span{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),var(--nc) 55%);color:var(--nf);font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-size:25px;box-shadow:0 2px 0 rgba(0,0,0,.45),0 3px 6px rgba(0,0,0,.35),inset 0 0 0 2px rgba(0,0,0,.25)}
+.bgp.a.king span{box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 0 3px #f2c230,0 4px 10px rgba(0,0,0,.4)}
+.bgp.sel span{transform:scale(1.12);box-shadow:0 0 0 3px #2f9fd8,0 6px 12px rgba(0,0,0,.4)}
+.bgp.cap span{box-shadow:0 0 0 4px rgba(217,48,37,.85),0 3px 6px rgba(0,0,0,.35)}
+.bgtg{position:absolute;width:44px;height:44px;pointer-events:none}.bgtg::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:rgba(47,159,216,.75)}
+.bglast{position:absolute;width:44px;height:44px;background:rgba(46,125,50,.28);pointer-events:none}.bglast.to{background:rgba(46,125,50,.45)}
+.bgfoot{display:grid;gap:6px}
+.bgturn{text-align:center;font-weight:700;font-size:15px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.55)}
+.bgturn.mine{background:#b8100d;color:#fff}
+.bglastmv{text-align:center;font-size:12.5px;opacity:.8;min-height:1.2em}
+.bgbtns{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.bgbtns button{border:0;border-radius:10px;padding:8px 12px;background:rgba(255,255,255,.7);color:#2a1d10;font-size:14px;font-weight:700;cursor:pointer}
+.bgbtns button:disabled{opacity:.45}
+.bgover{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.45);z-index:5}
+.bgobox{background:#fff8ea;border-radius:16px;padding:20px 22px;text-align:center;max-width:300px;display:grid;gap:10px}
+.bgobox h2{margin:0;font-family:var(--serif)}.bgobox p{margin:0}
+.bgobox button{border:0;border-radius:12px;padding:10px 16px;font-size:15px;font-weight:700;background:#eadbc1;cursor:pointer}.bgobox .go{background:#b8100d;color:#fff}
+.bglobby{grid-row:2/-1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 0}
+.bglobby .wwcode{color:#2a1d10}
+.bgseats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:420px}
+.bgseat{display:flex;flex-direction:column;align-items:center;gap:3px;border:2px solid transparent;border-radius:12px;padding:8px 4px;background:rgba(255,255,255,.65);color:#2a1d10;cursor:pointer}
+.bgseat i{width:20px;height:20px;border-radius:50%;background:var(--nc);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.3)}
+.bgseat b{font-size:14px}.bgseat span{font-size:11px;opacity:.7}
+.bgseat.taken{background:#fff}.bgseat.me{border-color:#b8100d;background:#fff3e8}
+.bgzoom{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px;z-index:3}
+.bgzoom button{width:36px;height:36px;border:0;border-radius:10px;background:rgba(255,255,255,.85);color:#2a1d10;font:700 18px/1 var(--ui);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer}
+.menu[data-th="bg"]{--sc-bg:linear-gradient(#f6c27a,#e08a4f 45%,#8e4a3a 70%,#3a2a2a);--page:rgba(248,232,208,.9);--bar:rgba(255,246,232,.84);--bar-fg:#2a1d10;--muted:#6e5640;--hint-strong:#b8100d;--sc-line:rgba(184,16,13,.3);
+  --sc-title:#fff4dc;--sc-sub:#ffe6c4;--sc-tsh:0 1px 4px rgba(40,10,0,.6)}
+.logo.bgl .duo span:first-child{font-size:24px}
+.logo.bgl .duo span:last-child{transform:none;font-size:13px;letter-spacing:-.02em;background:radial-gradient(circle at 35% 30%,#fff,#e8e2d6);color:#1e4fd8;font-family:var(--ui);font-weight:900}
 </style>
 </head>
 <body>
@@ -729,14 +780,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.13.18">v0.13.18</span>
+  <span class="ver" aria-label="版本 0.14.0">v0.14.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
     <div class="vwrap" id="vWrap"><button class="varr l" data-act="modeStep" data-d="-1" aria-label="上一個模式">‹</button>
-      <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
+      <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button><button data-act="var" data-v="bg">八國聯軍</button></div>
     <button class="varr r" data-act="modeStep" data-d="1" aria-label="下一個模式">›</button></div>
     <div class="qfhist" id="qfRule" hidden>
       <div class="qfhtrack" id="qfTrack" role="region" aria-roledescription="輪播" aria-label="清法戰爭的歷史，左右滑動翻頁">
@@ -759,6 +810,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
       <button class="big" data-act="pkCreate" id="pkCreateBtn">創建房間<small>最多 4 人，空位由電腦補上</small></button>
       <div class="join"><input id="pkCodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="撲克牌房號"><button data-act="pkJoin" id="pkJoinBtn">加入</button></div>
       <p class="msg" id="pkMenuMsg"></p>
+    </div>
+    <div class="pkmenu" id="bgMenu" hidden>
+      <p class="pkrule">1900 年八國聯軍：手掌形的西洋棋盤上，清軍守在掌根，八國各帶一整隊西洋棋從八根指尖殺過來。清軍照象棋走（將、士、相只能在掌心），聯軍照西洋棋走。清軍走一步、聯軍挑一國走一步，輪流進行。哪一國的國王被吃，那一國整隊撤退；八國國王全被吃清軍贏，「慈」「禧」兩顆都被吃聯軍贏。地圖可以兩指縮放、單指拖動。</p>
+      <button class="big" data-act="bgSoloQ">我當清軍<small>八國聯軍由電腦控制</small></button>
+      <button class="big" data-act="bgSoloA">我當聯軍<small>你指揮八國，清軍由電腦控制</small></button>
+      <button class="big" data-act="bgCreate" id="bgCreateBtn">創建房間<small>最多 9 人，各自選清軍或一個國家，空位由電腦補上</small></button>
+      <div class="join"><input id="bgCodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="八國聯軍房號"><button data-act="bgJoin" id="bgJoinBtn">加入</button></div>
+      <p class="msg" id="bgMenuMsg"></p>
     </div>
     <div class="pkmenu" id="wwMenu" hidden>
       <p class="pkrule" id="wwRule"></p>
@@ -828,6 +887,16 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="wwsay" id="wwSay"><input id="wwIn" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="發言內容"><button data-act="wwSend" id="wwSend">送出</button></div>
   <div class="wwlobby" id="wwLobby" hidden></div>
   <p class="wwmsg" id="wwMsg" aria-live="polite"></p>
+</div>
+<div class="bg" id="bg" hidden>
+  <div class="bghead"><button data-act="bgExit" aria-label="回選單">‹ 選單</button><b>八國聯軍</b><span id="bgCode"></span></div>
+  <div class="bgnat" id="bgNat"></div>
+  <div class="bgview" id="bgView"><div class="bgworld" id="bgWorld"></div>
+    <div class="bgzoom"><button data-act="bgZoom" data-f="1.4" aria-label="放大">＋</button><button data-act="bgZoom" data-f="0.7" aria-label="縮小">－</button><button data-act="bgFit" data-v="all" aria-label="看全圖">⤢</button></div>
+    <div class="bgover" id="bgOver" hidden></div></div>
+  <div class="bgfoot" id="bgFoot"><div class="bgturn" id="bgTurn"></div><div class="bglastmv" id="bgLast"></div>
+    <div class="bgbtns"><button data-act="bgFit" data-v="mine">我方</button><button data-act="bgFit" data-v="all">全圖</button><button data-act="bgUndo" id="bgUndo">悔棋</button><button data-act="bgAgain" id="bgAgain">重來</button></div></div>
+  <div class="bglobby" id="bgLobby" hidden></div>
 </div>
 <div class="app" id="app" hidden>
   <div class="bar" id="barT"></div>
@@ -2355,6 +2424,21 @@ SCENES.qf=`<svg ${SCENE_VB}><defs><linearGradient id="sqS" x1="0" y1="0" x2="0" 
 <path d="M0 640 Q100 620 200 640 T400 636 V860 H0z" fill="#29435d" opacity=".7"/>
 <g transform="translate(120 760)"><path d="M-60 0 L60 0 L50 14 L-50 14z" fill="#7a4a2a"/><path d="M0 0V-70" stroke="#5a3a1f" stroke-width="3"/><path d="M2 -66 Q30 -40 4 -6z" fill="#e8d3a8"/><path d="M-2 -60 Q-26 -36 -2 -10z" fill="#d9bf8c"/></g>
 <path d="M0 820 Q200 790 400 820 V860 H0z" fill="#1f354b"/></svg>`;
+// 八國聯軍：1900 年夏天黃昏的北京城門，城樓、城牆與硝煙，遠處八面彩色旗子
+SCENES.bg=`<svg ${SCENE_VB}><defs><linearGradient id="sbS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c27a"/><stop offset=".45" stop-color="#e08a4f"/><stop offset=".7" stop-color="#a5583f"/><stop offset="1" stop-color="#4a2f2a"/></linearGradient>
+<radialGradient id="sbSun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff0c8"/><stop offset="1" stop-color="#fff0c8" stop-opacity="0"/></radialGradient></defs>
+<rect width="400" height="860" fill="url(#sbS)"/><circle cx="110" cy="360" r="110" fill="url(#sbSun)"/><circle cx="110" cy="370" r="30" fill="#ffe6b0" opacity=".85"/>
+<g fill="#6b4a42" opacity=".35"><ellipse cx="300" cy="300" rx="90" ry="40"/><ellipse cx="250" cy="250" rx="60" ry="30"/><ellipse cx="330" cy="230" rx="50" ry="24"/></g>
+<g>${['#c62828','#00897b','#1e4fd8','#2b2b2f','#2e7d32','#e0a516','#f4f4f2','#e2557a'].map((c,i)=>`<g transform="translate(${30+i*48} ${470+(i%2)*12})"><path d="M0 0V-60" stroke="#3a2a22" stroke-width="2"/><path d="M0 -60 l24 6 -24 8z" fill="${c}" stroke="#2a1d10" stroke-width=".6"/></g>`).join('')}</g>
+<path d="M0 560 H400 V860 H0z" fill="#5a3c33"/>
+<g transform="translate(200 560)"><rect x="-200" y="0" width="400" height="140" fill="#7a4a3a"/><g fill="#6a3e30">${Array.from({length:20},(_,i)=>`<rect x="${-200+i*20}" y="-10" width="12" height="12"/>`).join('')}</g>
+<path d="M-40 140 V70 Q0 20 40 70 V140z" fill="#2a1712"/>
+<rect x="-110" y="-70" width="220" height="70" fill="#9c2b22"/><g fill="#6a1b14">${[-90,-60,-30,0,30,60,90].map(x=>`<rect x="${x-4}" y="-66" width="8" height="64"/>`).join('')}</g>
+<path d="M-140 -70 Q0 -96 140 -70 L120 -60 Q0 -82 -120 -60z" fill="#2e3b2f"/><path d="M-140 -70 Q-160 -78 -168 -90 M140 -70 Q160 -78 168 -90" stroke="#2e3b2f" stroke-width="6" fill="none" stroke-linecap="round"/>
+<rect x="-80" y="-130" width="160" height="50" fill="#9c2b22"/><path d="M-110 -130 Q0 -154 110 -130 L94 -120 Q0 -140 -94 -120z" fill="#2e3b2f"/><path d="M-110 -130 Q-128 -138 -134 -150 M110 -130 Q128 -138 134 -150" stroke="#2e3b2f" stroke-width="5" fill="none" stroke-linecap="round"/>
+<rect x="-26" y="-112" width="52" height="16" fill="#1b3a6e" stroke="#e8c45c" stroke-width="1.5"/><text x="0" y="-100" font-size="11" text-anchor="middle" fill="#f2d27a" font-family="serif" font-weight="700">正陽門</text></g>
+<g fill="#cbb6a6" opacity=".5"><circle cx="70" cy="520" r="16"/><circle cx="58" cy="498" r="20"/><circle cx="44" cy="470" r="24"/><circle cx="340" cy="530" r="14"/><circle cx="352" cy="506" r="19"/></g>
+<rect y="700" width="400" height="160" fill="#3a2622"/></svg>`;
 function sceneSet(v){const el=$('scene');if(!el)return;const k=SCENES[v]?v:'xq';if(el.dataset.v===k)return;el.dataset.v=k;$('menu').dataset.th=k;
   el.innerHTML=`<div class="scenein">${SCENES[k]}</div>`;}
 
@@ -2370,7 +2454,7 @@ function qfNudge(){const tr=$('qfTrack');if(!tr||tr.scrollLeft>2)return;if(match
   setTimeout(()=>{if(tr.scrollLeft>2||$('qfRule').hidden)return;try{tr.scrollTo({left:70,behavior:'smooth'});setTimeout(()=>{if(tr.scrollLeft<=80)tr.scrollTo({left:0,behavior:'smooth'});},650);}catch(e){}},500);}
 
 /* ---------- 模式切換：螢幕邊緣滑動、邊緣標籤、模式列箭頭 ---------- */
-const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺'};
+const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺',bg:'八國聯軍'};
 function modeList(){return[...document.querySelectorAll('#varSeg button')].map(b=>b.dataset.v);}
 function modeStep(d){const L=modeList(),i=L.indexOf(menuVariant),j=i+d;if(j<0||j>=L.length)return false;menuVariant=L[j];syncVariant();try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}return true;}
 function modeEdges(){const L=modeList(),i=L.indexOf(menuVariant),p=L[i-1],n=L[i+1];
@@ -2396,7 +2480,7 @@ function modeEdges(){const L=modeList(),i=L.indexOf(menuVariant),p=L[i-1],n=L[i+
 function modeNudge(){const sg=$('varSeg');if(!sg||sg.dataset.nudged||matchMedia('(prefers-reduced-motion: reduce)').matches)return;sg.dataset.nudged=1;const x0=sg.scrollLeft;
   setTimeout(()=>{if($('menu').hidden)return;try{sg.scrollTo({left:x0+70,behavior:'smooth'});setTimeout(()=>sg.scrollTo({left:x0,behavior:'smooth'}),650);}catch(e){}},700);}
 function syncVariant(){
-  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
+  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7,bg:8}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
   document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   {const sg=$('varSeg'),on=sg.querySelector('button.on');if(on&&sg.scrollWidth>sg.clientWidth){const l=on.offsetLeft-(sg.clientWidth-on.offsetWidth)/2;try{sg.scrollTo({left:l,behavior:'smooth'});}catch(e){sg.scrollLeft=l;}}}
   $('ttl').textContent=T('象棋','暗棋','西洋棋','五子棋','圍棋','','','清法戰爭');
@@ -2407,8 +2491,9 @@ function syncVariant(){
   $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（後走）');
   $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍（先走）');
   $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍（後走）')+'，取得 4 位數房號給朋友';
-  const pk=v==='pk',ww=v==='ww',other=pk||ww;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
+  const pk=v==='pk',ww=v==='ww',bgv=v==='bg',other=pk||ww||bgv;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;$('bgMenu').hidden=!bgv;lg.classList.toggle('bgl',bgv);['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
   document.querySelector('.card>.aibox').hidden=other;document.querySelector('.card>.join').hidden=other;lg.classList.toggle('pkl',pk);lg.classList.toggle('wwl',ww);
+  if(bgv){$('skinBtn').hidden=true;$('ttl').textContent='八國聯軍';$('logoA').textContent='清';$('logoB').textContent='八國';bgSyncMenu();}
   if(ww){$('skinBtn').hidden=true;$('ttl').textContent='狼人殺';$('logoA').textContent='🐺';$('logoB').textContent='🌕';wwSyncMenu();}
   if(pk){$('skinBtn').hidden=true;$('ttl').textContent='撲克牌';$('logoA').textContent='♥';$('logoB').textContent='♠';pkSyncMenu();}
 }
@@ -4672,6 +4757,261 @@ document.addEventListener('change',e=>{const el=e.target;if(!el||el.tagName!=='S
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='wwIn'&&!e.isComposing){e.preventDefault();wwSend();}});
 document.addEventListener('scroll',e=>{if(e.target&&e.target.id==='wwLog'){const l=e.target;WW.stick=l.scrollHeight-l.scrollTop-l.clientHeight<40;}},true);
 
+/* ===== 八國聯軍：規則引擎＋電腦玩家（手掌形方格地圖；清軍照象棋走、聯軍 8 國照西洋棋走） ===== */
+// 地圖：掌心 21×18 在下方中間；上方 4 根、左右各 2 根指頭，每根 4 格寬、7 格長，指尖 4×4 放一整隊西洋棋
+const BG_FL=7,BG_PW=21,BG_PH=18,BG_W=BG_FL*2+BG_PW,BG_H=BG_FL+BG_PH;
+const BG_NATIONS=[   // 名稱、主色、字色、指頭（side：l 左 t 上 r 右；at：在掌心的相對位置）
+  {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:6},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'l',at:1},
+  {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:1},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:6},
+  {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:11},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:16},
+  {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'r',at:1},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:6}];
+const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'},BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'},BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵'};
+const bgIdx=(x,y)=>y*BG_W+x;
+const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H),set=(x,y)=>{v[bgIdx(x,y)]=1;};
+  for(let y=BG_FL;y<BG_H;y++)for(let x=BG_FL;x<BG_FL+BG_PW;x++)set(x,y);
+  BG_NATIONS.forEach(N=>{for(let a=0;a<4;a++)for(let b=0;b<BG_FL;b++){
+    if(N.side==='t')set(BG_FL+N.at+a,b);else if(N.side==='l')set(b,BG_FL+N.at+a);else set(BG_FL+BG_PW+b,BG_FL+N.at+a);}});
+  return v;})();
+const bgIn=(x,y)=>x>=0&&y>=0&&x<BG_W&&y<BG_H&&BG_VALID[bgIdx(x,y)]===1;
+const bgPalm=(x,y)=>x>=BG_FL&&x<BG_FL+BG_PW&&y>=BG_FL&&y<BG_H;
+// 每國士兵前進方向（往掌心）
+const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
+const BG_QX=BG_FL+6,BG_QY=BG_FL+6,BG_RIVER=BG_QY-1;   // 清軍陣地左上角；兵走到這一列（含）以上才能橫走
+const BG_QING=['G.G.G.G.','.G.G.G.G','........','C.C.C.C.','.H.H.H.H','C.C.C.C.','R......R','R......R','R......R','RHEAAEHR','RHA..AHR','RAX..YAR'];   // 慈、禧（原本兩個將的位置）兩個都被吃才算輸；最前面兩排是 8 個將
+function bgNew(){
+  const b=Array(BG_W*BG_H).fill(null);
+  BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
+  BG_NATIONS.forEach((N,n)=>{const ranks=['rnnr','bkqb','pppp','pppp'];
+    for(let d=0;d<4;d++)for(let a=0;a<4;a++){const t=ranks[d][a];let x,y;
+      if(N.side==='t'){x=BG_FL+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_FL+N.at+a;}else{x=BG_W-1-d;y=BG_FL+N.at+a;}
+      b[bgIdx(x,y)]={s:'A',t,n};}});
+  return{b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};}
+// 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
+function bgMoves(st,i,capsOnly){
+  const b=st.b,p=b[i];if(!p)return[];const x=i%BG_W,y=(i/BG_W)|0,out=[];
+  const enemy=q=>q&&q.s!==p.s;
+  const add=(xx,yy)=>{if(!bgIn(xx,yy))return false;const q=b[bgIdx(xx,yy)];if(q&&q.s===p.s)return false;if(capsOnly&&!q)return!q;out.push(bgIdx(xx,yy));return!q;};
+  const slide=dirs=>{for(const[dx,dy]of dirs){let xx=x+dx,yy=y+dy;while(bgIn(xx,yy)){const q=b[bgIdx(xx,yy)];if(!q){if(!capsOnly)out.push(bgIdx(xx,yy));}else{if(enemy(q))out.push(bgIdx(xx,yy));break;}xx+=dx;yy+=dy;}}};
+  const D4=[[1,0],[-1,0],[0,1],[0,-1]],DG=[[1,1],[1,-1],[-1,1],[-1,-1]],KN=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
+  if(p.s==='A'){
+    switch(p.t){
+      case 'k':for(const[dx,dy]of[...D4,...DG])add(x+dx,y+dy);break;
+      case 'q':slide([...D4,...DG]);break;case 'r':slide(D4);break;case 'b':slide(DG);break;
+      case 'n':for(const[dx,dy]of KN)add(x+dx,y+dy);break;
+      case 'p':{const[dx,dy]=bgDir(p.n),fx=x+dx,fy=y+dy;
+        if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}
+        for(const s of[-1,1]){const cx=fx+(dy?s:0),cy=fy+(dx?s:0);if(bgIn(cx,cy)&&enemy(b[bgIdx(cx,cy)]))out.push(bgIdx(cx,cy));}break;}
+    }
+  }else{
+    switch(p.t){
+      case 'R':slide(D4);break;
+      case 'C':for(const[dx,dy]of D4){let xx=x+dx,yy=y+dy,j=false;while(bgIn(xx,yy)){const q=b[bgIdx(xx,yy)];
+          if(!j){if(!q){if(!capsOnly)out.push(bgIdx(xx,yy));}else j=true;}else if(q){if(enemy(q))out.push(bgIdx(xx,yy));break;}xx+=dx;yy+=dy;}}break;
+      case 'H':for(const[dx,dy]of KN){const lx=Math.abs(dx)===2?x+dx/2:x,ly=Math.abs(dy)===2?y+dy/2:y;if(bgIn(lx,ly)&&!b[bgIdx(lx,ly)])add(x+dx,y+dy);}break;
+      case 'P':add(x,y-1);if(y<=BG_RIVER){add(x-1,y);add(x+1,y);}break;
+      case 'G':case 'X':case 'Y':for(const[dx,dy]of D4)if(bgPalm(x+dx,y+dy))add(x+dx,y+dy);break;
+      case 'A':for(const[dx,dy]of DG)if(bgPalm(x+dx,y+dy))add(x+dx,y+dy);break;
+      case 'E':for(const[dx,dy]of DG){const xx=x+2*dx,yy=y+2*dy;if(bgPalm(xx,yy)&&bgIn(x+dx,y+dy)&&!b[bgIdx(x+dx,y+dy)])add(xx,yy);}break;
+    }
+  }
+  return out;}
+function bgAll(st,side,capsOnly){const out=[];for(let i=0;i<st.b.length;i++){const p=st.b[i];if(p&&p.s===side)for(const t of bgMoves(st,i,capsOnly))out.push([i,t]);}return out;}
+// 走一步（會改 st）；回傳這步的說明
+function bgApply(st,f,t){
+  const b=st.b,p=b[f],q=b[t];let note='';
+  b[t]=p;b[f]=null;
+  if(p.s==='A'){p.m=1;if(p.t==='p'){const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0;if(!bgIn(x+dx,y+dy)){b[t]={...p,t:'q'};note='升變皇后';}}}
+  if(q&&q.s==='A'&&q.t==='k'){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].s==='A'&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+'國王被吃，整隊撤退';}
+  st.last={f,t};st.turn=st.turn==='Q'?'A':'Q';st.seq++;
+  const gens=b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length,kings=st.dead.filter(d=>!d).length;
+  if(!gens)st.over={win:'A',why:'慈、禧都被吃了'};
+  else if(!kings)st.over={win:'Q',why:'八國的國王全部被吃了'};
+  else if(!bgAll(st,st.turn,false).length)st.over={win:st.turn==='Q'?'A':'Q',why:(st.turn==='Q'?'清軍':'聯軍')+'沒有棋可以走'};
+  return{p,q,note};}
+function bgClone(st){return{b:st.b.map(p=>p&&{...p}),turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead.slice(),log:st.log};}
+// 電腦：每一步看自己吃到什麼、對方下一步最多能吃回什麼，再加一點往前推進的分數
+const BG_V={k:0,q:9,r:5,b:3.2,n:3,p:1,R:9,H:4,C:4.5,P:1,A:2,E:2,G:1.6,X:30,Y:30};
+function bgNationVal(st,n){let v=12;for(const p of st.b)if(p&&p.s==='A'&&p.n===n&&p.t!=='k')v+=BG_V[p.t];return v;}
+function bgVal(st,p,i){if(p.s==='A')return p.t==='k'?bgNationVal(st,p.n):BG_V[p.t];
+  if(p.t==='X'||p.t==='Y'){const g=st.b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length;return g<=1?500:30;}
+  if(p.t==='P'&&((i/BG_W)|0)<=BG_RIVER)return 2;return BG_V[p.t];}
+function bgThreat(st,side){let best=0;for(const[f,t]of bgAll(st,side,true)){const q=st.b[t];if(q){const v=bgVal(st,q,t);if(v>best)best=v;}}return best;}
+function bgTargets(st,side){const out=[];st.b.forEach((p,i)=>{if(p&&p.s!==side&&(p.t==='X'||p.t==='Y'||p.t==='k'))out.push(i);});return out;}
+const bgDist=(a,b2)=>Math.abs(a%BG_W-b2%BG_W)+Math.abs(((a/BG_W)|0)-((b2/BG_W)|0));
+function bgAI(st,opts){
+  const side=st.turn,moves=bgAll(st,side,false).filter(([f])=>!opts||!opts.only||opts.only(st.b[f]));if(!moves.length)return null;
+  const tg=bgTargets(st,side),near=i=>tg.length?Math.min(...tg.map(t=>bgDist(i,t))):0;
+  let best=null,bs=-1e9;
+  for(const[f,t]of moves){const p=st.b[f],q=st.b[t];let s=q?bgVal(st,q,t)*1.02:0;
+    const c=bgClone(st);bgApply(c,f,t);
+    if(c.over&&c.over.win===side)return[f,t];
+    s-=0.9*bgThreat(c,c.turn);
+    if(!(p.t==='X'||p.t==='Y'||p.t==='k'||p.t==='A'||p.t==='E'))s+=(near(f)-near(t))*0.06;
+    if(p.t==='k')s-=0.3;
+    s+=Math.random()*0.05;
+    if(s>bs){bs=s;best=[f,t];}}
+  return best;}
+
+/* ===== 八國聯軍：控制流程、畫面（可縮放拖動的手掌地圖）、連線 ===== */
+// 座位：0 清軍、1..8 各國。單機時 me 決定玩家是清軍還是全部聯軍；連線時由房主跑規則，加入者只送出走法
+const BG={role:null,st:null,hist:[],me:'Q',seats:[],net:null,code:null,sel:-1,tg:[],view:{s:1,tx:0,ty:0},timer:null,ac:0,mySeat:0,lobby:null,msg:''};
+const BG_CS=44;   // 每格的世界座標大小
+function bgShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=true;$('ww').hidden=true;$('bg').hidden=false;}
+function bgExit(){clearTimeout(BG.timer);if(BG.net){try{BG.net.close();}catch(e){}BG.net=null;}BG.role=null;BG.st=null;$('bg').hidden=true;showMenu('');}
+function bgMenuMsg(t,err){const m=$('bgMenuMsg');if(m){m.textContent=t;m.classList.toggle('err',!!err);}}
+function bgSyncMenu(){const ok=!!R;$('bgCreateBtn').disabled=!ok;$('bgJoinBtn').disabled=!ok;}
+/* ---------- 誰可以走 ---------- */
+// 聯軍的「操作者」：連線時每位選了國家的真人各算一位，其他由電腦接手的國家合起來算一位；聯軍的回合依序輪流
+function bgCtrls(){const st=BG.st,out=[];if(!st)return out;
+  const humanN=new Map();BG.seats.forEach((s,k)=>{if(k>0&&s&&s.kind!=='ai'&&!st.dead[k-1])humanN.set(k,s);});
+  [...humanN.keys()].forEach(k=>out.push({seat:k,nations:[k-1]}));
+  const aiN=[];for(let n=0;n<8;n++)if(!st.dead[n]&&!humanN.has(n+1))aiN.push(n);if(aiN.length)out.push({seat:-1,nations:aiN});
+  return out;}
+function bgCurCtrl(){const c=bgCtrls();return c.length?c[BG.ac%c.length]:null;}
+// 這一手由誰走：{ai:true, only} 或 {seat, nations}
+function bgWho(){const st=BG.st;if(!st||st.over)return null;
+  if(BG.role==='solo'){if(st.turn==='Q')return BG.me==='Q'?{human:true}:{ai:true};return BG.me==='A'?{human:true}:{ai:true};}
+  if(st.turn==='Q'){const s=BG.seats[0];return s&&s.kind!=='ai'?{seat:0}:{ai:true};}
+  const c=bgCurCtrl();if(!c)return null;return c.seat<0?{ai:true,nations:c.nations}:{seat:c.seat,nations:c.nations};}
+function bgMyTurn(){const w=bgWho();if(!w||w.ai)return false;if(BG.role==='solo')return true;return w.seat===BG.mySeat;}
+function bgCanPick(i){const st=BG.st,p=st.b[i];if(!p||p.s!==st.turn||!bgMyTurn())return false;const w=bgWho();
+  if(p.s==='A'&&w.nations&&!w.nations.includes(p.n))return false;return true;}
+/* ---------- 開局 ---------- */
+function bgStartSolo(me){BG.role='solo';BG.me=me;BG.code=null;BG.seats=[];BG.mySeat=me==='Q'?0:1;bgNewGame();bgShow();bgFit(me==='Q'?'mine':'all');}
+function bgNewGame(){clearTimeout(BG.timer);BG.st=bgNew();BG.hist=[];BG.sel=-1;BG.tg=[];BG.ac=0;BG.msg='';bgAfter();}
+function bgDo(f,t){const st=BG.st;if(!st||st.over)return false;const p=st.b[f];if(!p||p.s!==st.turn||!bgMoves(st,f,false).includes(t))return false;
+  if(BG.role==='solo')BG.hist.push(bgClone(st));
+  const wasA=st.turn==='A',q=st.b[t];const r=bgApply(st,f,t);
+  BG.msg=bgDescribe(r.p,r.q)+(r.note?'・'+r.note:'');if(wasA)BG.ac++;BG.sel=-1;BG.tg=[];bgAfter();return true;}
+function bgName(p){return p.s==='Q'?'清軍'+BG_QN[p.t]:BG_NATIONS[p.n].n+BG_CN[p.t];}
+function bgDescribe(p,q){return bgName(p)+(q?' 吃掉 '+bgName(q):' 移動');}
+function bgAfter(){bgPush();bgRender();bgSchedule();}
+function bgSchedule(){clearTimeout(BG.timer);const st=BG.st;if(!st||st.over||BG.role==='guest')return;const w=bgWho();if(!w||!w.ai)return;
+  const seq=st.seq;BG.timer=setTimeout(()=>{if(BG.st!==st||st.seq!==seq||st.over)return;
+    const mv=bgAI(st,w.nations?{only:p=>p.s==='Q'||w.nations.includes(p.n)}:null);if(mv)bgDo(mv[0],mv[1]);},st.turn==='A'?420:520);}
+function bgUndo(){if(BG.role!=='solo'||!BG.hist.length)return;clearTimeout(BG.timer);
+  do{BG.st=BG.hist.pop();}while(BG.hist.length&&!bgMyTurn());BG.sel=-1;BG.tg=[];BG.msg='悔棋';bgRender();bgSchedule();}
+/* ---------- 畫面 ---------- */
+function bgBoardSVG(){const CS=BG_CS;let r='';
+  for(let y=0;y<BG_H;y++)for(let x=0;x<BG_W;x++){if(!bgIn(x,y))continue;const dark=(x+y)&1,palm=bgPalm(x,y);
+    r+=`<rect x="${x*CS}" y="${y*CS}" width="${CS}" height="${CS}" fill="${palm?(dark?'#d9b48a':'#ecd2ae'):(dark?'#cfa67b':'#e6c69c')}"/>`;}
+  BG_NATIONS.forEach((N,n)=>{let x,y,w,h;if(N.side==='t'){x=BG_FL+N.at;y=0;w=4;h=4;}else if(N.side==='l'){x=0;y=BG_FL+N.at;w=4;h=4;}else{x=BG_W-4;y=BG_FL+N.at;w=4;h=4;}
+    r+=`<rect x="${x*CS}" y="${y*CS}" width="${w*CS}" height="${h*CS}" fill="${N.c}" opacity=".28"/>`;
+    const lx=(x+w/2)*CS,ly=N.side==='t'?(h+.55)*CS:(y+h/2)*CS,dx=N.side==='l'?(w+1.2)*CS:N.side==='r'?(x-1.2)*CS:lx;
+    r+=`<text x="${N.side==='t'?lx:dx}" y="${ly}" font-size="${CS*.42}" text-anchor="middle" dominant-baseline="middle" fill="#6b4a2a" font-weight="700" opacity=".7">${N.n}</text>`;});
+  // 兵可以橫走的分界線
+  r+=`<line x1="${BG_FL*CS}" x2="${(BG_FL+BG_PW)*CS}" y1="${(BG_RIVER+1)*CS}" y2="${(BG_RIVER+1)*CS}" stroke="#8a5a2b" stroke-width="3" stroke-dasharray="10 8" opacity=".55"/>`;
+  r+=`<text x="${(BG_FL+BG_PW-.3)*CS}" y="${(BG_RIVER+.6)*CS}" font-size="${CS*.34}" text-anchor="end" fill="#8a5a2b" opacity=".75">兵過這條線可以橫走</text>`;
+  return`<svg width="${BG_W*CS}" height="${BG_H*CS}" viewBox="0 0 ${BG_W*CS} ${BG_H*CS}" aria-hidden="true">${r}</svg>`;}
+function bgRender(){const st=BG.st;if(!st)return;const CS=BG_CS;
+  const w=$('bgWorld');if(!w.dataset.ok){w.innerHTML=bgBoardSVG()+'<div class="bglayer" id="bgLayer"></div>';w.style.width=BG_W*CS+'px';w.style.height=BG_H*CS+'px';w.dataset.ok=1;}
+  let h='';const P=i=>`left:${(i%BG_W)*CS}px;top:${((i/BG_W)|0)*CS}px`;
+  if(st.last){h+=`<div class="bglast" style="${P(st.last.f)}"></div><div class="bglast to" style="${P(st.last.t)}"></div>`;}
+  st.b.forEach((p,i)=>{if(!p)return;const sel=i===BG.sel,cap=BG.tg.includes(i);
+    if(p.s==='Q')h+=`<div class="bgp q${p.t==='X'||p.t==='Y'?' gen':''}${sel?' sel':''}${cap?' cap':''}" style="${P(i)}"><span>${BG_QN[p.t]}</span></div>`;
+    else{const N=BG_NATIONS[p.n];h+=`<div class="bgp a${p.t==='k'?' king':''}${sel?' sel':''}${cap?' cap':''}" style="${P(i)};--nc:${N.c};--nf:${N.fg}"><span>${BG_CG[p.t]}︎</span></div>`;}});
+  BG.tg.forEach(t=>{if(!st.b[t])h+=`<div class="bgtg" style="${P(t)}"></div>`;});
+  $('bgLayer').innerHTML=h;
+  // 國家列
+  const cx=st.b.some(p=>p&&p.s==='Q'&&p.t==='X'),cy=st.b.some(p=>p&&p.s==='Q'&&p.t==='Y');
+  $('bgNat').innerHTML=`<button class="bgnc q" data-act="bgFocus" data-n="-1"><i></i>清軍<b>${cx?'慈':'✕'}${cy?'禧':'✕'}</b></button>`+BG_NATIONS.map((N,n)=>{const c=st.b.filter(p=>p&&p.s==='A'&&p.n===n).length;
+    return`<button class="bgnc${st.dead[n]?' dead':''}" data-act="bgFocus" data-n="${n}" style="--nc:${N.c}"><i></i>${N.n}<b>${st.dead[n]?'撤退':c}</b></button>`;}).join('');
+  // 狀態列
+  const who=bgWho();let t;
+  if(st.over)t=`${st.over.win==='Q'?'清軍獲勝':'八國聯軍獲勝'}：${st.over.why}`;
+  else if(st.turn==='Q')t=bgMyTurn()?'輪到你（清軍）':'清軍思考中…';
+  else{const c=bgCurCtrl();t=bgMyTurn()?(BG.role==='solo'?'輪到你（聯軍，任選一國走一步）':`輪到你（${c.nations.map(n=>BG_NATIONS[n].n).join('、')}）`):'聯軍思考中…';}
+  $('bgTurn').textContent=t;$('bgTurn').classList.toggle('mine',bgMyTurn());$('bgLast').textContent=BG.msg;
+  $('bgUndo').hidden=BG.role!=='solo';$('bgUndo').disabled=!BG.hist.length;$('bgAgain').hidden=BG.role==='guest';
+  $('bgCode').textContent=BG.code?`房號 ${BG.code}`:'';
+  const ov=$('bgOver');if(st.over){ov.hidden=false;const win=(st.over.win==='Q'&&(BG.role==='solo'?BG.me==='Q':BG.mySeat===0))||(st.over.win==='A'&&(BG.role==='solo'?BG.me==='A':BG.mySeat>0));
+    ov.innerHTML=`<div class="bgobox"><h2>${st.over.win==='Q'?'清軍獲勝':'八國聯軍獲勝'}</h2><p>${st.over.why}</p>${BG.role!=='guest'?'<button class="go" data-act="bgAgain">再來一局</button>':'<p>等房主開新的一局</p>'}<button data-act="bgExit">回選單</button></div>`;}else ov.hidden=true;
+  bgApplyView();}
+/* ---------- 縮放與拖動 ---------- */
+function bgApplyView(){const v=BG.view;$('bgWorld').style.transform=`translate(${v.tx}px,${v.ty}px) scale(${v.s})`;}
+function bgFitRect(x0,y0,x1,y1){const vp=$('bgView').getBoundingClientRect(),CS=BG_CS,w=(x1-x0+1)*CS,h=(y1-y0+1)*CS;
+  const s=Math.min(vp.width/w,vp.height/h,2.2);BG.view={s,tx:(vp.width-w*s)/2-x0*CS*s,ty:(vp.height-h*s)/2-y0*CS*s};bgApplyView();}
+function bgFit(what){if(what==='all')bgFitRect(0,0,BG_W-1,BG_H-1);else if(what==='mine'&&(BG.role==='solo'?BG.me==='Q':BG.mySeat===0))bgFitRect(BG_QX-2,BG_QY-3,BG_QX+9,BG_H-1);
+  else if(what==='mine'){const n=BG.role==='solo'?2:BG.mySeat-1;bgFocusNation(n);}else bgFitRect(0,0,BG_W-1,BG_H-1);}
+function bgFocusNation(n){const st=BG.st;if(n<0){bgFitRect(BG_QX-2,BG_QY-3,BG_QX+9,BG_H-1);return;}
+  let k=st.b.findIndex(p=>p&&p.s==='A'&&p.n===n&&p.t==='k');if(k<0){const N=BG_NATIONS[n];k=N.side==='t'?bgIdx(BG_FL+N.at+1,1):N.side==='l'?bgIdx(1,BG_FL+N.at+1):bgIdx(BG_W-2,BG_FL+N.at+1);}
+  const x=k%BG_W,y=(k/BG_W)|0;bgFitRect(x-5,y-5,x+5,y+5);}
+function bgZoomAt(f,cx,cy){const v=BG.view,vp=$('bgView').getBoundingClientRect(),min=Math.min(vp.width/(BG_W*BG_CS),vp.height/(BG_H*BG_CS))*.8;
+  const s=Math.max(min,Math.min(2.4,v.s*f)),k=s/v.s;v.tx=cx-(cx-v.tx)*k;v.ty=cy-(cy-v.ty)*k;v.s=s;bgApplyView();}
+(()=>{const pts=new Map();let moved=false,start=null,pinch=null;
+  const vp=()=>$('bgView'),loc=e=>{const r=vp().getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('#bgView')||e.target.closest('.bgzoom,.bgover'))return;const[x,y]=loc(e);pts.set(e.pointerId,[x,y]);try{vp().setPointerCapture(e.pointerId);}catch(_){}
+    if(pts.size===1){moved=false;start={x,y,tx:BG.view.tx,ty:BG.view.ty};}
+    else if(pts.size===2){const[a,b]=[...pts.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),s:BG.view.s};moved=true;}});
+  document.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const[x,y]=loc(e);pts.set(e.pointerId,[x,y]);
+    if(pts.size===2&&pinch){const[a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);bgZoomAt(pinch.s*d/pinch.d/BG.view.s,(a[0]+b[0])/2,(a[1]+b[1])/2);return;}
+    if(pts.size===1&&start){const dx=x-start.x,dy=y-start.y;if(!moved&&Math.hypot(dx,dy)>7)moved=true;if(moved){BG.view.tx=start.tx+dx;BG.view.ty=start.ty+dy;bgApplyView();}}});
+  const up=e=>{if(!pts.has(e.pointerId))return;const[x,y]=pts.get(e.pointerId);pts.delete(e.pointerId);
+    if(pts.size<2)pinch=null;if(pts.size===1){const[p]=[...pts.values()];start={x:p[0],y:p[1],tx:BG.view.tx,ty:BG.view.ty};return;}
+    if(!moved&&e.type==='pointerup')bgTap(x,y);start=null;};
+  document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
+  document.addEventListener('wheel',e=>{if(!e.target.closest('#bgView'))return;e.preventDefault();const[x,y]=loc(e);bgZoomAt(Math.exp(-e.deltaY*.0015),x,y);},{passive:false});})();
+function bgTap(sx,sy){const st=BG.st;if(!st||st.over)return;const v=BG.view,x=Math.floor((sx-v.tx)/v.s/BG_CS),y=Math.floor((sy-v.ty)/v.s/BG_CS);if(!bgIn(x,y))return;const i=bgIdx(x,y);
+  if(BG.sel>=0&&BG.tg.includes(i)){bgMine(BG.sel,i);return;}
+  if(bgCanPick(i)){BG.sel=i===BG.sel?-1:i;BG.tg=BG.sel>=0?bgMoves(st,i,false):[];}else{BG.sel=-1;BG.tg=[];}
+  bgRender();}
+function bgMine(f,t){if(BG.role==='guest'){if(BG.net)BG.net.sendHost({k:'mv',f,t,seq:BG.st.seq});BG.sel=-1;BG.tg=[];bgRender();return;}bgDo(f,t);}
+/* ---------- 連線 ---------- */
+function bgPack(st){const pc=[];st.b.forEach((p,i)=>{if(p)pc.push([i,p.s==='Q'?p.t:p.t+p.n,p.m?1:0]);});return{pc,turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead};}
+function bgUnpack(o){const b=Array(BG_W*BG_H).fill(null);o.pc.forEach(([i,c,m])=>{b[i]=c.length===1&&/[RHCPAEGXY]/.test(c)?{s:'Q',t:c,n:-1}:{s:'A',t:c[0],n:+c.slice(1),m};});return{b,turn:o.turn,over:o.over,last:o.last,seq:o.seq,dead:o.dead,log:[]};}
+function bgSeatsPub(){return BG.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind}:null);}
+function bgPush(){if(BG.role!=='host'||!BG.net)return;const pk=BG.st?bgPack(BG.st):null;
+  BG.guests.forEach(g=>BG.net.sendTo(g.peer,{k:pk?'st':'lobby',st:pk,seats:bgSeatsPub(),mySeat:BG.seats.findIndex(s=>s&&s.peer===g.peer),ac:BG.ac,msg:BG.msg,code:BG.code}));}
+async function bgCreate(){if(!R){bgMenuMsg('連線元件還沒準備好',true);return;}bgMenuMsg('建立房間中…');
+  let net;try{net=await pkNet.host('bg',9);}catch(e){net=null;}if(!net){bgMenuMsg('無法建立房間，請稍後再試',true);return;}
+  BG.net=net;BG.role='host';BG.code=net.code;BG.guests=[];BG.seats=Array(9).fill(null);BG.seats[0]={kind:'me'};BG.mySeat=0;BG.st=null;
+  net.onMsg((peer,m)=>bgHostMsg(peer,m));
+  net.onLeave(peer=>{BG.guests=BG.guests.filter(g=>g.peer!==peer);const k=BG.seats.findIndex(s=>s&&s.peer===peer);if(k>=0)BG.seats[k]=BG.st?{kind:'ai'}:null;if(BG.st){bgAfter();}else bgLobby();});
+  bgShow();bgLobby();bgMenuMsg('');}
+function bgHostMsg(peer,m){if(!m||typeof m!=='object')return;
+  if(m.k==='join'){if(!BG.guests.some(g=>g.peer===peer)){if(BG.guests.length>=8){BG.net.sendTo(peer,{k:'full',why:'房間已經滿 9 人'});return;}BG.guests.push({peer});
+      if(!BG.st){const k=BG.seats.findIndex((s,i)=>i>0&&!s);if(k>0)BG.seats[k]={kind:'net',peer};}}
+    if(BG.st)bgAfter();else bgLobby();return;}
+  if(m.k==='seat'&&!BG.st){const k=m.i|0;if(k<0||k>8||(BG.seats[k]&&BG.seats[k].peer!==peer))return;const old=BG.seats.findIndex(s=>s&&s.peer===peer);if(old>=0)BG.seats[old]=null;BG.seats[k]={kind:'net',peer};bgLobby();return;}
+  if(m.k==='mv'&&BG.st){const k=BG.seats.findIndex(s=>s&&s.peer===peer),st=BG.st;if(k<0||m.seq!==st.seq)return;const w=bgWho();if(!w||w.seat!==k)return;
+    const p=st.b[m.f];if(!p||p.s!==st.turn||(p.s==='A'&&!w.nations.includes(p.n)))return;bgDo(m.f,m.t);}}
+function bgLobby(){const host=BG.role==='host',seats=host?BG.seats:(BG.lobby||[]),mine=host?0:BG.mySeat;
+  $('bgView').hidden=true;$('bgFoot').hidden=true;$('bgNat').hidden=true;$('bgOver').hidden=true;$('bgLobby').hidden=false;$('bgCode').textContent=BG.code?`房號 ${BG.code}`:'';
+  const names=['清軍',...BG_NATIONS.map(N=>N.n)];
+  $('bgLobby').innerHTML=`<div class="wwcode"><p>房號</p><b>${BG.code||'----'}</b><p>把房號給朋友，在選單「八國聯軍」輸入後加入；點下面的位置換成你要玩的一方</p></div>`
+    +`<div class="bgseats">${names.map((nm,k)=>{const s=seats[k],me=k===mine&&s,c=k?BG_NATIONS[k-1].c:'#b8100d';
+      return`<button class="bgseat${me?' me':''}${s&&s.kind!=='ai'?' taken':''}" data-act="bgSeat" data-i="${k}" style="--nc:${c}"><i></i><b>${nm}</b><span>${me?'你':s&&s.kind!=='ai'?'玩家':'電腦'}</span></button>`;}).join('')}</div>`
+    +(host?'<button class="wwgo" data-act="bgGo">開始</button>':'<p class="wwwait">等房主開始…</p>');
+  if(host)BG.guests.forEach(g=>BG.net.sendTo(g.peer,{k:'lobby',seats:bgSeatsPub(),mySeat:BG.seats.findIndex(s=>s&&s.peer===g.peer),code:BG.code}));}
+function bgGo(){for(let k=0;k<9;k++)if(!BG.seats[k])BG.seats[k]={kind:'ai'};bgEnter();bgNewGame();bgFit('mine');}
+function bgEnter(){$('bgLobby').hidden=true;$('bgView').hidden=false;$('bgFoot').hidden=false;$('bgNat').hidden=false;}
+async function bgJoin(c){if(!/^\d{4}$/.test(c)){bgMenuMsg('請輸入 4 位數字房號',true);return;}if(!R){bgMenuMsg('連線元件還沒準備好',true);return;}
+  bgMenuMsg(`尋找房間 ${c}…`);let net;try{net=await pkNet.join(c,'bg');}catch(e){net=null;}if(!net){bgMenuMsg(`找不到房號 ${c} 的八國聯軍房間`,true);return;}
+  BG.net=net;BG.role='guest';BG.code=c;BG.st=null;let got=false;
+  net.onMsg((peer,m)=>{if(!m||typeof m!=='object')return;got=true;
+    if(m.k==='full'){bgExit();bgMenuMsg(m.why||'房間已滿',true);return;}
+    if(m.k==='lobby'){BG.lobby=m.seats;BG.mySeat=m.mySeat;BG.st=null;if($('bg').hidden){bgShow();bgMenuMsg('');}bgLobby();return;}
+    if(m.k==='st'){const first=!BG.st;BG.lobby=m.seats;BG.seats=m.seats.map(s=>s);BG.mySeat=m.mySeat;BG.ac=m.ac;BG.msg=m.msg||'';BG.st=bgUnpack(m.st);
+      if($('bg').hidden){bgShow();bgMenuMsg('');}bgEnter();if(BG.sel>=0&&!bgCanPick(BG.sel)){BG.sel=-1;BG.tg=[];}bgRender();if(first)bgFit('mine');}});
+  net.onLeave(()=>{if(BG.role==='guest'){bgExit();bgMenuMsg('房主離開了，連線中斷',true);}});
+  for(let i=0;i<8&&!got&&BG.net===net;i++){net.sendHost({k:'join'});await sleep(1200);}
+  if(!got&&BG.net===net){try{net.close();}catch(e){}BG.net=null;BG.role=null;bgMenuMsg('房主沒有回應，請確認房號',true);}}
+// 加入者的座位資訊裡，自己的座位要當成「玩家」
+function bgClick(b){const act=b.dataset.act;
+  switch(act){
+    case 'bgSoloQ':bgStartSolo('Q');return true;case 'bgSoloA':bgStartSolo('A');return true;
+    case 'bgCreate':bgCreate();return true;case 'bgJoin':bgJoin($('bgCodeIn').value.trim());return true;
+    case 'bgExit':bgExit();return true;case 'bgUndo':bgUndo();return true;
+    case 'bgAgain':if(BG.role==='host'){bgNewGame();}else if(BG.role==='solo')bgNewGame();return true;
+    case 'bgFit':bgFit(b.dataset.v);return true;case 'bgFocus':bgFocusNation(+b.dataset.n);return true;
+    case 'bgZoom':{const r=$('bgView').getBoundingClientRect();bgZoomAt(+b.dataset.f,r.width/2,r.height/2);return true;}
+    case 'bgSeat':{const k=+b.dataset.i;if(BG.role==='host'){if(BG.seats[k]&&BG.seats[k].kind==='net')return true;const old=BG.seats.findIndex(s=>s&&s.kind==='me');BG.seats[old]=null;BG.seats[k]={kind:'me'};BG.mySeat=k;bgLobby();}
+      else if(BG.net)BG.net.sendHost({k:'seat',i:k});return true;}
+    case 'bgGo':if(BG.role==='host')bgGo();return true;
+  }
+  return false;}
+addEventListener('resize',()=>{if(!$('bg').hidden&&BG.st)bgApplyView();});
+
 /* ---------- 電腦版隱藏快捷鍵（畫面上不顯示）：1 拍桌 2 弓箭 3 炸彈 4 翻桌 5 海嘯 6 龍捲風 7 火燒 ---------- */
 const FX_KEYS=['slap','arrow','bomb','flip','wave','tornado','fire'];
 function fxGo(kind,side){if(fxIdle())return;
@@ -5850,6 +6190,7 @@ document.addEventListener('click',e=>{
   const act=b.dataset.act;
   if(act.startsWith('pk')&&pkClick(b))return;
   if(act.startsWith('ww')&&wwClick(b))return;
+  if(act.startsWith('bg')&&bgClick(b))return;
   if(act==='qfPrev'||act==='qfNext'){const tr=$('qfTrack'),w=tr.children[0].offsetWidth+10;qfGo(Math.round(tr.scrollLeft/w)+(act==='qfNext'?1:-1));return;}
   if(CONFIRM.has(act)&&armed!==act){armed=act;clearTimeout(armTimer);armTimer=setTimeout(()=>{armed=null;render();},2500);render();return;}
   armed=null;clearTimeout(armTimer);
