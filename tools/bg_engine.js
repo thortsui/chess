@@ -18,9 +18,9 @@ const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-
 const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:2}:N.side==='l'?{x:0,y:BG_TH+N.at,w:2,h:8}:{x:BG_W-2,y:BG_TH+N.at,w:2,h:8};};
 const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
 // 清軍陣形（20 格寬、16 格深）：最前面空 4 排；兩排將、空一排、一排炮（左右各內縮兩格）、一排馬、三排車貼在最邊邊（左右各兩層）、空一排；
-// 最後三排相連，照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（馬不會被拐腳）；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
+// 最後三排相連：最左、最右兩層都是車；中間照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（不會被拐腳），最後一排的馬往前跳的落點也空出來；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
 const BG_QING=(()=>{const rev=t=>[...t].reverse().join(''),mir=h=>h+rev(h),E='.'.repeat(20),edge='RR'+'.'.repeat(16)+'RR';
-  return[E,E,E,E,'G.'.repeat(10),'.G'.repeat(10),E,'..'+'C.'.repeat(8)+'..','.H'.repeat(10),edge,edge,edge,E,mir('HC.RHC.RHC'),mir('.RHC.RHC.A'),mir('HCERHCEAX.').replace('X..X','X..Y')];})();
+  return[E,E,E,E,'G.'.repeat(10),'.G'.repeat(10),E,'..'+'C.'.repeat(8)+'..','.H'.repeat(10),edge,edge,edge,E,mir('RRH..RH..R'),mir('RR.RHC.RHA'),mir('RRHCERHAX.').replace('X..X','X..Y')];})();
 function bgNew(){
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
