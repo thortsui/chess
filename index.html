@@ -703,19 +703,41 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .qfrule{margin:0}
 .menu[data-th="qf"]{--sc-bg:linear-gradient(#f2c48a,#e8a46a 40%,#5d7fa0 62%,#2f4f6e);--page:rgba(246,236,214,.92);--bar:rgba(252,246,232,.84);--bar-fg:#2a2116;--muted:#6e5f48;--hint-strong:#a8321f;--sc-line:rgba(168,50,31,.3);
   --sc-title:#3a1e0c;--sc-sub:#4f3a22}
+/* ---------- 模式選單：更明顯的左右滑動 ---------- */
+.vwrap{position:relative}
+.varr{position:absolute;top:50%;z-index:2;width:26px;height:26px;margin-top:-13px;border:0;border-radius:50%;background:var(--hint-strong);color:#fff;font:700 18px/1 var(--ui);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer;transition:opacity .25s,transform .25s}
+.varr.l{left:-8px}.varr.r{right:-8px}
+.varr.hide{opacity:0;pointer-events:none;transform:scale(.6)}
+.varr.r:not(.hide){animation:vArr 1.8s ease-in-out infinite}.varr.l:not(.hide){animation:vArrL 1.8s ease-in-out infinite}
+@keyframes vArr{50%{transform:translateX(3px)}}@keyframes vArrL{50%{transform:translateX(-3px)}}
+.edgetab{position:fixed;top:50%;z-index:3;display:flex;flex-direction:column;align-items:center;gap:4px;width:22px;padding:10px 0;border:0;background:var(--hint-strong);color:#fff;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.25);opacity:.88;transform:translateY(-50%);transition:opacity .3s;font-family:var(--serif)}
+.edgetab.l{left:0;border-radius:0 12px 12px 0;padding-left:1px}.edgetab.r{right:0;border-radius:12px 0 0 12px;padding-right:1px}
+.edgetab b{font:700 16px/1 var(--ui)}
+.edgetab span{writing-mode:vertical-rl;text-orientation:upright;font-size:12px;font-weight:700;letter-spacing:.05em}
+.edgetab[hidden]{display:none}
+.edgetab.l{animation:eTabL 2.2s ease-in-out infinite}.edgetab.r{animation:eTabR 2.2s ease-in-out infinite}
+@keyframes eTabR{0%,100%{transform:translate(0,-50%)}50%{transform:translate(-4px,-50%)}}
+@keyframes eTabL{0%,100%{transform:translate(0,-50%)}50%{transform:translate(4px,-50%)}}
+.edgetab.drag{animation:none;transition:none;opacity:1}
+@media (prefers-reduced-motion:reduce){.varr,.edgetab{animation:none!important}}
 </style>
 </head>
 <body>
 
 <div class="menu" id="menu">
   <div class="scene" id="scene" aria-hidden="true"></div>
-  <span class="ver" aria-label="版本 0.13.9">v0.13.9</span>
+  <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
+  <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
+  <span class="ver" aria-label="版本 0.13.10">v0.13.10</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
-    <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
+    <div class="vwrap" id="vWrap"><button class="varr l" data-act="modeStep" data-d="-1" aria-label="上一個模式">‹</button>
+      <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
+    <button class="varr r" data-act="modeStep" data-d="1" aria-label="下一個模式">›</button></div>
     <div class="qfhist" id="qfRule" hidden>
       <div class="qfhtrack" id="qfTrack" role="region" aria-roledescription="輪播" aria-label="清法戰爭的歷史，左右滑動翻頁">
         <article class="qfcard" aria-label="第 1 頁，共 8 頁"><div class="qfcd"><span class="qfic">⚔️</span><span>1883–1885</span></div><h3>戰爭起因</h3><p>法國想把越南北部（當時叫「東京」）納入自己的保護，清朝則是越南的宗主國。雙方先在越南北部交戰，1884 年談判破裂，戰火擴大到中國東南沿海與台灣。</p></article>
@@ -2345,8 +2367,35 @@ function qfHistInit(){const tr=$('qfTrack');if(!tr||tr.dataset.ok)return;tr.data
 function qfGo(n){const tr=$('qfTrack');if(!tr)return;const c=tr.children,i=Math.max(0,Math.min(c.length-1,n));try{tr.scrollTo({left:c[i].offsetLeft-tr.offsetLeft-4,behavior:'smooth'});}catch(e){tr.scrollLeft=c[i].offsetLeft;}}
 function qfNudge(){const tr=$('qfTrack');if(!tr||tr.scrollLeft>2)return;if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   setTimeout(()=>{if(tr.scrollLeft>2||$('qfRule').hidden)return;try{tr.scrollTo({left:70,behavior:'smooth'});setTimeout(()=>{if(tr.scrollLeft<=80)tr.scrollTo({left:0,behavior:'smooth'});},650);}catch(e){}},500);}
+
+/* ---------- 模式切換：螢幕邊緣滑動、邊緣標籤、模式列箭頭 ---------- */
+const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺'};
+function modeList(){return[...document.querySelectorAll('#varSeg button')].map(b=>b.dataset.v);}
+function modeStep(d){const L=modeList(),i=L.indexOf(menuVariant),j=i+d;if(j<0||j>=L.length)return false;menuVariant=L[j];syncVariant();try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}return true;}
+function modeEdges(){const L=modeList(),i=L.indexOf(menuVariant),p=L[i-1],n=L[i+1];
+  $('edgeL').hidden=!p;$('edgeR').hidden=!n;if(p)$('edgeLn').textContent=MODE_N[p]||'';if(n)$('edgeRn').textContent=MODE_N[n]||'';
+  $('edgeL').setAttribute('aria-label','上一個模式：'+(MODE_N[p]||''));$('edgeR').setAttribute('aria-label','下一個模式：'+(MODE_N[n]||''));
+  const sg=$('varSeg');document.querySelector('.varr.l').classList.toggle('hide',sg.scrollLeft<4);document.querySelector('.varr.r').classList.toggle('hide',sg.scrollLeft>sg.scrollWidth-sg.clientWidth-4);}
+(()=>{const sg=$('varSeg');sg.addEventListener('scroll',()=>{cancelAnimationFrame(sg._r);sg._r=requestAnimationFrame(modeEdges);},{passive:true});addEventListener('resize',modeEdges);})();
+// 從螢幕最左／最右邊緣往內滑：換到上一個／下一個模式（手指拖動時邊緣標籤跟著被拉出來）
+(()=>{const EDGE=30;let st=null;
+  const down=(x,y)=>{if($('menu').hidden||!$('skinSheet').hidden||!$('setSheet').hidden)return;const W=innerWidth;
+    if(x<=EDGE&&!$('edgeL').hidden)st={side:-1,x,y,el:$('edgeL')};else if(x>=W-EDGE&&!$('edgeR').hidden)st={side:1,x,y,el:$('edgeR')};};
+  const move=(x,y,e)=>{if(!st)return;const dx=x-st.x,dy=y-st.y;if(!st.on){if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>10){st=null;return;}if(Math.abs(dx)<6)return;st.on=true;st.el.classList.add('drag');}
+    const pull=Math.max(0,st.side<0?dx:-dx);st.el.style.transform=`translate(${st.side<0?'':'-'}${Math.min(pull*.6,60)}px,-50%)`;if(e&&e.cancelable)e.preventDefault();};
+  const up=(x)=>{if(!st)return;const dx=x-st.x,el=st.el,ok=st.on&&(st.side<0?dx>55:dx<-55);el.classList.remove('drag');el.style.transform='';const side=st.side;st=null;if(ok)modeStep(side);};
+  document.addEventListener('touchstart',e=>{const t=e.touches[0];if(e.touches.length===1)down(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY,e);},{passive:false});
+  document.addEventListener('touchend',e=>{const t=e.changedTouches[0];up(t.clientX);},{passive:true});
+  document.addEventListener('touchcancel',()=>{if(st){st.el.classList.remove('drag');st.el.style.transform='';st=null;}});
+  document.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')down(e.clientX,e.clientY);});
+  document.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&st)move(e.clientX,e.clientY);});
+  document.addEventListener('pointerup',e=>{if(e.pointerType==='mouse')up(e.clientX);});})();
+// 第一次打開選單時，模式列自己輕輕滑一下示範
+function modeNudge(){const sg=$('varSeg');if(!sg||sg.dataset.nudged||matchMedia('(prefers-reduced-motion: reduce)').matches)return;sg.dataset.nudged=1;const x0=sg.scrollLeft;
+  setTimeout(()=>{if($('menu').hidden)return;try{sg.scrollTo({left:x0+70,behavior:'smooth'});setTimeout(()=>sg.scrollTo({left:x0,behavior:'smooth'}),650);}catch(e){}},700);}
 function syncVariant(){
-  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7}[v],T=(...a)=>a[i]??'';sceneSet(v);
+  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
   document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   {const sg=$('varSeg'),on=sg.querySelector('button.on');if(on&&sg.scrollWidth>sg.clientWidth){const l=on.offsetLeft-(sg.clientWidth-on.offsetWidth)/2;try{sg.scrollTo({left:l,behavior:'smooth'});}catch(e){sg.scrollLeft=l;}}}
   $('ttl').textContent=T('象棋','暗棋','西洋棋','五子棋','圍棋','','','清法戰爭');
@@ -5806,6 +5855,7 @@ document.addEventListener('click',e=>{
   switch(act){
     case 'local':setQf(menuVariant==='qf');variant=vOf(menuVariant);dkFirst='A';init();enterGame('local');break;
     case 'var':menuVariant=b.dataset.v;syncVariant();break;
+    case 'modeStep':modeStep(+b.dataset.d);break;
     case 'create':if(R&&!busy){setQf(menuVariant==='qf');variant=vOf(menuVariant);createRoom();}break;
     case 'join':if(R&&!busy)joinRoom($('codeIn').value.trim());break;
     case 'promo':if(promoPick){const m=chMoves.find(x=>x.f===promoPick.f&&x.t===promoPick.t&&x.p===b.dataset.v);if(m)chSend(m);}break;
@@ -5853,7 +5903,7 @@ $('layer').addEventListener('click',e=>{
   if(b&&b.dataset.i!==undefined)(variant==='ch'?chTap:dkTap)(+b.dataset.i);
   else if(b)tap(+b.dataset.r,+b.dataset.c);else if(sel!==null){sel=null;targets=[];render();}
 });
-syncVariant();syncOpt3d();syncF2f();syncAnim();if(opt3d&&webglOK())load3D();
+syncVariant();modeNudge();syncOpt3d();syncF2f();syncAnim();if(opt3d&&webglOK())load3D();
 $('lvIn').addEventListener('input',e=>{aiLevel=+e.target.value;syncLv();});
 syncLv();
 $('codeIn').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
