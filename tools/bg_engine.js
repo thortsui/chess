@@ -1,6 +1,6 @@
-/* ===== 八國聯軍：規則引擎＋電腦玩家（漏斗形方格地圖：八國的路匯合到同一個交會口；清軍照象棋走、聯軍 8 國照西洋棋走） ===== */
-// 地圖 24×24：最上面六國並排（各 4 格寬、3 排），往下像漏斗一階一階收窄；第 7～10 列是交會口（中間 8 格），俄國、奧匈從左右兩側橫著進來；第 11 列以下是清軍的腹地（20 格寬）
-const BG_W=24,BG_H=24,BG_NY=7,BG_PY=11,BG_PX=2,BG_PW=20;
+/* ===== 八國聯軍：規則引擎＋電腦玩家（十字形方格地圖：中央一塊空地，上、左、右、下四邊各貼一塊；清軍照象棋走、聯軍 8 國照西洋棋走） ===== */
+// 地圖 34×23：中央 24×8；上面那塊 24×3 站六國；左右各一塊 5×8（俄國、奧匈）；下面那塊 24×12 是清軍；四個角落沒有格子
+const BG_AW=5,BG_CW=24,BG_TH=3,BG_CH=8,BG_QH=12,BG_W=BG_AW*2+BG_CW,BG_H=BG_TH+BG_CH+BG_QH,BG_NY=BG_TH+2,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW,BG_PW=BG_CW;
 const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：上方國家的左邊界）
   {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:0},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'t',at:0},
   {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:4},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8},
@@ -8,24 +8,24 @@ const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r
   {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'t',at:20},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:0}];
 const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'},BG_CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'},BG_CN={k:'國王',q:'皇后',r:'城堡',b:'主教',n:'騎士',p:'士兵'};
 const bgIdx=(x,y)=>y*BG_W+x;
-const BG_ROWS=y=>y<4?[0,23]:y===4?[2,21]:y===5?[4,19]:y===6?[6,17]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
+const BG_ROWS=y=>y>=BG_TH&&y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
 const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
 const bgIn=(x,y)=>x>=0&&y>=0&&x<BG_W&&y<BG_H&&BG_VALID[bgIdx(x,y)]===1;
 const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地：將、士、相、慈、禧只能在這裡
-// 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左）
+// 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
 const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:N.at,y:0,w:4,h:3}:N.side==='l'?{x:BG_PX,y:BG_NY,w:3,h:4}:{x:BG_PX+BG_PW-3,y:BG_NY,w:3,h:4};};
-const BG_QX=BG_PX,BG_QY=BG_PY+1,BG_RIVER=BG_QY-1;
-// 清軍陣形（20 格寬）：前兩排 8 個將、炮馬炮、三排車靠地圖最邊邊；最後三排整排填滿 車相馬車相馬車…，中間是士相與慈、禧（兩個都被吃才算輸）
-const BG_QING=(()=>{const pad=r=>'......'+r+'......',L='REHREHR',R='RHERHER',edge='R'+'.'.repeat(18)+'R';
-  return[pad('G.G.G.G.'),pad('.G.G.G.G'),pad('........'),pad('C.C.C.C.'),pad('.H.H.H.H'),pad('C.C.C.C.'),edge,edge,edge,L+'HEAAEH'+R,L+'HA..AH'+R,L+'AX..YA'+R];})();
+const bgHome=n=>{const N=BG_NATIONS[n];return N.side==='t'?{x:BG_PX+N.at,y:0,w:4,h:3}:N.side==='l'?{x:0,y:BG_NY,w:3,h:4}:{x:BG_W-3,y:BG_NY,w:3,h:4};};
+const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
+// 清軍陣形（24 格寬，每一排都排到左右邊）：前兩排將、炮馬炮（都是隔一格一顆、交錯）、三排車貼在最邊邊；最後三排整排填滿，由中間往外是 相馬車相馬車相馬車，中間是士相與慈、禧（兩個都被吃才算輸）
+const BG_QING=(()=>{const L='RHERHERHE',R='EHREHREHR',edge='R'+'.'.repeat(22)+'R';
+  return['G.'.repeat(12),'.G'.repeat(12),'.'.repeat(24),'C.'.repeat(12),'.H'.repeat(12),'C.'.repeat(12),edge,edge,edge,L+'HEAAEH'+R,L+'HA..AH'+R,L+'AX..YA'+R];})();
 function bgNew(){
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
   BG_NATIONS.forEach((N,n)=>{const ranks=['rnnr','bkqb','pppp'];
     for(let d=0;d<3;d++)for(let a=0;a<4;a++){const t=ranks[d][a];let x,y;
-      if(N.side==='t'){x=N.at+a;y=d;}else if(N.side==='l'){x=BG_PX+d;y=BG_NY+a;}else{x=BG_PX+BG_PW-1-d;y=BG_NY+a;}
+      if(N.side==='t'){x=BG_PX+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_NY+a;}else{x=BG_W-1-d;y=BG_NY+a;}
       b[bgIdx(x,y)]={s:'A',t,n};}});
   return{b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};}
 // 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
@@ -42,8 +42,6 @@ function bgMoves(st,i,capsOnly){
       case 'n':for(const[dx,dy]of KN)add(x+dx,y+dy);break;
       case 'p':{const[dx,dy]=bgDir(p.n),fx=x+dx,fy=y+dy;
         if(!capsOnly&&bgIn(fx,fy)&&!b[bgIdx(fx,fy)]){out.push(bgIdx(fx,fy));if(!p.m&&bgIn(fx+dx,fy+dy)&&!b[bgIdx(fx+dx,fy+dy)])out.push(bgIdx(fx+dx,fy+dy));}
-        // 漏斗的斜邊：往下走的士兵前面是牆時，可以往中間橫移一格
-        if(!capsOnly&&dy&&!bgIn(fx,fy)&&y<BG_H-1){const sx=x+(x<BG_W/2?1:-1);if(bgIn(sx,y)&&!b[bgIdx(sx,y)])out.push(bgIdx(sx,y));}
         for(const s of[-1,1]){const cx=fx+(dy?s:0),cy=fy+(dx?s:0);if(bgIn(cx,cy)&&enemy(b[bgIdx(cx,cy)]))out.push(bgIdx(cx,cy));}break;}
     }
   }else{
@@ -64,7 +62,7 @@ function bgAll(st,side,capsOnly){const out=[];for(let i=0;i<st.b.length;i++){con
 function bgApply(st,f,t){
   const b=st.b,p=b[f],q=b[t];let note='';
   b[t]=p;b[f]=null;
-  if(p.s==='A'){p.m=1;if(p.t==='p'){const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0;if(!bgIn(x+dx,y+dy)&&(dx||y===BG_H-1)){b[t]={...p,t:'q'};note='升變皇后';}}}
+  if(p.s==='A'){p.m=1;if(p.t==='p'){const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0;if(!bgIn(x+dx,y+dy)){b[t]={...p,t:'q'};note='升變皇后';}}}
   if(q&&q.s==='A'&&q.t==='k'){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].s==='A'&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+'國王被吃，整隊撤退';}
   st.last={f,t};st.turn=st.turn==='Q'?'A':'Q';st.seq++;
   const gens=b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length,kings=st.dead.filter(d=>!d).length;
