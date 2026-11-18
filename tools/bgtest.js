@@ -19,3 +19,13 @@ console.log(fail?'失敗 '+fail:'全部通過');
 // 開局清軍每隻馬都要有地方走
 {const st=E.bgNew();st.b.forEach((p,i)=>{if(p&&p.s==='Q'&&p.t==='H')ok(E.bgMoves(st,i,false).length>0,'馬開局動不了 '+i);});}
 console.log(fail?'失敗 '+fail:'馬檢查通過');
+// 清軍陣形要符合使用者的描述（0.14.8）
+{const st=E.bgNew(),W=E.BG_W,Q=[];for(let y=18;y<E.BG_H;y++){let r='';for(let x=0;x<W;x++){const i=E.bgIdx(x,y);if(E.BG_VALID[i])r+=st.b[i]?st.b[i].t:'.';}Q.push(r);}
+ ok(Q.length===16&&Q.every(r=>r.length===20),'腹地 20×16');
+ ok(/^(G\.)+$/.test(Q[0])&&/^(\.G)+$/.test(Q[1]),'將兩排貼最前緣');
+ ok(Q[3]===Q[5]&&/^\.\.(C\.)+\.\.$/.test(Q[3]),'炮兩排、左右內縮兩格');ok(/^(\.H)+$/.test(Q[4]),'馬一排');
+ ok([10,11,12,13,14,15].every(i=>Q[i].startsWith('RR')&&Q[i].endsWith('RR')),'最左最右兩層車');
+ ok([13,14,15].every(i=>{const r=Q[i].replace('Y','X');return r===[...r].reverse().join('');}),'後三排左右對稱');
+ st.b.forEach((p,i)=>{if(p&&p.s==='Q'&&p.t==='H')ok(!st.b[i-W],'馬正前方有棋 '+i);});
+ const A=[0,0,0,0,0,0,0,0];st.b.forEach(p=>{if(p&&p.s==='A')A[p.n]++;});ok(A.every(n=>n===16),'八國各一整副西洋棋');}
+console.log(fail?'失敗 '+fail:'陣形檢查通過');
