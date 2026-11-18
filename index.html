@@ -703,6 +703,18 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .qfrule{margin:0}
 .menu[data-th="qf"]{--sc-bg:linear-gradient(#f2c48a,#e8a46a 40%,#5d7fa0 62%,#2f4f6e);--page:rgba(246,236,214,.92);--bar:rgba(252,246,232,.84);--bar-fg:#2a2116;--muted:#6e5f48;--hint-strong:#a8321f;--sc-line:rgba(168,50,31,.3);
   --sc-title:#3a1e0c;--sc-sub:#4f3a22}
+.menu[data-th="jw"]{--sc-bg:linear-gradient(#2b3a5c,#c9788a 38%,#f3c58f 56%,#3f6f8f 58%,#12293f);--page:rgba(246,238,220,.92);--bar:rgba(252,247,235,.86);--bar-fg:#1d2433;--muted:#5d6475;--hint-strong:#c0392b;--sc-line:rgba(192,57,43,.3);
+  --sc-title:#fff3dc;--sc-sub:#ffe6c8;--sc-tsh:0 1px 4px rgba(10,20,40,.7)}
+/* 歷史戰役：第二排選哪一場戰役 */
+.hwseg{margin:-2px 0 0}
+/* 甲午戰爭：日軍的將棋子、手上的棋 */
+.jwon #app:not(.xqskin) .pc.b .face{font-family:"Noto Serif TC","Songti TC",serif;font-weight:900;color:#1b1b1b;background:radial-gradient(circle at 35% 30%,#fff8e2,#ecd6a2 60%,#c9a35c);box-shadow:inset 0 0 0 2px #7a5326,0 2px 0 #5b3a1a,0 3px 8px rgba(0,0,0,.3)}
+.jwon #app:not(.xqskin) .pc.b:is([data-k="bZ"],[data-k="bX"],[data-k="bQ"],[data-k="bJ"],[data-k="bE"],[data-k="bO"]) .face{color:#c62828}
+.pc.jwr .face{transform:rotate(180deg)}
+.jwtray{min-height:36px;gap:6px;flex-wrap:wrap;padding-top:4px}
+.jwlab{font-family:var(--serif);font-weight:900;font-size:12px;color:var(--muted);flex:none}.jwnone{font-size:11px;color:var(--muted)}
+.jwh{font-family:var(--serif);font-weight:900;font-size:16px;line-height:1;min-width:40px;height:32px;border-radius:7px;border:1.5px solid #7a5326;background:linear-gradient(#fbeec6,#e3c482);color:#1b1b1b;padding:0 6px;cursor:pointer}
+.jwh small{font-size:10px;margin-left:2px;font-weight:700;color:#5b3a1a}.jwh.on{outline:3px solid var(--hint-strong);outline-offset:1px}.jwh:disabled{opacity:.8;cursor:default}
 /* ---------- 模式選單：更明顯的左右滑動 ---------- */
 .vwrap{position:relative}
 .varr{position:absolute;top:50%;z-index:2;width:26px;height:26px;margin-top:-13px;border:0;border-radius:50%;background:var(--hint-strong);color:#fff;font:700 18px/1 var(--ui);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer;transition:opacity .25s,transform .25s}
@@ -780,15 +792,17 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.14.9">v0.14.9</span>
+  <span class="ver" aria-label="版本 0.15.0">v0.15.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
     <div class="vwrap" id="vWrap"><button class="varr l" data-act="modeStep" data-d="-1" aria-label="上一個模式">‹</button>
-      <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button><button data-act="var" data-v="bg">八國聯軍</button></div>
+      <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button><button data-act="var" data-v="hw">歷史戰役</button></div>
     <button class="varr r" data-act="modeStep" data-d="1" aria-label="下一個模式">›</button></div>
+    <div class="seg hwseg" id="hwSeg" hidden><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="jw">甲午戰爭</button><button data-act="var" data-v="bg">八國聯軍</button></div>
+    <p class="pkrule" id="jwRule" hidden>1894 年甲午戰爭：象棋棋盤上，清軍用象棋（紅方，後走），日軍用將棋（黑方，先走）。<b>清軍</b>比一般象棋多 2 隻俥（共 4 隻）、兵 9 隻。<b>日軍</b>照將棋走：王八方向一步、飛直走、角斜走、金（前、斜前、左右、後各一步）、銀（前、四個斜角各一步）、桂（往前跳日字、不會被拐腳）、香（往前直衝）、歩（往前一步，吃法也是往前）。日軍的棋走進清軍最後三排會<b>升變</b>（飛變龍、角變馬，其餘變成金的走法）；日軍<b>吃到的清軍棋子會收到手上</b>（俥→飛、傌→桂、相→銀、仕→金、炮→香、兵→歩），輪到自己時可以不走棋、改把手上的一顆放到任何空格（歩不能和自己的歩同一路）。帥與王不能照面；將死或困死對方就贏。</p>
     <div class="qfhist" id="qfRule" hidden>
       <div class="qfhtrack" id="qfTrack" role="region" aria-roledescription="輪播" aria-label="清法戰爭的歷史，左右滑動翻頁">
         <article class="qfcard" aria-label="第 1 頁，共 8 頁"><div class="qfcd"><span class="qfic">⚔️</span><span>1883–1885</span></div><h3>戰爭起因</h3><p>法國想把越南北部（當時叫「東京」）納入自己的保護，清朝則是越南的宗主國。雙方先在越南北部交戰，1884 年談判破裂，戰火擴大到中國東南沿海與台灣。</p></article>
@@ -1711,6 +1725,126 @@ var qfEngine=(function(){
   return{think,gen,_B:()=>B};
 })();
 </script>
+<script type="text/plain" id="jwengine">
+/* ===== 甲午戰爭：象棋（清軍）對將棋（日軍）的 AI。棋盤 90 點，紅方為正數、黑方（日軍）為負數；日軍可以把吃到的棋子打回棋盤 ===== */
+var jwEngine=(function(){
+  // 1車 2馬 3相 4仕 5帥 6炮 7兵 ｜ 8飛 10角 12王 14金 15銀 16桂 17香 18歩 19龍 20馬(龍馬) 21成銀 22成桂 23成香 24と
+  const LET={R:1,N:2,B:3,A:4,K:5,C:6,P:7,T:8,F:10,Y:12,G:14,S:15,M:16,L:17,U:18,Z:19,X:20,Q:21,J:22,E:23,O:24};
+  const VAL=[0,900,400,200,200,0,450,100,950,0,750,0,0,0,520,450,320,300,100,1250,1050,520,520,520,520];
+  const PROMO={8:19,10:20,15:21,16:22,17:23,18:24};
+  const HT=[18,17,16,15,14,8],HL=['U','L','M','S','G','T'],CAP={1:5,2:2,3:3,4:4,6:1,7:0};   // 手上的棋種；吃到清軍的棋變成哪一種（車→飛、馬→桂、相→銀、仕→金、炮→香、兵→歩）
+  const MATE=100000,KING=t=>t===5||t===12,DROP=8100;
+  const D4=[[1,0],[-1,0],[0,1],[0,-1]],DG=[[1,1],[1,-1],[-1,1],[-1,-1]],D8=[...D4,...DG],KN=[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
+  const GOLD=[[1,0],[1,1],[1,-1],[0,1],[0,-1],[-1,0]],SILV=[[1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+  let B=new Int8Array(90),H=new Int8Array(6),deadline=0,nodes=0,stopped=false;
+  const inb=(r,c)=>r>=0&&r<10&&c>=0&&c<9;
+  function gen(side,capsOnly,drops){
+    const out=[];let kr=-1,kc=-1,jr=-1,jc=-1;
+    for(let i=0;i<90;i++){const p=B[i];if(p===5){kr=(i/9)|0;kc=i%9;}else if(p===-12){jr=(i/9)|0;jc=i%9;}
+      if(!p||(p>0?1:-1)!==side)continue;const t=p>0?p:-p,r=(i/9)|0,c=i%9;
+      const add=(rr,cc)=>{if(!inb(rr,cc))return;const j=rr*9+cc,q=B[j];if(q&&(q>0?1:-1)===side)return;if(capsOnly&&!q)return;out.push(i*90+j);};
+      const slide=dirs=>{for(const[dr,dc]of dirs){let rr=r+dr,cc=c+dc;while(inb(rr,cc)){const q=B[rr*9+cc];if(!q){if(!capsOnly)out.push(i*90+rr*9+cc);}else{if((q>0?1:-1)!==side)out.push(i*90+rr*9+cc);break;}rr+=dr;cc+=dc;}}};
+      const pal=(rr,cc)=>cc>=3&&cc<=5&&rr>=7&&rr<=9;
+      switch(t){
+        case 1:case 8:slide(D4);break;
+        case 10:slide(DG);break;
+        case 19:slide(D4);for(const[dr,dc]of DG)add(r+dr,c+dc);break;
+        case 20:slide(DG);for(const[dr,dc]of D4)add(r+dr,c+dc);break;
+        case 6:for(const[dr,dc]of D4){let rr=r+dr,cc=c+dc,j=false;while(inb(rr,cc)){const q=B[rr*9+cc];
+            if(!j){if(!q){if(!capsOnly)out.push(i*90+rr*9+cc);}else j=true;}else if(q){if((q>0?1:-1)!==side)out.push(i*90+rr*9+cc);break;}rr+=dr;cc+=dc;}}break;
+        case 2:for(const[dr,dc]of KN){const lr=Math.abs(dr)===2?r+dr/2:r,lc=Math.abs(dc)===2?c+dc/2:c;if(inb(lr,lc)&&!B[lr*9+lc])add(r+dr,c+dc);}break;
+        case 3:for(const[dr,dc]of DG){const rr=r+2*dr,cc=c+2*dc;if(!inb(rr,cc)||rr<5||B[(r+dr)*9+c+dc])continue;add(rr,cc);}break;
+        case 4:for(const[dr,dc]of DG)if(pal(r+dr,c+dc))add(r+dr,c+dc);break;
+        case 5:for(const[dr,dc]of D4)if(pal(r+dr,c+dc))add(r+dr,c+dc);break;
+        case 12:for(const[dr,dc]of D8)add(r+dr,c+dc);break;
+        case 7:add(r-1,c);if(r<=4){add(r,c-1);add(r,c+1);}break;
+        case 14:case 21:case 22:case 23:case 24:for(const[dr,dc]of GOLD)add(r+dr,c+dc);break;   // 日軍在上方，往下（列數變大）是前進
+        case 15:for(const[dr,dc]of SILV)add(r+dr,c+dc);break;
+        case 16:add(r+2,c-1);add(r+2,c+1);break;
+        case 17:{let rr=r+1;while(rr<10){const q=B[rr*9+c];if(!q){if(!capsOnly)out.push(i*90+rr*9+c);}else{if(q>0)out.push(i*90+rr*9+c);break;}rr++;}break;}
+        case 18:add(r+1,c);break;
+      }
+      // 王見王：同一直線中間沒有子時可以「吃」對方的王（也就是不准走成這樣）
+      if(t===5||t===12){for(const dr of[-1,1]){let rr=r+dr;while(rr>=0&&rr<10){const q=B[rr*9+c];if(q){if((q>0?1:-1)!==side&&KING(q>0?q:-q))out.push(i*90+rr*9+c);break;}rr+=dr;}}}
+    }
+    if(side<0&&drops&&!capsOnly){   // 打入：drops=2 全部空格；drops=1 只考慮兩個王附近
+      let pawnCol=0;for(let i=0;i<90;i++)if(B[i]===-18)pawnCol|=1<<(i%9);
+      for(let k=0;k<6;k++){if(!H[k])continue;const t=HT[k];
+        for(let j=0;j<90;j++){if(B[j])continue;const r=(j/9)|0,c=j%9;
+          if((t===18||t===17)&&r===9)continue;if(t===16&&r>=8)continue;if(t===18&&(pawnCol>>c&1))continue;
+          if(drops===1&&!((Math.abs(r-kr)<=2&&Math.abs(c-kc)<=2)||(Math.abs(r-jr)<=1&&Math.abs(c-jc)<=1)))continue;
+          out.push(DROP+k*90+j);}}}
+    return out;}
+  // 走一步；回傳 [被吃的棋, 原本的棋]
+  function make(m){
+    if(m>=DROP){const k=((m-DROP)/90)|0,t=(m-DROP)%90;H[k]--;B[t]=-HT[k];return 0;}
+    const f=(m/90)|0,t=m%90,p=B[f],cap=B[t];B[t]=p;B[f]=0;
+    if(p<0){const a=-p;if(PROMO[a]&&(t>=63||f>=63))B[t]=-PROMO[a];if(cap>0&&CAP[cap]!==undefined)H[CAP[cap]]++;}
+    return cap;}
+  function unmake(m,cap,p){
+    if(m>=DROP){const k=((m-DROP)/90)|0,t=(m-DROP)%90;H[k]++;B[t]=0;return;}
+    const f=(m/90)|0,t=m%90;B[f]=p;B[t]=cap;if(p<0&&cap>0&&CAP[cap]!==undefined)H[CAP[cap]]--;}
+  function evalPos(){let e=0,kr=9,kc=4,jr=0,jc=4;
+    for(let i=0;i<90;i++){const p=B[i];if(p===5){kr=(i/9)|0;kc=i%9;}else if(p===-12){jr=(i/9)|0;jc=i%9;}}
+    for(let i=0;i<90;i++){const p=B[i];if(!p)continue;const s=p>0?1:-1,t=p>0?p:-p,r=(i/9)|0,c=i%9;let v=VAL[t];
+      if(t!==5&&t!==12&&t!==3&&t!==4){const d=s>0?Math.abs(r-jr)+Math.abs(c-jc):Math.abs(r-kr)+Math.abs(c-kc);v+=(16-d)*3;}   // 往對方的王靠近
+      if(t===7){if(r<=4)v+=90+(4-r)*10;if(c===4)v+=10;}
+      else if(t===18){v+=r*8;}
+      else if(t===2){v+=12-Math.abs(c-4)*3-Math.abs(r-4.5)*2;}
+      else if(t===14||t===15||t===16||t===17){v+=r*6;}
+      else if(t===12){v+=(r<=1?20:-r*8);}
+      e+=s*v;}
+    for(let k=0;k<6;k++)if(H[k])e-=H[k]*VAL[HT[k]]*1.12;
+    return e;}
+  function attacked(side){const ms=gen(-side,true,0);for(const m of ms){const q=B[m%90];if(q&&(q>0?1:-1)===side&&KING(q>0?q:-q))return true;}return false;}
+  const ord=m=>{if(m>=DROP)return 5;const q=B[m%90],p=B[(m/90)|0];return q?(VAL[q>0?q:-q]+(KING(q>0?q:-q)?50000:0))*10-VAL[p>0?p:-p]/10:0;};
+  function qs(side,alpha,beta,d){
+    if((++nodes&2047)===0&&Date.now()>deadline)stopped=true;
+    const sp=side*evalPos();if(sp>=beta)return sp;if(sp>alpha)alpha=sp;if(d>6)return sp;
+    const ms=gen(side,true,0).sort((a,b)=>ord(b)-ord(a));
+    for(const m of ms){const q=B[m%90];if(KING(q>0?q:-q))return MATE;const p=B[(m/90)|0],cap=make(m);const v=-qs(-side,-beta,-alpha,d+1);unmake(m,cap,p);
+      if(stopped)return alpha;if(v>=beta)return v;if(v>alpha)alpha=v;}
+    return alpha;}
+  const killers=[];
+  function search(depth,side,alpha,beta,ply){
+    if((++nodes&2047)===0&&Date.now()>deadline)stopped=true;if(stopped)return 0;
+    if(depth<=0)return qs(side,alpha,beta,0);
+    const ms=gen(side,false,1);const k=killers[ply]||-1;
+    ms.sort((a,b)=>(ord(b)+(b===k?5000:0))-(ord(a)+(a===k?5000:0)));
+    let best=-MATE-1,any=false;
+    for(const m of ms){if(m<DROP){const q=B[m%90];if(q&&KING(q>0?q:-q))return MATE-ply;}
+      const p=m<DROP?B[(m/90)|0]:0,cap=make(m);const v=-search(depth-1,-side,-beta,-alpha,ply+1);unmake(m,cap,p);
+      if(stopped)return 0;any=true;
+      if(v>best)best=v;if(v>alpha)alpha=v;if(alpha>=beta){if(!cap)killers[ply]=m;break;}}
+    if(!any)return-(MATE-ply);
+    return best;}
+  function load(d){const s=d.b;for(let i=0;i<90;i++){const ch=s[i];if(ch==='.'){B[i]=0;continue;}const t=LET[ch.toUpperCase()]||0;B[i]=ch===ch.toUpperCase()?t:-t;}
+    for(let k=0;k<6;k++)H[k]=(d.hand&&d.hand[HL[k]])|0;}
+  function think(d){
+    load(d);const side=d.s==='b'?-1:1;deadline=Date.now()+(d.time||1500);stopped=false;nodes=0;killers.length=0;
+    // 只留合法的走法（走完自己的王不能被吃）
+    const root=gen(side,false,2).filter(m=>{const p=m<DROP?B[(m/90)|0]:0,cap=make(m);const bad=attacked(side);unmake(m,cap,p);return!bad;});
+    if(!root.length)return null;
+    let best=root[0],bestV=-Infinity;const avoid=d.avoid&&d.avoid.length?new Set(d.avoid):null;
+    root.sort((a,b)=>ord(b)-ord(a));
+    for(let depth=1;depth<=(d.depth||40);depth++){
+      let curBest=null,curV=-Infinity,alpha=-MATE-1;
+      for(const m of root){const p=m<DROP?B[(m/90)|0]:0,cap=make(m);let v=-search(depth-1,-side,-MATE-1,-alpha,1);if(avoid&&v<MATE-200&&avoid.has(B.join()))v-=250;unmake(m,cap,p);   // 少走會回到重複局面的棋
+        if(stopped)break;if(d.noise)v+=Math.random()*d.noise;if(v>curV){curV=v;curBest=m;}if(v>alpha)alpha=v;}
+      if(stopped&&curBest===null)break;
+      if(curBest!==null&&(!stopped||curV>bestV)){best=curBest;bestV=curV;}
+      if(stopped)break;
+      root.sort((a,b)=>a===best?-1:b===best?1:0);
+      if(bestV>=MATE-50)break;}
+    if(best>=DROP)return{drop:HL[((best-DROP)/90)|0],t:(best-DROP)%90,v:bestV};
+    return{f:(best/90)|0,t:best%90,v:bestV};}
+  // 測試與自我對局用：在引擎裡直接走一步，回傳新的局面
+  function play(d,mv){load(d);const m=mv.drop?DROP+HL.indexOf(mv.drop)*90+mv.t:mv.f*90+mv.t;make(m);
+    const key=B.join();const L=Object.keys(LET),name=t=>L.find(k=>LET[k]===t);let b='';for(let i=0;i<90;i++){const p=B[i];b+=!p?'.':p>0?name(p):name(-p).toLowerCase();}
+    const hand={};HL.forEach((k,i)=>hand[k]=H[i]);return{b,hand,s:d.s==='b'?'r':'b',key};}
+  return{think,play};
+})();
+</script>
 <script type="text/plain" id="goengine">
 const goEngine=(()=>{
 // 9x9 Go: pseudo-liberty board + UCT/RAVE Monte-Carlo tree search, area scoring, komi 6.5
@@ -1832,16 +1966,25 @@ return{think:d=>d.op==='own'?ownership(d):think(d),legalList,playMove,libsOf,KOM
 const NAMES={r:{R:'俥',N:'傌',B:'相',A:'仕',K:'帥',C:'炮',P:'兵'},b:{R:'車',N:'馬',B:'象',A:'士',K:'將',C:'砲',P:'卒'}};
 const SIDE={r:'紅方',b:'黑方'};
 // 清法戰爭：黑方是法軍，用西洋棋子（T 城堡、H 騎士、F 主教、D 皇后、Y 國王、I 士兵）
-Object.assign(NAMES.b,{T:'♜\uFE0E',H:'♞\uFE0E',F:'♝\uFE0E',D:'♛\uFE0E',Y:'♚\uFE0E',I:'♟\uFE0E'});
+const QF_CH={T:'♜\uFE0E',H:'♞\uFE0E',F:'♝\uFE0E',D:'♛\uFE0E',Y:'♚\uFE0E',I:'♟\uFE0E'};Object.assign(NAMES.b,QF_CH);
 const QF_N={T:'城堡',H:'騎士',F:'主教',D:'皇后',Y:'國王',I:'士兵'};
-function setQf(on){qf=!!on;SIDE.r=qf?'清軍':'紅方';SIDE.b=qf?'法軍':'黑方';document.documentElement.classList.toggle('qfon',qf);}
-const vOf=v=>v==='qf'?'xq':v;
+// 甲午戰爭：黑方是日軍，用將棋子（Y 王、T 飛、F 角、G 金、S 銀、M 桂、L 香、U 歩；升變後 Z 龍、X 馬、Q 成銀、J 成桂、E 成香、O と）
+const JW_N={Y:'王將',T:'飛車',F:'角行',G:'金將',S:'銀將',M:'桂馬',L:'香車',U:'步兵',Z:'龍王',X:'龍馬',Q:'成銀',J:'成桂',E:'成香',O:'と金'};
+const JW_CH={Y:'王',T:'飛',F:'角',G:'金',S:'銀',M:'桂',L:'香',U:'歩',Z:'龍',X:'馬',Q:'全',J:'圭',E:'杏',O:'と'};
+const JW_PROMO={T:'Z',F:'X',S:'Q',M:'J',L:'E',U:'O'},JW_CAP={R:'T',N:'M',B:'S',A:'G',C:'L',P:'U'},JW_HAND=['T','G','S','M','L','U'],JW_GOLD='GQJEO',JW_UP='ZXQJEO';
+let jwHand={},jwDrop=null;   // 日軍手上的棋（吃到的清軍棋子）、正要打入的棋種
+// 歷史戰役：'qf' 清法戰爭、'jw' 甲午戰爭（variant 都還是 xq，黑方換成別種棋）
+function setQf(on){const w=on==='jw'?'jw':on?'qf':'';qf=w==='qf';jw=w==='jw';Object.assign(NAMES.b,jw?JW_CH:QF_CH);SIDE.r=w?'清軍':'紅方';SIDE.b=qf?'法軍':jw?'日軍':'黑方';
+  document.documentElement.classList.toggle('qfon',qf);document.documentElement.classList.toggle('jwon',jw);}
+const warOf=v=>v==='qf'||v==='jw'?v:'';
+const vOf=v=>v==='qf'||v==='jw'?'xq':v;
+const warPiece=t=>(qf&&QF_N[t])||(jw&&JW_N[t]);
 const D4=[[1,0],[-1,0],[0,1],[0,-1]], DG=[[1,1],[1,-1],[-1,1],[-1,-1]];
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 let board,turn,hist,sel=null,targets=[],last,over;
-let mode='menu',variant='xq',menuVariant='xq',qf=false;   // qf：清法戰爭（variant 仍是 xq，黑方換成西洋棋）
+let mode='menu',variant='xq',menuVariant='xq',qf=false,jw=false,hwPick='qf';   // qf：清法戰爭（variant 仍是 xq，黑方換成西洋棋）
 // online
 let R=null,room=null,role=null,code=null,mySide='r',hostPeer=null,guestPeer=null,myPeer=null;
 let guestOnline=false,hostOnline=true,seq=0,guestHist=0,pendingMove=false,undoAsk=false,myUndoReq=false;
@@ -1864,6 +2007,12 @@ function init(){
     QF_PAWNS.forEach(([r,c])=>{board[r][c]={t:'I',s:'b'};});
     [0,2,4,6,8].forEach(c=>{board[5][c]={t:'P',s:'r'};});   // 兵只有 5 隻，擺在原本位置的前面一格（河邊）
     turn='b';hist=[];sel=null;targets=[];last=null;over=null;return;}   // 法軍先走、清軍後走
+  jwHand={};jwDrop=null;
+  if(jw){const rows=['LMSGYGSML','.T.....F.','UUUUUUUUU'],back='RNBAKABNR';   // 日軍：將棋開局（飛在我們看過去的左邊、角在右邊）
+    rows.forEach((row,r)=>[...row].forEach((ch,c)=>{if(ch!=='.')board[r][c]={t:ch,s:'b'};}));
+    for(let c=0;c<9;c++){board[9][c]={t:back[c],s:'r'};board[6][c]={t:'P',s:'r'};}   // 清軍：兵 9 隻
+    [1,7].forEach(c=>{board[7][c]={t:'C',s:'r'};});[0,8].forEach(c=>{board[8][c]={t:'R',s:'r'};});   // 1、9 路往前一格各多一隻俥（俥 4）
+    turn='b';hist=[];sel=null;targets=[];last=null;over=null;return;}   // 日軍先走
   const back='RNBAKABNR';
   for(let c=0;c<9;c++){board[0][c]={t:back[c],s:'b'};board[9][c]={t:back[c],s:'r'};}
   [1,7].forEach(c=>{board[2][c]={t:'C',s:'b'};board[7][c]={t:'C',s:'r'};});
@@ -1909,6 +2058,15 @@ function pseudo(b,r,c){
     case 'T':case 'F':case 'D':{const dirs=p.t==='T'?D4:p.t==='F'?DG:[...D4,...DG];
       for(const[dr,dc]of dirs){let rr=r+dr,cc=c+dc;while(inB(rr,cc)){const q=b[rr][cc];if(!q)out.push([rr,cc]);else{if(q.s!==s)out.push([rr,cc]);break;}rr+=dr;cc+=dc;}}break;}
     case 'H':for(const[dr,dc]of[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]])add(r+dr,c+dc);break;
+    // 日軍（將棋子）：在交叉點上照將棋走法；f 是前進方向
+    case 'G':case 'Q':case 'J':case 'E':case 'O':{const f=s==='r'?-1:1;for(const[dr,dc]of[[f,0],[f,1],[f,-1],[0,1],[0,-1],[-f,0]])add(r+dr,c+dc);break;}
+    case 'S':{const f=s==='r'?-1:1;for(const[dr,dc]of[[f,0],[f,1],[f,-1],[-f,1],[-f,-1]])add(r+dr,c+dc);break;}
+    case 'M':{const f=s==='r'?-1:1;add(r+2*f,c-1);add(r+2*f,c+1);break;}
+    case 'L':{const f=s==='r'?-1:1;let rr=r+f;while(inB(rr,c)){const q=b[rr][c];if(!q)out.push([rr,c]);else{if(q.s!==s)out.push([rr,c]);break;}rr+=f;}break;}
+    case 'U':add(r+(s==='r'?-1:1),c);break;
+    case 'Z':case 'X':{const sl=p.t==='Z'?D4:DG,st=p.t==='Z'?DG:D4;
+      for(const[dr,dc]of sl){let rr=r+dr,cc=c+dc;while(inB(rr,cc)){const q=b[rr][cc];if(!q)out.push([rr,cc]);else{if(q.s!==s)out.push([rr,cc]);break;}rr+=dr;cc+=dc;}}
+      for(const[dr,dc]of st)add(r+dr,c+dc);break;}
     case 'Y':for(const[dr,dc]of[...D4,...DG])add(r+dr,c+dc);break;
     case 'I':{const f=s==='r'?-1:1,rr=r+f;
       if(inB(rr,c)&&!b[rr][c]){out.push([rr,c]);const start=s==='b'?r===1:r===8;
@@ -1948,11 +2106,28 @@ const legalNP=(r,c)=>legal(board,r,c).filter(([rr,cc])=>!perpForbidden(r,c,rr,cc
 
 /* ---------- state changes ---------- */
 function applyMove(fr,fc,tr,tc){
-  hist.push({board:clone(board),turn,last,inChk:inCheck(board,turn)});
+  hist.push({board:clone(board),turn,last,inChk:inCheck(board,turn),hand:jw?{...jwHand}:null});
+  const cap=board[tr][tc];
   board[tr][tc]=board[fr][fc];board[fr][fc]=null;
-  {const q=board[tr][tc];if(q&&q.t==='I'&&(q.s==='b'?tr===9:tr===0))board[tr][tc]={t:'D',s:q.s};}   // 法軍士兵走到底升變成皇后
-  last={from:[fr,fc],to:[tr,tc]};turn=opp(turn);sel=null;targets=[];
-  if(!hasMove(board,turn))over={winner:opp(turn),mate:inCheck(board,turn)};
+  {const q=board[tr][tc];if(q&&q.t==='I'&&(q.s==='b'?tr===9:tr===0))board[tr][tc]={t:'D',s:q.s};   // 法軍士兵走到底升變成皇后
+    if(jw&&q&&q.s==='b'){if(JW_PROMO[q.t]&&(tr>=7||fr>=7))board[tr][tc]={t:JW_PROMO[q.t],s:'b'};   // 日軍走進（或走出）清軍最後三排就升變
+      if(cap&&JW_CAP[cap.t])jwHand[JW_CAP[cap.t]]=(jwHand[JW_CAP[cap.t]]||0)+1;}}   // 吃到的清軍棋子收進手上
+  last={from:[fr,fc],to:[tr,tc]};jwAfter();
+}
+// 打入：日軍把手上的棋放到空格
+function jwDropOk(b,t,r,c){
+  if(!inB(r,c)||b[r][c])return false;if((t==='U'||t==='L')&&r===9)return false;if(t==='M'&&r>=8)return false;
+  if(t==='U')for(let i=0;i<10;i++){const p=b[i][c];if(p&&p.s==='b'&&p.t==='U')return false;}   // 同一路不能有兩個歩
+  const nb=clone(b);nb[r][c]={t,s:'b'};return!inCheck(nb,'b');}
+function jwDrops(t){const o=[];if(!jw||!(jwHand[t]>0))return o;for(let r=0;r<10;r++)for(let c=0;c<9;c++)if(jwDropOk(board,t,r,c))o.push([r,c]);return o;}
+function jwCanDrop(){return jw&&JW_HAND.some(t=>jwHand[t]>0&&jwDrops(t).length);}
+function applyDrop(t,r,c){
+  hist.push({board:clone(board),turn,last,inChk:inCheck(board,turn),hand:{...jwHand}});
+  jwHand[t]--;board[r][c]={t,s:'b'};last={from:[r,c],to:[r,c]};jwAfter();
+}
+function jwAfter(){
+  turn=opp(turn);sel=null;targets=[];jwDrop=null;
+  if(!hasMove(board,turn)&&!(turn==='b'&&jwCanDrop()))over={winner:opp(turn),mate:inCheck(board,turn)};
   seq++;undoAsk=false;myUndoReq=false;
   render();announce();
   if(role==='host')broadcast();
@@ -1969,12 +2144,12 @@ function newGame(){if(mode==='ai')aiCancel();init();seq++;undoAsk=false;myUndoRe
 /* ---------- AI ---------- */
 function lvText(l){const t=LEVELS[l].t;return t<1000?'瞬間出手':`每步最多約 ${Math.round(t/1000)} 秒`;}
 function syncLv(){$('lvVal').textContent='Lv '+aiLevel;$('lvHint').textContent=lvText(aiLevel);}
-const ENG_SRC=()=>$('engine').textContent+'\n'+$('dkengine').textContent+'\n'+$('chengine').textContent+'\n'+$('gmengine').textContent+'\n'+$('goengine').textContent+'\n'+$('qfengine').textContent;
+const ENG_SRC=()=>$('engine').textContent+'\n'+$('dkengine').textContent+'\n'+$('chengine').textContent+'\n'+$('gmengine').textContent+'\n'+$('goengine').textContent+'\n'+$('qfengine').textContent+'\n'+$('jwengine').textContent;
 const W={};
 function getWorker(k){
   if(W[k])return W[k].w;
   try{
-    const w=new Worker(URL.createObjectURL(new Blob([ENG_SRC()+'\nonmessage=e=>{const d=e.data;postMessage({id:d.id,r:d.v==="qf"?qfEngine.think(d):d.v==="dk"?dkApi(d):d.v==="ch"?chEngine.think(d):d.v==="gm"?gmEngine.think(d):d.v==="go"?goEngine.think(d):api(d)});};'],{type:'text/javascript'})));
+    const w=new Worker(URL.createObjectURL(new Blob([ENG_SRC()+'\nonmessage=e=>{const d=e.data;postMessage({id:d.id,r:d.v==="jw"?jwEngine.think(d):d.v==="qf"?qfEngine.think(d):d.v==="dk"?dkApi(d):d.v==="ch"?chEngine.think(d):d.v==="gm"?gmEngine.think(d):d.v==="go"?goEngine.think(d):api(d)});};'],{type:'text/javascript'})));
     const P=new Map();W[k]={w,P};
     w.onmessage=e=>{const f=P.get(e.data.id);if(f){P.delete(e.data.id);f(e.data.r);}};
     w.onerror=()=>{const fs=[...P.values()];P.clear();W[k]=null;fs.forEach(f=>f(null));};
@@ -1984,7 +2159,7 @@ function getWorker(k){
 function runEngine(data,k='ai'){
   const w=getWorker(k);
   if(w)return new Promise(res=>{const id=++reqId;W[k].P.set(id,res);w.postMessage({...data,id});});
-  try{if(!mainApi)mainApi=new Function(ENG_SRC()+';return d=>d.v==="qf"?qfEngine.think(d):d.v==="dk"?dkApi(d):d.v==="ch"?chEngine.think(d):d.v==="gm"?gmEngine.think(d):d.v==="go"?goEngine.think(d):api(d);')();}catch(e){return Promise.resolve(null);}
+  try{if(!mainApi)mainApi=new Function(ENG_SRC()+';return d=>d.v==="jw"?jwEngine.think(d):d.v==="qf"?qfEngine.think(d):d.v==="dk"?dkApi(d):d.v==="ch"?chEngine.think(d):d.v==="gm"?gmEngine.think(d):d.v==="go"?goEngine.think(d):api(d);')();}catch(e){return Promise.resolve(null);}
   return new Promise(res=>setTimeout(()=>res(mainApi({...data,time:Math.min(data.time,1500)})),30));
 }
 function aiCancel(){aiToken++;thinking=false;if(W.ai&&W.ai.P.size){W.ai.w.terminate();W.ai=null;}}
@@ -1997,13 +2172,14 @@ function maybeAI(){
   thinking=true;render();
   const tok=++aiToken,t0=Date.now(),L=LEVELS[aiLevel];
   const rep=hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}));
-  runEngine(qf?{v:'qf',b:enc(board),s:turn,time:L.t,depth:L.d}:{b:enc(board),s:turn,rep,time:L.t,depth:L.d}).then(res=>{
+  runEngine(jw?{v:'jw',b:enc(board),s:turn,hand:{...jwHand},time:L.t,depth:L.d}:qf?{v:'qf',b:enc(board),s:turn,time:L.t,depth:L.d}:{b:enc(board),s:turn,rep,time:L.t,depth:L.d}).then(res=>{
     if(tok!==aiToken||mode!=='ai')return;
     setTimeout(()=>{
       if(tok!==aiToken||mode!=='ai')return;
       thinking=false;
       let mv=null;
-      if(res){const fr=(res.f/9)|0,fc=res.f%9,tr=(res.t/9)|0,tc=res.t%9;
+      if(res&&res.drop){const r=(res.t/9)|0,c=res.t%9;if(jw&&turn==='b'&&jwHand[res.drop]>0&&jwDropOk(board,res.drop,r,c)){applyDrop(res.drop,r,c);return;}}
+      else if(res){const fr=(res.f/9)|0,fc=res.f%9,tr=(res.t/9)|0,tc=res.t%9;
         if(board[fr][fc]&&board[fr][fc].s===turn&&legalNP(fr,fc).some(([r,c])=>r===tr&&c===tc))mv=[fr,fc,tr,tc];}
       if(!mv){const all=[];for(let r=0;r<10;r++)for(let c=0;c<9;c++){const p=board[r][c];
         if(p&&p.s===turn)legalNP(r,c).forEach(([tr,tc])=>all.push([r,c,tr,tc]));}
@@ -2041,6 +2217,9 @@ function canAct(){
 }
 function tap(r,c){
   if(!canAct())return;
+  if(jwDrop){const t=jwDrop,ok=targets.some(([rr,cc])=>rr===r&&cc===c);jwDrop=null;targets=[];
+    if(ok){if(mode==='online'&&role==='guest'){room.emit('mv',{dp:t,tr:r,tc:c,seq}).catch(()=>{});pendingMove=true;render();clearTimeout(pendTimer);pendTimer=setTimeout(()=>{pendingMove=false;render();},5000);}
+      else applyDrop(t,r,c);return;}}
   if(sel&&targets.some(([rr,cc])=>rr===r&&cc===c)){
     const [fr,fc]=sel;
     if(mode==='online'&&role==='guest'){
@@ -2093,7 +2272,7 @@ function dkLegal(a,seat){
 function dkSave(){return{board:board.map(p=>p&&{...p}),turn,last,colors:{...dkColors},quiet:dkQuiet,chain:dkChain,dead:JSON.parse(JSON.stringify(dkDead))};}
 function dkRestore(h){board=h.board;turn=h.turn;last=h.last;dkColors=h.colors;dkQuiet=h.quiet;dkChain=h.chain??-1;dkDead=h.dead||{r:{},b:{}};flipAnim=-1;
   if(dkChain>=0&&(mode==='local'||turn===mySide)){sel=dkChain;targets=dkCapTargets(dkChain);}}
-function restoreH(h){if(variant==='dk')dkRestore(h);else if(variant==='ch')chRestore(h);else if(variant==='gm')gmRestore(h);else if(variant==='go')goRestore(h);else{board=h.board;turn=h.turn;last=h.last;}}
+function restoreH(h){if(variant==='dk')dkRestore(h);else if(variant==='ch')chRestore(h);else if(variant==='gm')gmRestore(h);else if(variant==='go')goRestore(h);else{board=h.board;turn=h.turn;last=h.last;if(h.hand)jwHand={...h.hand};jwDrop=null;}}
 function dkApply(a){
   hist.push(dkSave());
   let goOn=false;
@@ -2425,6 +2604,14 @@ SCENES.qf=`<svg ${SCENE_VB}><defs><linearGradient id="sqS" x1="0" y1="0" x2="0" 
 <g transform="translate(120 760)"><path d="M-60 0 L60 0 L50 14 L-50 14z" fill="#7a4a2a"/><path d="M0 0V-70" stroke="#5a3a1f" stroke-width="3"/><path d="M2 -66 Q30 -40 4 -6z" fill="#e8d3a8"/><path d="M-2 -60 Q-26 -36 -2 -10z" fill="#d9bf8c"/></g>
 <path d="M0 820 Q200 790 400 820 V860 H0z" fill="#1f354b"/></svg>`;
 // 八國聯軍：1900 年夏天黃昏的北京城門，城樓、城牆與硝煙，遠處八面彩色旗子
+SCENES.jw=`<svg ${SCENE_VB}><defs><linearGradient id="sjS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3a5c"/><stop offset=".38" stop-color="#c9788a"/><stop offset=".56" stop-color="#f3c58f"/><stop offset=".58" stop-color="#3f6f8f"/><stop offset="1" stop-color="#12293f"/></linearGradient></defs>
+<rect width="400" height="860" fill="url(#sjS)"/>
+<circle cx="200" cy="470" r="70" fill="#e8402c" opacity=".92"/><g stroke="#e8402c" stroke-width="10" opacity=".22">${[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>{const a=Math.PI+i*Math.PI/11;return`<line x1="200" y1="470" x2="${200+Math.cos(a)*330}" y2="${470+Math.sin(a)*330}"/>`;}).join('')}</g>
+<rect y="492" width="400" height="368" fill="#2f5f80"/><rect y="492" width="400" height="368" fill="url(#sjS)" opacity=".55"/>
+<g fill="#16202e"><path d="M40 486h110l-14 22H52z"/><rect x="70" y="462" width="12" height="24"/><rect x="100" y="456" width="12" height="30"/><rect x="88" y="440" width="3" height="46"/><path d="M91 442l22 8-22 6z" fill="#e8c23a"/></g>
+<g fill="#10151d"><path d="M250 484h120l-12 24H260z"/><rect x="286" y="458" width="14" height="26"/><rect x="318" y="462" width="12" height="22"/><rect x="306" y="436" width="3" height="48"/><path d="M309 438l24 8-24 7z" fill="#fff"/><circle cx="318" cy="446" r="3.4" fill="#e8402c"/></g>
+<g fill="#cfd6de" opacity=".5"><ellipse cx="82" cy="430" rx="26" ry="10"/><ellipse cx="112" cy="414" rx="20" ry="8"/><ellipse cx="300" cy="424" rx="28" ry="10"/><ellipse cx="330" cy="406" rx="18" ry="7"/></g>
+<g stroke="#fff" stroke-width="2" opacity=".28" fill="none">${[540,590,650,720,800].map((y,i)=>`<path d="M0 ${y}q50 -${10+i*2} 100 0t100 0t100 0t100 0"/>`).join('')}</g></svg>`;
 SCENES.bg=`<svg ${SCENE_VB}><defs><linearGradient id="sbS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c27a"/><stop offset=".45" stop-color="#e08a4f"/><stop offset=".7" stop-color="#a5583f"/><stop offset="1" stop-color="#4a2f2a"/></linearGradient>
 <radialGradient id="sbSun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff0c8"/><stop offset="1" stop-color="#fff0c8" stop-opacity="0"/></radialGradient></defs>
 <rect width="400" height="860" fill="url(#sbS)"/><circle cx="110" cy="360" r="110" fill="url(#sbSun)"/><circle cx="110" cy="370" r="30" fill="#ffe6b0" opacity=".85"/>
@@ -2454,10 +2641,12 @@ function qfNudge(){const tr=$('qfTrack');if(!tr||tr.scrollLeft>2)return;if(match
   setTimeout(()=>{if(tr.scrollLeft>2||$('qfRule').hidden)return;try{tr.scrollTo({left:70,behavior:'smooth'});setTimeout(()=>{if(tr.scrollLeft<=80)tr.scrollTo({left:0,behavior:'smooth'});},650);}catch(e){}},500);}
 
 /* ---------- 模式切換：螢幕邊緣滑動、邊緣標籤、模式列箭頭 ---------- */
-const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺',bg:'八國聯軍'};
+const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺',bg:'八國聯軍',jw:'甲午戰爭',hw:'歷史戰役'};
+const isWar=v=>v==='qf'||v==='bg'||v==='jw',modeKey=v=>isWar(v)?'hw':v;   // 歷史戰役這一類底下有三場戰役
+function modeGo(k){if(k==='hw')k=hwPick;if(isWar(k))hwPick=k;menuVariant=k;syncVariant();}
 function modeList(){return[...document.querySelectorAll('#varSeg button')].map(b=>b.dataset.v);}
-function modeStep(d){const L=modeList(),i=L.indexOf(menuVariant),j=i+d;if(j<0||j>=L.length)return false;menuVariant=L[j];syncVariant();try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}return true;}
-function modeEdges(){const L=modeList(),i=L.indexOf(menuVariant),p=L[i-1],n=L[i+1];
+function modeStep(d){const L=modeList(),i=L.indexOf(modeKey(menuVariant)),j=i+d;if(j<0||j>=L.length)return false;modeGo(L[j]);try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}return true;}
+function modeEdges(){const L=modeList(),i=L.indexOf(modeKey(menuVariant)),p=L[i-1],n=L[i+1];
   $('edgeL').hidden=!p;$('edgeR').hidden=!n;if(p)$('edgeLn').textContent=MODE_N[p]||'';if(n)$('edgeRn').textContent=MODE_N[n]||'';
   $('edgeL').setAttribute('aria-label','上一個模式：'+(MODE_N[p]||''));$('edgeR').setAttribute('aria-label','下一個模式：'+(MODE_N[n]||''));
   const sg=$('varSeg');document.querySelector('.varr.l').classList.toggle('hide',sg.scrollLeft<4);document.querySelector('.varr.r').classList.toggle('hide',sg.scrollLeft>sg.scrollWidth-sg.clientWidth-4);}
@@ -2480,17 +2669,18 @@ function modeEdges(){const L=modeList(),i=L.indexOf(menuVariant),p=L[i-1],n=L[i+
 function modeNudge(){const sg=$('varSeg');if(!sg||sg.dataset.nudged||matchMedia('(prefers-reduced-motion: reduce)').matches)return;sg.dataset.nudged=1;const x0=sg.scrollLeft;
   setTimeout(()=>{if($('menu').hidden)return;try{sg.scrollTo({left:x0+70,behavior:'smooth'});setTimeout(()=>sg.scrollTo({left:x0,behavior:'smooth'}),650);}catch(e){}},700);}
 function syncVariant(){
-  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7,bg:8}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
-  document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7,bg:8,jw:9}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
+  document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===modeKey(v)));
+  $('hwSeg').hidden=!isWar(v);document.querySelectorAll('#hwSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$('jwRule').hidden=v!=='jw';
   {const sg=$('varSeg'),on=sg.querySelector('button.on');if(on&&sg.scrollWidth>sg.clientWidth){const l=on.offsetLeft-(sg.clientWidth-on.offsetWidth)/2;try{sg.scrollTo({left:l,behavior:'smooth'});}catch(e){sg.scrollLeft=l;}}}
-  $('ttl').textContent=T('象棋','暗棋','西洋棋','五子棋','圍棋','','','清法戰爭');
+  $('ttl').textContent=T('象棋','暗棋','西洋棋','五子棋','圍棋','','','清法戰爭','','甲午戰爭');
   $('skinBtn').hidden=v==='ch';
   $('skinBtn').innerHTML=v==='gm'||v==='go'?'<span>棋子顏色</span><b>黑方・白方</b>':`<span>${v==='dk'?'暗棋':'象棋'}外觀設定</span><b>字體・顏色・材質</b>`;
   const lg=document.querySelector('.logo');lg.classList.toggle('dk',v==='dk');lg.classList.toggle('ch',v==='ch');lg.classList.toggle('gm',v==='gm'||v==='go');
-  $('logoA').textContent=v==='ch'?'♔\uFE0E':'帥';$('logoB').textContent=v==='ch'||v==='qf'?'♚\uFE0E':'將';lg.classList.toggle('qfl',v==='qf');$('qfRule').hidden=v!=='qf';if(v==='qf'){qfHistInit();qfNudge();}
-  $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（後走）');
-  $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍（先走）');
-  $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍（後走）')+'，取得 4 位數房號給朋友';
+  $('logoA').textContent=v==='ch'?'♔\uFE0E':'帥';$('logoB').textContent=v==='ch'||v==='qf'?'♚\uFE0E':v==='jw'?'王':'將';lg.classList.toggle('qfl',v==='qf');$('qfRule').hidden=v!=='qf';if(v==='qf'){qfHistInit();qfNudge();}
+  $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（後走）','','我當清軍（後走）');
+  $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍（先走）','','我當日軍（先走）');
+  $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍（後走）','','你當清軍（後走）')+'，取得 4 位數房號給朋友';
   const pk=v==='pk',ww=v==='ww',bgv=v==='bg',other=pk||ww||bgv;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;$('bgMenu').hidden=!bgv;lg.classList.toggle('bgl',bgv);['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
   document.querySelector('.card>.aibox').hidden=other;document.querySelector('.card>.join').hidden=other;lg.classList.toggle('pkl',pk);lg.classList.toggle('wwl',ww);
   if(bgv){$('skinBtn').hidden=true;$('ttl').textContent='八國聯軍';$('logoA').textContent='清';$('logoB').textContent='八國';bgSyncMenu();}
@@ -3068,6 +3258,12 @@ function boardCanvas(B){return new Promise(res=>{
   im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
 });}
 // 法軍棋子：白底藍框，外圈藍白紅三色，深藍色西洋棋符號
+function jwDrawFace(g,S,ch,rot,up){const R=S/2;g.save();g.translate(R,R);
+  const gr=g.createRadialGradient(-R*.3,-R*.35,R*.1,0,0,R);gr.addColorStop(0,'#fff8e2');gr.addColorStop(.6,'#ecd6a2');gr.addColorStop(1,'#c9a35c');
+  g.fillStyle=gr;g.beginPath();g.arc(0,0,R*.98,0,7);g.fill();g.strokeStyle='#7a5326';g.lineWidth=R*.07;g.beginPath();g.arc(0,0,R*.94,0,7);g.stroke();
+  g.rotate(rot||0);g.beginPath();g.moveTo(0,-R*.8);g.lineTo(R*.46,-R*.56);g.lineTo(R*.6,R*.68);g.lineTo(-R*.6,R*.68);g.lineTo(-R*.46,-R*.56);g.closePath();   // 將棋的駒形
+  g.fillStyle='#f9e9bd';g.fill();g.strokeStyle='#5b3a1a';g.lineWidth=R*.05;g.stroke();
+  g.fillStyle=up?'#c62828':'#1b1b1b';g.textAlign='center';g.textBaseline='middle';g.font=`900 ${Math.round(S*.44)}px "Noto Serif TC","Songti TC","PMingLiU",serif`;g.fillText(ch,0,S*.06);g.restore();}
 function qfDrawFace(g,S,ch,rot){const R=S/2;g.save();g.translate(R,R);
   const gr=g.createRadialGradient(-R*.3,-R*.35,R*.1,0,0,R);gr.addColorStop(0,'#ffffff');gr.addColorStop(.6,'#e8edf6');gr.addColorStop(1,'#c3cde0');
   g.fillStyle=gr;g.beginPath();g.arc(0,0,R*.98,0,7);g.fill();
@@ -3075,8 +3271,8 @@ function qfDrawFace(g,S,ch,rot){const R=S/2;g.save();g.translate(R,R);
   g.rotate(rot||0);g.fillStyle='#14213d';g.textAlign='center';g.textBaseline='middle';g.font=`${Math.round(S*.56)}px "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",sans-serif`;g.fillText(ch,0,S*.03);g.restore();}
 const texCache=new Map();
 function faceTex(el){
-  if(variant==='xq'&&qf&&el.dataset.k&&QF_N[el.dataset.k[1]]){const t=el.dataset.k[1],rot=el.classList.contains('rot')&&f2f,key='qf|'+t+'|'+rot;
-    if(texCache.has(key))return texCache.get(key);const cv=document.createElement('canvas');cv.width=cv.height=256;qfDrawFace(cv.getContext('2d'),256,NAMES.b[t],-Math.PI/2+(rot?Math.PI:0));
+  if(variant==='xq'&&el.dataset.k&&warPiece(el.dataset.k[1])){const t=el.dataset.k[1],rot=(el.classList.contains('rot')&&f2f)||el.classList.contains('jwr'),key=(jw?'jw|':'qf|')+t+'|'+rot;
+    if(texCache.has(key))return texCache.get(key);const cv=document.createElement('canvas');cv.width=cv.height=256;(jw?jwDrawFace:qfDrawFace)(cv.getContext('2d'),256,NAMES.b[t],-Math.PI/2+(rot?Math.PI:0),JW_UP.includes(t));
     const tx=new THREE.CanvasTexture(cv);tx.anisotropy=4;texCache.set(key,tx);return tx;}
   if((variant==='xq'||variant==='dk')&&el.dataset.k){const s=el.dataset.k[0],t=el.dataset.k[1],rot=el.classList.contains('rot')&&f2f,X=skS(s),ok=skEnsureFont(X.fd,skRefresh);
     const key=['sk',X.fd.id,X.mat.id,X.ink.id,s,t,rot,ok,pers[s],pers[s]==='figure'&&figReady()].join('|');if(texCache.has(key))return texCache.get(key);
@@ -5203,7 +5399,7 @@ function skDrawFace(g,S,mat,col,ch,fd,rot){
 }
 const skImgCache=new Map();
 function skTile(S,s,t,X){
-  if(s==='b'&&QF_N[t]){const k='qf|'+t+'|'+S;if(skImgCache.has(k))return skImgCache.get(k);const cv=document.createElement('canvas');cv.width=cv.height=S;qfDrawFace(cv.getContext('2d'),S,NAMES.b[t],0);const u=cv.toDataURL('image/png');skImgCache.set(k,u);return u;}
+  if(s==='b'&&(jw?JW_N[t]:QF_N[t])){const k=(jw?'jw|':'qf|')+t+'|'+S;if(skImgCache.has(k))return skImgCache.get(k);const cv=document.createElement('canvas');cv.width=cv.height=S;(jw?jwDrawFace:qfDrawFace)(cv.getContext('2d'),S,(jw?JW_CH:QF_CH)[t],0,JW_UP.includes(t));const u=cv.toDataURL('image/png');skImgCache.set(k,u);return u;}
   const ok=skEnsureFont(X.fd,skRefresh),key=[X.fd.id,X.mat.id,X.ink.id,s,t,S,ok,pers[s],pers[s]==='figure'&&figReady()].join('|');if(skImgCache.has(key))return skImgCache.get(key);
   const cv=document.createElement('canvas');cv.width=cv.height=S;skDrawFace(cv.getContext('2d'),S,X.mat,X.ink.c,NAMES[s][t],X.fd,0);
   const u=cv.toDataURL('image/png');skImgCache.set(key,u);return u;
@@ -5214,7 +5410,7 @@ function skBoardTile(bd){
   const u=cv.toDataURL('image/png');skImgCache.set(k,u);return u;
 }
 function skPieceCss(){
-  let css='';for(const s of['r','b']){const X=skS(s);for(const t of(s==='b'&&qf?'KABNRCPTHFDYI':'KABNRCP'))css+=`#app.xqskin .pc[data-k="${s}${t}"] .face{background-image:url(${skTile(192,s,t,X)})}\n`;
+  let css='';for(const s of['r','b']){const X=skS(s);for(const t of(s==='b'&&qf?'KABNRCPTHFDYI':s==='b'&&jw?'KABNRCPYTFGSMLUZXQJEO':'KABNRCP'))css+=`#app.xqskin .pc[data-k="${s}${t}"] .face{background-image:url(${skTile(192,s,t,X)})}\n`;
     css+=`#app.xqskin .pc[data-k^="${s}"] .face{box-shadow:0 2px 0 ${X.mat.rim},0 3px 6px rgba(0,0,0,.35)}\n`;}
   return css;
 }
@@ -5903,7 +6099,7 @@ let hintOn=false;try{hintOn=localStorage.getItem('xq-hint')==='1';}catch(e){}
 let hint={key:'',mv:null},hintTok=0,riskKey='',riskSet=new Set();
 const HINT_L={time:LEVELS[4].t,depth:LEVELS[4].d};
 const hintBtnHTML=()=>`<button data-act="hint" class="hbtn${hintOn?' on':''}" aria-pressed="${hintOn}" title="AI 提示：${hintOn?'開（點一下關閉）':'關（點一下開啟）'}" aria-label="AI 提示${hintOn?'開啟中':'已關閉'}">AI</button>`;
-function posKey(){if(variant==='go')return goStr()+turn+goKo+goPasses+goPhase;return variant==='xq'?enc(board)+turn:variant==='dk'?dkEncB(board)+turn+dkChain:variant==='ch'?chFen:gmEnc()+turn;}
+function posKey(){if(variant==='go')return goStr()+turn+goKo+goPasses+goPhase;return variant==='xq'?enc(board)+turn+(jw?JSON.stringify(jwHand):''):variant==='dk'?dkEncB(board)+turn+dkChain:variant==='ch'?chFen:gmEnc()+turn;}
 function humanTurn(){if(over||mode==='menu')return false;if(variant==='go'&&goPhase!=='play')return false;if(mode==='local')return true;if(mode==='ai')return turn===mySide&&!thinking;return turn===mySide&&!pendingMove;}
 function dkPoolPublic(){const P={};for(const c of['r','b'])for(const t of'KABRNCP'){
   const n=DK_TOTAL[t]-(dkDead[c][t]||0)-board.filter(p=>p&&p.up&&p.s===c&&p.t===t).length;if(n>0)P[c==='r'?t:t.toLowerCase()]=n;}return P;}
@@ -5911,14 +6107,14 @@ function requestHint(){
   if(!hintOn||!humanTurn())return;
   const key=variant+':'+posKey();if(hint.key===key)return;
   hint={key,mv:null};const tok=++hintTok;let data;
-  if(variant==='xq')data=qf?{v:'qf',b:enc(board),s:turn,time:1200,depth:40}:{b:enc(board),s:turn,rep:hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}))};
+  if(variant==='xq')data=jw?{v:'jw',b:enc(board),s:turn,hand:{...jwHand},time:1200,depth:40}:qf?{v:'qf',b:enc(board),s:turn,time:1200,depth:40}:{b:enc(board),s:turn,rep:hist.slice(-40).map(h=>({b:enc(h.board),s:h.turn,chk:!!h.inChk}))};
   else if(variant==='dk'){const col=dkColors[turn];if(!col)return;
     data={v:'dk',b:dkEncB(board),s:col,pool:dkPoolPublic(),chain:dkChain,rep:hist.slice(-30).filter(h=>h.colors[h.turn]).map(h=>({b:dkEncB(h.board),s:h.colors[h.turn]}))};}
   else if(variant==='ch')data={v:'ch',fen:chFen,rep:hist.slice(-100).map(h=>h.fen)};
   else if(variant==='go')data=goReq(0);
   else data={v:'gm',b:gmEnc(),s:turn};
   runEngine({...data,...HINT_L},'hint').then(res=>{
-    if(tok!==hintTok||!res||hint.key!==key||variant+':'+posKey()!==key)return;
+    if(tok!==hintTok||!res||res.drop||hint.key!==key||variant+':'+posKey()!==key)return;
     hint.mv=res;if(mode!=='menu')render();});
 }
 function computeRisk(){
@@ -5970,7 +6166,7 @@ function renderCore(){
     if(p&&p.s===turn)legal(board,r,c).forEach(([rr,cc])=>{const q=board[rr][cc];if(q&&q.s!==turn)danger.add(rr*9+cc);});}}
   for(let r=0;r<10;r++)for(let c=0;c<9;c++){
     const p=board[r][c],isT=targets.some(([rr,cc])=>rr===r&&cc===c);
-    if(p){const cls=['pc',p.s];if(local&&p.s==='b')cls.push('rot');
+    if(p){const cls=['pc',p.s];if(local&&p.s==='b')cls.push('rot');else if(jw&&p.s==='b'&&!flip)cls.push('jwr');
       if(sel&&sel[0]===r&&sel[1]===c)cls.push('sel');if(isT)cls.push('cap');
       if(chk&&chk[0]===r&&chk[1]===c)cls.push('incheck');
       const dg=danger.has(r*9+c);
@@ -5978,15 +6174,23 @@ function renderCore(){
     else if(isT)h+=`<button class="tg" data-r="${r}" data-c="${c}" style="${P(r,c)}" aria-label="移到這裡"></button>`;
   }
   $('layer').innerHTML=h;
+  jwTray(local,flip);
   renderBars(chk);
 }
+// 甲午戰爭：日軍手上的棋（放在日軍那一側、棋盤外面）
+function jwTray(local,flip){const iT=$('infoT'),iM=$('infoM'),el=flip?iM:iT,ot=flip?iT:iM,was=iT.hidden+'|'+iM.hidden;
+  if(!jw){if(variant==='xq'&&!(iT.hidden&&iM.hidden)){iT.hidden=iM.hidden=true;fit();}return;}
+  ot.hidden=true;el.hidden=false;el.className='dkinfo jwtray'+(local?' rot':'');
+  const can=canAct()&&turn==='b',list=JW_HAND.filter(t=>jwHand[t]>0);
+  el.innerHTML='<span class="jwlab">持駒</span>'+(list.length?list.map(t=>`<button class="jwh${jwDrop===t?' on':''}" data-act="jwPick" data-t="${t}"${can?'':' disabled'} aria-label="${JW_N[t]} ${jwHand[t]} 個，點一下再點棋盤的空格打入">${JW_CH[t]}<small>×${jwHand[t]}</small></button>`).join(''):'<span class="jwnone">吃到的清軍棋子會收在這裡，之後可以放回棋盤</span>');
+  if(was!==iT.hidden+'|'+iM.hidden)fit();}
 
 function btn(act,label,o={}){
   const a=armed===act;
   return `<button data-act="${act}"${o.dis?' disabled':''} class="${a?'warn':(o.cls||'')}">${a?'確定？':label}</button>`;
 }
 function barHTML(s,name,st,btns){
-  return `<div class="who"><span class="dot ${s}${qf&&variant==='xq'&&s==='b'?' qfdot':''}">${qf&&variant==='xq'&&s==='b'?'♚\uFE0E':{r:'帥',b:'將',u:'?',cw:'♔\uFE0E',cb:'♚\uFE0E',gb:'',gw:''}[s]}</span><div><div class="name">${name}</div><div class="state ${st.c||''}">${st.t}</div></div></div><div class="btns">${btns}</div>`;
+  return `<div class="who"><span class="dot ${s}${qf&&variant==='xq'&&s==='b'?' qfdot':''}">${qf&&variant==='xq'&&s==='b'?'♚\uFE0E':jw&&variant==='xq'&&s==='b'?'王':{r:'帥',b:'將',u:'?',cw:'♔\uFE0E',cb:'♚\uFE0E',gb:'',gw:''}[s]}</span><div><div class="name">${name}</div><div class="state ${st.c||''}">${st.t}</div></div></div><div class="btns">${btns}</div>`;
 }
 function result(s){if(over.txt)return over.winner===s?{t:'獲勝 · '+over.txt,c:'win'}:{t:'落敗 · '+over.txt,c:'lose'};if(over.winner==='draw')return{t:'和棋 · '+over.why,c:'lose'};const why=over.why||(over.mate?'將死':'困斃');return over.winner===s?{t:`獲勝 · ${why}`,c:'win'}:{t:`落敗 · 被${why}`,c:'lose'};}
 function renderBars(chk){
@@ -6045,7 +6249,7 @@ function showMenu(msg,err){
 function enterGame(m){
   mode=m;sel=null;targets=[];armed=null;
   $('menu').hidden=true;$('app').hidden=false;
-  $('infoT').hidden=$('infoM').hidden=variant!=='dk';
+  $('infoT').hidden=$('infoM').hidden=variant!=='dk';if(variant==='xq'&&jw)(m!=='local'&&mySide==='b'?$('infoM'):$('infoT')).hidden=false;
   applySkin();
   $('board').classList.toggle('dk',variant==='dk');$('board').classList.toggle('ch',variant==='ch');$('board').classList.toggle('gm',variant==='gm');$('board').classList.toggle('go',variant==='go');
   drawGrid();requestAnimationFrame(()=>{fit();render();});render();
@@ -6194,10 +6398,11 @@ document.addEventListener('click',e=>{
   if(CONFIRM.has(act)&&armed!==act){armed=act;clearTimeout(armTimer);armTimer=setTimeout(()=>{armed=null;render();},2500);render();return;}
   armed=null;clearTimeout(armTimer);
   switch(act){
-    case 'local':setQf(menuVariant==='qf');variant=vOf(menuVariant);dkFirst='A';init();enterGame('local');break;
-    case 'var':menuVariant=b.dataset.v;syncVariant();break;
+    case 'local':setQf(warOf(menuVariant));variant=vOf(menuVariant);dkFirst='A';init();enterGame('local');break;
+    case 'var':modeGo(b.dataset.v);break;
+    case 'jwPick':{const t=b.dataset.t;if(!jw||!canAct()||turn!=='b')break;jwDrop=jwDrop===t?null:t;sel=null;targets=jwDrop?jwDrops(t):[];render();break;}
     case 'modeStep':modeStep(+b.dataset.d);break;
-    case 'create':if(R&&!busy){setQf(menuVariant==='qf');variant=vOf(menuVariant);createRoom();}break;
+    case 'create':if(R&&!busy){setQf(warOf(menuVariant));variant=vOf(menuVariant);createRoom();}break;
     case 'join':if(R&&!busy)joinRoom($('codeIn').value.trim());break;
     case 'promo':if(promoPick){const m=chMoves.find(x=>x.f===promoPick.f&&x.t===promoPick.t&&x.p===b.dataset.v);if(m)chSend(m);}break;
     case 'hint':hintOn=!hintOn;try{localStorage.setItem('xq-hint',hintOn?'1':'0');}catch(e){}hint={key:'',mv:null};render();break;
@@ -6226,7 +6431,7 @@ document.addEventListener('click',e=>{
     case 'stop':if(variant==='dk')dkSend({a:'stop'});break;
     case 'undo':mode==='ai'?aiUndo():doUndo();break;
     case 'sd':aiPick=b.dataset.v;document.querySelectorAll('#sdSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===aiPick));break;
-    case 'aiStart':setQf(menuVariant==='qf');variant=vOf(menuVariant);if(variant==='dk'){mySide='A';dkFirst=aiPick==='r'?'A':'B';}else if(variant==='ch')mySide=aiPick==='r'?'w':'b';else if(variant==='gm'||variant==='go')mySide=aiPick==='r'?'b':'w';else mySide=aiPick;init();enterGame('ai');maybeAI();break;
+    case 'aiStart':setQf(warOf(menuVariant));variant=vOf(menuVariant);if(variant==='dk'){mySide='A';dkFirst=aiPick==='r'?'A':'B';}else if(variant==='ch')mySide=aiPick==='r'?'w':'b';else if(variant==='gm'||variant==='go')mySide=aiPick==='r'?'b':'w';else mySide=aiPick;init();enterGame('ai');maybeAI();break;
     case 'reset':case 'again':newGame();break;
     case 'menu':aiCancel();showMenu('');break;
     case 'leave':leaveRoom();showMenu('');break;
