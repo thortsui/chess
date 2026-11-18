@@ -688,14 +688,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
 
 <div class="menu" id="menu">
   <div class="scene" id="scene" aria-hidden="true"></div>
-  <span class="ver" aria-label="版本 0.13.7">v0.13.7</span>
+  <span class="ver" aria-label="版本 0.13.8">v0.13.8</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
       <div><h1 id="ttl">象棋</h1><p>選擇對戰方式</p></div>
     </div>
     <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button></div>
-    <p class="pkrule qfrule" id="qfRule" hidden>1884 年清法戰爭：清軍用象棋（紅方，先走），法軍用西洋棋（黑方，後走）。法軍照西洋棋佈局擴成九路：底線城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。清軍兵力調整：底線照象棋原本的擺法；俥左右各 2 隻（底線角落與往前一格）；炮 4 隻（原本的位置，加上 1、9 路往前兩格）；兵 5 隻擺在河邊（原本位置的前面一格）。法軍在交叉點上照西洋棋走法：城堡直走、主教斜走、皇后直斜都能走、騎士走日字而且不會被拐腳、國王八方向走一步（不受九宮限制）、士兵往前一步（第一步可走兩步）、斜前方吃子，走到底升變成皇后。法軍沒有過河限制，雙方的王（將與國王）一樣不能照面。把對方將死或困死就贏。</p>
+    <p class="pkrule qfrule" id="qfRule" hidden>1884 年清法戰爭：清軍用象棋（紅方，先走），法軍用西洋棋（黑方，後走）。法軍照西洋棋佈局擴成九路：底線城堡、騎士、主教、皇后、國王、皇后、主教、騎士、城堡，前一排 9 個士兵。清軍兵力調整：底線照象棋原本的擺法；俥左右各 3 隻（1、9 路底線往上疊三隻）；炮 2 隻在原本的位置；兵 5 隻擺在河邊（原本位置的前面一格）。法軍在交叉點上照西洋棋走法：城堡直走、主教斜走、皇后直斜都能走、騎士走日字而且不會被拐腳、國王八方向走一步（不受九宮限制）、士兵往前一步（第一步可走兩步）、斜前方吃子，走到底升變成皇后。法軍沒有過河限制，雙方的王（將與國王）一樣不能照面。把對方將死或困死就贏。</p>
     <div class="pkmenu" id="pkMenu" hidden>
       <div class="seg" id="pkGameSeg"><button data-act="pkGame" data-v="b2">大老二</button><button data-act="pkGame" data-v="hh">心臟病</button><button data-act="pkGame" data-v="om">抽鬼牌</button></div>
       <p class="pkrule" id="pkRule"></p>
@@ -1734,7 +1734,7 @@ function init(){
   if(qf){const top='THFDYDFHT',back='RNBAKABNR';
     for(let c=0;c<9;c++){if(top[c]!=='.')board[0][c]={t:top[c],s:'b'};board[9][c]={t:back[c],s:'r'};}
     [1,7].forEach(c=>{board[7][c]={t:'C',s:'r'};});   // 炮 2 隻，在原本的位置
-    [0,8].forEach(c=>{board[8][c]={t:'R',s:'r'};board[7][c]={t:'C',s:'r'};});   // 1、9 路：往前一格是俥（俥左右各 2 隻）、往前兩格是炮（炮共 4 隻）
+    [7,8].forEach(r=>[0,8].forEach(c=>{board[r][c]={t:'R',s:'r'};}));   // 俥左右各 3 隻：底線角落再加上 1、9 路往前一格、往前兩格
     QF_PAWNS.forEach(([r,c])=>{board[r][c]={t:'I',s:'b'};});
     [0,2,4,6,8].forEach(c=>{board[5][c]={t:'P',s:'r'};});   // 兵只有 5 隻，擺在原本位置的前面一格（河邊）
     turn='r';hist=[];sel=null;targets=[];last=null;over=null;return;}   // 清軍先走
