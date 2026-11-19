@@ -5,3 +5,5 @@ runs_laptop*.err
 ai/ckpt.pt
 __pycache__/
 .playwright-mcp/
+ai/ww/ww-talk/
+ai/ww/ww-talk*/

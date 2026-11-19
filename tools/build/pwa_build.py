@@ -77,7 +77,7 @@ pwa_js = r'''
       try{const r=await fetch('sw.js?fresh='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const t=await r.text();const m=t.match(/APPV='([\d.]+)'/),remote=m&&m[1];
         if(remote&&remote!==cur()){b.textContent='下載 v'+remote+'…';
           try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(x=>x.unregister()));}catch(e){}
-          try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(e){}
+          try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='ww-talk-model').map(k=>caches.delete(k)));}catch(e){}
           location.replace(location.pathname+'?v='+remote);return;}
         try{const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update();}catch(e){}
         done('✓ 已是最新版 v'+cur());}

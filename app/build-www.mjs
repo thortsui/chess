@@ -6,6 +6,8 @@ for(const d of['lib','fonts','models'])fs.cpSync(path.join(root,d),path.join(www
 // 下棋模型：只複製手機要用的檔案（不含測試）
 fs.mkdirSync(path.join(www,'ai'));for(const f of['brain.js','worker.js','model.json','model.bin'])if(fs.existsSync(path.join(root,'ai',f)))fs.copyFileSync(path.join(root,'ai',f),path.join(www,'ai',f));
 fs.cpSync(path.join(root,'ai','games'),path.join(www,'ai','games'),{recursive:true});
+// 狼人殺 AI 發言：只複製 worker；模型檔很大，App 裡也是在設定頁下載
+fs.mkdirSync(path.join(www,'ai','ww'));fs.copyFileSync(path.join(root,'ai','ww','talk-worker.js'),path.join(www,'ai','ww','talk-worker.js'));
 let s=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const a=s.indexOf('<div id="pwaBar"'),b=s.indexOf('</script>',a);
 if(a<0||b<0)throw new Error('PWA block not found');
