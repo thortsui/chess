@@ -51,7 +51,10 @@ function bgRanks(n){const P='pppppppp',k=BG_KIND[n];
   if(k==='ta')return['rnbqkbnr','ppppoppp'];if(k==='sh')return['ljsgkgsl','.r....b.','uuuuuuuu'];if(k==='co')return['racmkfwr',P];
   if(k==='f9'||k==='vi')for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(k==='vi'||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
   return['rnbqkbnr',P];}
-function bgNew(kinds){
+// 輪流方式（0.20.0 起，只有八國聯軍）：rr 為真時是「八國各一步、清軍連三步」——聯軍那一輪每個還活著的國家各走一步（順序自選，st.mv[n] 記這輪走過了沒），
+// 清軍那一輪連走 BG_RR_Q 步（st.ql 是這輪還可以走幾步）。舊規則（一步換一步）的局面沒有 rr／ql／mv 這三個欄位，行為完全不變。
+const BG_RR_Q=3;
+function bgNew(kinds,rr){
   if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
   BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
@@ -59,7 +62,9 @@ function bgNew(kinds){
     for(let d=0;d<ranks.length;d++)for(let a=0;a<8;a++){const t=ranks[d][a];if(t==='.')continue;let x,y;
       if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}
       b[bgIdx(x,y)]={s:'A',t,n};}});
-  return{b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};}
+  const st={b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};
+  if(rr){st.rr=1;st.ql=BG_RR_Q;st.mv=Array(8).fill(false);}
+  return st;}
 // 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
 function bgMoves(st,i,capsOnly){
   const b=st.b,p=b[i];if(!p)return[];const x=i%BG_W,y=(i/BG_W)|0,out=[];
@@ -98,7 +103,16 @@ function bgMoves(st,i,capsOnly){
     }
   }
   return out;}
-function bgAll(st,side,capsOnly){const out=[];for(let i=0;i<st.b.length;i++){const p=st.b[i];if(p&&p.s===side)for(const t of bgMoves(st,i,capsOnly))out.push([i,t]);}return out;}
+function bgAll(st,side,capsOnly){const out=[],skip=st.rr&&side==='A'&&st.turn==='A'?st.mv:null;   // 新輪流方式：聯軍這輪已經走過的國家不能再走
+  for(let i=0;i<st.b.length;i++){const p=st.b[i];if(p&&p.s===side&&!(skip&&skip[p.n]))for(const t of bgMoves(st,i,capsOnly))out.push([i,t]);}return out;}
+// 新輪流方式：走完一步後決定下一步輪到誰（清軍三步走完或沒棋可走→換聯軍；聯軍還沒走、還有棋可走的國家都走完→換清軍）
+function bgRoundNext(st,p){
+  if(st.turn==='Q'){st.ql--;if(st.ql>0&&bgAll(st,'Q',false).length)return;st.turn='A';st.mv=Array(8).fill(false);st.ql=BG_RR_Q;return;}
+  st.mv[p.n]=true;if(bgAll(st,'A',false).length)return;
+  st.turn='Q';st.ql=BG_RR_Q;st.mv=Array(8).fill(false);}
+// 新輪流方式：聯軍這一輪還沒走的國家（活著、還沒走；has 為真時只算現在有棋可走的）
+function bgRoundLeft(st,has){if(!st.rr||st.turn!=='A')return[];const ok=new Set();if(has)for(const[f]of bgAll(st,'A',false))ok.add(st.b[f].n);
+  return BG_NATIONS.map((N,n)=>n).filter(n=>!st.dead[n]&&!st.mv[n]&&(!has||ok.has(n)));}
 // 走一步（會改 st）；回傳這步的說明
 function bgApply(st,f,t){
   const b=st.b,p=b[f],q=b[t];let note='';
@@ -107,13 +121,13 @@ function bgApply(st,f,t){
     if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':BG_KIND[p.n]==='co'?'f':'q'};note='升變'+BG_CN[b[t].t];}   // 走到地圖盡頭升變：俄國王前兵變赫爾吉、信使棋的兵變小后、其餘變皇后
     else if(bgJP(p)&&BG_JPUP[p.t]&&(bgPalm(x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}   // 日本：走進清軍腹地（或走到盡頭）升變
   if(q&&q.s==='A'&&q.t==='k'){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].s==='A'&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+'國王被吃，整隊撤退';}
-  st.last={f,t};st.turn=st.turn==='Q'?'A':'Q';st.seq++;
+  st.last={f,t};if(st.rr)bgRoundNext(st,p);else st.turn=st.turn==='Q'?'A':'Q';st.seq++;
   const gens=b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length,kings=st.dead.filter(d=>!d).length;
   if(!gens)st.over={win:'A',why:'慈、禧都被吃了'};
   else if(!kings)st.over={win:'Q',why:'八國的國王全部被吃了'};
   else if(!bgAll(st,st.turn,false).length)st.over={win:st.turn==='Q'?'A':'Q',why:(st.turn==='Q'?'清軍':'聯軍')+'沒有棋可以走'};
   return{p,q,note};}
-function bgClone(st){return{b:st.b.map(p=>p&&{...p}),turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead.slice(),log:st.log};}
+function bgClone(st){const c={b:st.b.map(p=>p&&{...p}),turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead.slice(),log:st.log};if(st.rr){c.rr=1;c.ql=st.ql;c.mv=st.mv.slice();}return c;}
 // 電腦：每一步看自己吃到什麼、對方下一步最多能吃回什麼，再加一點往前推進的分數
 const BG_V={k:0,q:9,r:5,b:3.2,n:3,p:1,o:1.3,e:12,c:3.2,m:3,f:1.5,w:1.2,a:1.5,g:2.6,s:2.3,j:1.6,l:1.8,u:1,d:7,y:5.2,t:2.6,R:9,H:4,C:4.5,P:1,A:2,E:2,G:1.6,X:30,Y:30};
 function bgNationVal(st,n){let v=12;for(const p of st.b)if(p&&p.s==='A'&&p.n===n&&p.t!=='k')v+=BG_V[p.t];return v;}
@@ -133,10 +147,11 @@ function bgAI(st,opts){
   for(const[f,t]of moves){const p=st.b[f],q=st.b[t];let s=q?BGR.val(st,q,t)*1.02:0;
     const c=bgClone(st);BGR.apply(c,f,t);
     if(c.over&&c.over.win===side)return[f,t];
-    s-=0.9*bgThreat(c,c.turn);
+    if(st.rr&&c.turn===side){s-=0.9*bgThreat(c,side==='Q'?'A':'Q');s+=0.3*bgThreat(c,side);}   // 新輪流方式：同一方還要再走，扣對方下一輪能吃的、加一點自己接著能吃的
+    else s-=0.9*bgThreat(c,c.turn);
     if(!BGR.still(p))s+=(near(f)-near(t))*0.06;
     if(BGR.king(p))s-=0.3;
     s+=Math.random()*0.05;
     if(s>bs){bs=s;best=[f,t];}}
   return best;}
-if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};
+if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,bgClone,bgRoundLeft,BG_RR_Q,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};
