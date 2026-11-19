@@ -813,7 +813,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.18.5">v0.18.5</span>
+  <span class="ver" aria-label="版本 0.18.6">v0.18.6</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -5195,7 +5195,7 @@ function bgSchedule(){clearTimeout(BG.timer);const st=BG.st;if(!st||st.over||BG.
   const seq=st.seq,old=()=>bgAI(st,w.nations?{only:p=>p.s==='Q'||w.nations.includes(p.n)}:null);
   BG.timer=setTimeout(()=>{if(BG.st!==st||st.seq!==seq||st.over)return;
     if(BR.ok){const t0=Date.now();   // 下棋模型：在 Worker 裡想，想完再確認局面沒變
-      brainThink('bg',{st:JSON.parse(JSON.stringify(st)),kinds:BG_KIND.slice(),only:w.nations||null},Math.min(aiLevel,5),false)   // 八國聯軍最高 Lv5.then(r=>{
+      brainThink('bg',{st:JSON.parse(JSON.stringify(st)),kinds:BG_KIND.slice(),only:w.nations||null},Math.min(aiLevel,5),false).then(r=>{   // 八國聯軍最高 Lv5
         if(BG.st!==st||st.seq!==seq||st.over)return;const mv=r&&r.res&&bgMoves(st,r.res[0],false).includes(r.res[1])?r.res:old();if(mv)bgDo(mv[0],mv[1]);});
       return;}
     const mv=old();if(mv)bgDo(mv[0],mv[1]);},st.turn==='A'?420:520);}
