@@ -348,14 +348,17 @@ function wwTalkClaims(sp){const kill=[],gold=[],wolf=[];
   return{kill,gold,wolf:[...new Set([...wolf,...kill])]};}
 // 常見的簡體字（台灣正體不會用到的），模型偶爾會冒出來，冒出來就重寫
 const WW_SIMP=/[怀着这们说个为发验杀没还来时对会过开关见让认识讲话谁吗问题么样经现实动当种点头无语东车长门马书买卖钱电从观两举义习乱争亚产亲价众优传伤体侦党兴养况净减击则刚创删别剑剧劝办务励劳势单卫厂历压县参双变号吓员呜响团园围图圆圣场坏块坚坛声处备复够夺奋奖妈学宁宝审导将层岁币师带帮广庆应废异弃张弹归录彻态总恋恶惊惧惨惯战户执扩扫扬扰报担拟拥择挂挡挤挥换据数断旧显晓暂术机杂权条极构枪树检楼欢残毁毕气汇汉沟测济浅渐湾满灭灯灵烂热爷状犹独狱猎献环画疗确碍礼祸离积称稳穷窃竞笔筑签简类粮紧红纪约级纯纳纸线练组织终结给统继绩续维综绿网罗罚职联肤肿胁胆胜脑脚脸艰艺节苏药获营虑补装规觉视论设证评诉词译试诗诚询该详误请诸读课调谈谋谎谓谢谨负贡财责败账货质购贵费贼资赏赛赢赶跃转轮软轻较辆辈输边达运进远违连迟选递遗邮释针钟钢铁银锁错键镇闭闲间闹阅队阳阴阵阶际陆陈险随隐难雾静顶顺须预领频颜风飞饭饮馆骗鱼鸟鸡齐齿龙]/;
-const WW_CLAIM_RE=/我(?:才|真的|就|其實|確實|本來就|當然|也)?是(?:真的?|一隻|個)?(預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|狼人|狼王|白狼王|隱狼|狼)(?!人殺)/g;
+const WW_CLAIM_RE=/我(?:才|真的?|就|其實|確實|本來就|當然|也)?是(?:真的?|一隻|個)?(預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|狼人|狼王|白狼王|隱狼|狼)(?!人殺)/g;
 // 檢查發言能不能用：回傳錯誤原因，沒問題回傳 null；會修正投票對象（跟著發言）
 function wwTalkCheck(st,seat,p){
   if(!p)return'格式錯誤';const sp=p.speech,r=st.roles[seat],wolf=wwIsWolf(st,seat),last=st.phase==='last';
   if(sp.length<4||sp.length>120)return'長度不對';if(p.lines.length>4)return'句數太多';
   if(/[A-Za-z<>{}\[\]\\]|法官說|作為(AI|模型)|系統/.test(sp))return'怪字';
+  if(/[×【】]|(?:身份|紀錄|存活|策略|風格|狼隊友|現在)：|\d+\s*票（/.test(sp))return'怪字';   // 把提示的格式照抄出來（從頭訓練的小模型偶爾會）
   if(WW_SIMP.test(sp))return'簡體字';
   for(const m of sp.matchAll(/(\d+)\s*號/g)){const k=+m[1];if(!(k>=1&&k<=st.n))return'號碼超出範圍';}
+  // 把自己的號碼講錯（「我8號覺得…」但他其實是 2 號）：小模型偶爾會（0.23.0 新增）
+  for(const m of sp.matchAll(/我(?:是\s*(\d+)\s*號|\s*(\d+)\s*號(?=覺得|認為|先|就|純|今天|目前|這邊|也|還|才|個人|站|投|不|暫時|想|看|聽|表態|真的|當|只是|是|身份|明確|建議|直接|聽完|發言))/g))if(+(m[1]||m[2])!==seat+1)return'號碼說錯';
   // 身份宣稱：好人只能說自己的真身份；狼人不能說自己是狼
   for(const m of sp.replace(/狼人殺/g,'＿').matchAll(WW_CLAIM_RE)){const c=m[1];
     if(/狼/.test(c))return wolf?'狼人自曝':'好人說自己是狼';
@@ -373,7 +376,7 @@ function wwTalkCheck(st,seat,p){
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
   // 投票：要投活著的其他人；發言說要投誰就投誰
   let vote=p.vote;
-  if(vote>=0&&(vote>=st.n||!st.alive[vote]||vote===seat)){if(last)vote=-1;else return'投票對象不對';}
+  if(vote>=0&&(vote>=st.n||!st.alive[vote]||vote===seat)){if(last||!new RegExp('(^|\\D)'+(vote+1)+'\\s*號').test(sp))vote=-1;else return'投票對象不對';}   // 投了不能投的人：發言裡沒提到他就當棄票（0.23.0 起），有提到才算不合格
   const sd=wwTalkStated(sp).filter(i=>i>=0&&i<st.n&&st.alive[i]&&i!==seat);
   if(!last){
     if(sd.length&&!sd.includes(vote))return'投票和發言不一致';
@@ -389,4 +392,4 @@ function wwTalkCopy(st,seat,sp){const t=sp.replace(/[\s，。！？、,.!?]/g,''
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkCopy,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkCopy,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};

@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.22.5">v0.22.5</span>
+  <span class="ver" aria-label="版本 0.23.0">v0.23.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -4949,14 +4949,17 @@ function wwTalkClaims(sp){const kill=[],gold=[],wolf=[];
   return{kill,gold,wolf:[...new Set([...wolf,...kill])]};}
 // 常見的簡體字（台灣正體不會用到的），模型偶爾會冒出來，冒出來就重寫
 const WW_SIMP=/[怀着这们说个为发验杀没还来时对会过开关见让认识讲话谁吗问题么样经现实动当种点头无语东车长门马书买卖钱电从观两举义习乱争亚产亲价众优传伤体侦党兴养况净减击则刚创删别剑剧劝办务励劳势单卫厂历压县参双变号吓员呜响团园围图圆圣场坏块坚坛声处备复够夺奋奖妈学宁宝审导将层岁币师带帮广庆应废异弃张弹归录彻态总恋恶惊惧惨惯战户执扩扫扬扰报担拟拥择挂挡挤挥换据数断旧显晓暂术机杂权条极构枪树检楼欢残毁毕气汇汉沟测济浅渐湾满灭灯灵烂热爷状犹独狱猎献环画疗确碍礼祸离积称稳穷窃竞笔筑签简类粮紧红纪约级纯纳纸线练组织终结给统继绩续维综绿网罗罚职联肤肿胁胆胜脑脚脸艰艺节苏药获营虑补装规觉视论设证评诉词译试诗诚询该详误请诸读课调谈谋谎谓谢谨负贡财责败账货质购贵费贼资赏赛赢赶跃转轮软轻较辆辈输边达运进远违连迟选递遗邮释针钟钢铁银锁错键镇闭闲间闹阅队阳阴阵阶际陆陈险随隐难雾静顶顺须预领频颜风飞饭饮馆骗鱼鸟鸡齐齿龙]/;
-const WW_CLAIM_RE=/我(?:才|真的|就|其實|確實|本來就|當然|也)?是(?:真的?|一隻|個)?(預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|狼人|狼王|白狼王|隱狼|狼)(?!人殺)/g;
+const WW_CLAIM_RE=/我(?:才|真的?|就|其實|確實|本來就|當然|也)?是(?:真的?|一隻|個)?(預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|狼人|狼王|白狼王|隱狼|狼)(?!人殺)/g;
 // 檢查發言能不能用：回傳錯誤原因，沒問題回傳 null；會修正投票對象（跟著發言）
 function wwTalkCheck(st,seat,p){
   if(!p)return'格式錯誤';const sp=p.speech,r=st.roles[seat],wolf=wwIsWolf(st,seat),last=st.phase==='last';
   if(sp.length<4||sp.length>120)return'長度不對';if(p.lines.length>4)return'句數太多';
   if(/[A-Za-z<>{}\[\]\\]|法官說|作為(AI|模型)|系統/.test(sp))return'怪字';
+  if(/[×【】]|(?:身份|紀錄|存活|策略|風格|狼隊友|現在)：|\d+\s*票（/.test(sp))return'怪字';   // 把提示的格式照抄出來（從頭訓練的小模型偶爾會）
   if(WW_SIMP.test(sp))return'簡體字';
   for(const m of sp.matchAll(/(\d+)\s*號/g)){const k=+m[1];if(!(k>=1&&k<=st.n))return'號碼超出範圍';}
+  // 把自己的號碼講錯（「我8號覺得…」但他其實是 2 號）：小模型偶爾會（0.23.0 新增）
+  for(const m of sp.matchAll(/我(?:是\s*(\d+)\s*號|\s*(\d+)\s*號(?=覺得|認為|先|就|純|今天|目前|這邊|也|還|才|個人|站|投|不|暫時|想|看|聽|表態|真的|當|只是|是|身份|明確|建議|直接|聽完|發言))/g))if(+(m[1]||m[2])!==seat+1)return'號碼說錯';
   // 身份宣稱：好人只能說自己的真身份；狼人不能說自己是狼
   for(const m of sp.replace(/狼人殺/g,'＿').matchAll(WW_CLAIM_RE)){const c=m[1];
     if(/狼/.test(c))return wolf?'狼人自曝':'好人說自己是狼';
@@ -4974,7 +4977,7 @@ function wwTalkCheck(st,seat,p){
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
   // 投票：要投活著的其他人；發言說要投誰就投誰
   let vote=p.vote;
-  if(vote>=0&&(vote>=st.n||!st.alive[vote]||vote===seat)){if(last)vote=-1;else return'投票對象不對';}
+  if(vote>=0&&(vote>=st.n||!st.alive[vote]||vote===seat)){if(last||!new RegExp('(^|\\D)'+(vote+1)+'\\s*號').test(sp))vote=-1;else return'投票對象不對';}   // 投了不能投的人：發言裡沒提到他就當棄票（0.23.0 起），有提到才算不合格
   const sd=wwTalkStated(sp).filter(i=>i>=0&&i<st.n&&st.alive[i]&&i!==seat);
   if(!last){
     if(sd.length&&!sd.includes(vote))return'投票和發言不一致';
@@ -4991,12 +4994,15 @@ function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.s
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 /* ===== 狼人殺：控制流程、畫面 ===== */
 /* ===== 狼人殺：AI 發言模型（設定頁下載與開關；房主／單機的裝置替所有電腦玩家生成） ===== */
-// 模型資料夾的網址：預設讀網站裡的 ai/ww/ww-talk-1/（本機測試用，檔案很大不放進 git）。資料夾名稱帶版本號，換模型時改成新名稱，舊的快取會在下載新版時清掉。
-// 之後放到 Hugging Face 時改成例如 'https://huggingface.co/<帳號>/<模型庫>/resolve/main'
-const WW_TALK_URL='https://huggingface.co/EthanTsui/dzxq-ww-talk/resolve/674f1df561b8c38acb030452321702e39b0e7883';   // 0.22.2 起放在 Hugging Face（固定在這個 commit；換模型就換這串）
-const WT_FILES=d=>['config.json','generation_config.json','tokenizer.json','tokenizer_config.json',`onnx/model_${d}.onnx`,`onnx/model_${d}.onnx_data`];
-const WT_MB={q4f16:470,q4:551};   // 大約大小（MB）
-const WT={on:false,gpu:null,have:false,avail:null,size:0,dl:null,err:'',worker:null,ready:false,loading:false,id:0,wait:{},ms:[],slow:false};
+// 0.23.0 起改用從頭訓練的狼人殺專用迷你模型：ai/ww/tiny/（model.json＋model.bin，直接放在網站與 App 裡），
+// 用 ai/ww/mini.js 在 Web Worker 裡跑（純 JS＋WebAssembly SIMD，不需要 WebGPU，舊手機也跑得動）。
+// 按下載時才抓，存進 Cache Storage「ww-tiny-model」（sw.js 不預先快取），之後離線也能用。換模型時把 WW_TALK_VER 加一，玩家會看到要重新下載。
+// 0.22.x 的 470 MB 模型（快取「ww-talk-model」）用不到了，開啟或下載新模型時順手刪掉。
+const WW_TALK_URL='ai/ww/tiny/',WW_TALK_VER='1',WT_CACHE='ww-tiny-model';
+const WT_FILES=['model.json','model.bin'];
+const WT_MB=12;   // 大約大小（MB），下載前顯示用
+const WT_LOCAL=!!window.Capacitor;   // App 版：模型檔就在 App 裡，不用下載、也不用另外存一份，載入時直接讀
+const WT={on:false,have:false,avail:null,size:0,dl:null,err:'',worker:null,ready:false,loading:false,starting:false,id:0,wait:{},ms:[],slow:false};
 try{WT.on=localStorage.getItem('xq-wwtalk')==='1';}catch(e){}
 // 閃退保護：載入模型／生成／下載時先在這台裝置記一筆（xq-wwtalk-run），正常結束就清掉。開頁面時這筆還在＝上次做到一半整頁被系統關掉（手機記憶體不夠），
 // 就自動把 AI 發言關掉並說明，避免每次進狼人殺都再閃退一次。切到背景或正常離開頁面時也會清掉，不會誤判。
@@ -5005,65 +5011,86 @@ try{const m=localStorage.getItem('xq-wwtalk-run');if(m){localStorage.removeItem(
   WT.err=m==='dl'?'上次下載 AI 發言模型時網頁被系統關掉了（這台裝置的記憶體可能不夠），已先關閉 AI 發言。':'上次跑 AI 發言時網頁被系統關掉了（這台裝置的記憶體可能不夠），已自動關閉 AI 發言，電腦玩家會說「過」。';}}catch(e){}
 addEventListener('pagehide',()=>{try{localStorage.removeItem('xq-wwtalk-run');}catch(e){}});
 document.addEventListener('visibilitychange',()=>{try{if(document.hidden)localStorage.removeItem('xq-wwtalk-run');else if(WT.mark)localStorage.setItem('xq-wwtalk-run',WT.mark);}catch(e){}});
-const wtBase=()=>new URL(WW_TALK_URL.replace(/\/*$/,'/'),location.href).href;
-// 有 WebGPU 才能跑；有 shader-f16 用 q4f16（比較小、比較快），沒有就用 q4
-async function wtGpu(){if(WT.gpu!==null)return WT.gpu;
-  try{const a=navigator.gpu&&await navigator.gpu.requestAdapter();WT.gpu=a?(a.features.has('shader-f16')?'q4f16':'q4'):false;}catch(e){WT.gpu=false;}return WT.gpu;}
-async function wtCheck(){const d=await wtGpu();WT.have=false;WT.size=0;if(!d||typeof caches==='undefined')return;
-  try{const c=await caches.open('ww-talk-model');let sz=0;for(const f of WT_FILES(d)){const r=await c.match(wtBase()+f);if(!r)return;sz+=+(r.headers.get('content-length')||0);}
+const wtUrl=f=>new URL(WW_TALK_URL+f+'?v='+WW_TALK_VER,location.href).href;
+function wtDropOld(){try{if(typeof caches!=='undefined')caches.delete('ww-talk-model').catch(()=>{});}catch(e){}}
+wtDropOld();   // 舊模型新版完全用不到，開頁面就刪（釋放約 470 MB）
+async function wtCheck(){if(WT_LOCAL||WT.mem){WT.have=true;WT.size=WT.mem?WT.mem.buf.byteLength:0;return;}WT.have=false;WT.size=0;if(typeof caches==='undefined')return;
+  try{const c=await caches.open(WT_CACHE);let sz=0;for(const f of WT_FILES){const r=await c.match(wtUrl(f));if(!r)return;sz+=+(r.headers.get('content-length')||0);}
     WT.have=true;WT.size=sz;}catch(e){}}
-// 模型檔有沒有放在網址上（還沒上架時不顯示下載按鈕）
-async function wtAvail(){if(WT.avail!==null)return WT.avail;try{const r=await fetch(wtBase()+'config.json',{cache:'no-store'});WT.avail=r.ok;}catch(e){WT.avail=false;}return WT.avail;}
-async function wtDownload(){if(WT.dl)return;const d=await wtGpu();if(!d)return;WT.err='';WT.dl={got:0,total:WT_MB[d]*1048576};wtMark('dl');wtRenderSet();
-  try{const c=await caches.open('ww-talk-model');let done=0;
-    // 舊版模型（網址不同）先清掉，避免佔兩份空間
-    for(const k of await c.keys())if(!k.url.startsWith(wtBase()))await c.delete(k);
-    for(const f of WT_FILES(d)){const url=wtBase()+f;const old=await c.match(url);if(old){done+=+(old.headers.get('content-length')||0);continue;}
+// 讀不讀得到模型檔（離線又還沒下載時就讀不到）
+async function wtAvail(){if(WT_LOCAL)return WT.avail=true;if(WT.avail!==null)return WT.avail;try{const r=await fetch(wtUrl('model.json'),{cache:'no-store'});WT.avail=r.ok;}catch(e){WT.avail=false;}return WT.avail;}
+async function wtDownload(){if(WT.dl||WT_LOCAL)return;
+  if(typeof caches==='undefined'){await wtDownloadMem();return;}
+  WT.err='';WT.dl={got:0,total:WT_MB*1048576};wtMark('dl');wtRenderSet();wtDropOld();
+  try{const c=await caches.open(WT_CACHE);let done=0,meta=null;
+    // 舊版模型（版本不同）先清掉
+    for(const k of await c.keys())if(!WT_FILES.some(f=>k.url===wtUrl(f)))await c.delete(k);
+    for(const f of WT_FILES){const url=wtUrl(f);
       const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`${f}（${r.status}）`);
-      const len=+(r.headers.get('content-length')||0);let n=0,t=0;
-      const body=r.body.pipeThrough(new TransformStream({transform(ch,ctl){n+=ch.length;WT.dl.got=done+n;const now=Date.now();if(now-t>250){t=now;wtProg();}ctl.enqueue(ch);}}));
-      await c.put(url,new Response(body,{headers:{'content-type':r.headers.get('content-type')||'application/octet-stream','content-length':String(len||n)}}));
-      if(len&&n!==len){await c.delete(url);throw new Error(`${f} 沒有下載完整`);}done+=n;}
-    await wtCheck();if(!WT.have)throw new Error('檔案不完整');}
+      const ab=await wtRead(r,done);done+=ab.byteLength;
+      if(f==='model.json')meta=JSON.parse(new TextDecoder().decode(ab));
+      else if(meta&&meta.bytes&&ab.byteLength!==meta.bytes)throw new Error(`${f} 沒有下載完整`);
+      await c.put(url,new Response(ab,{headers:{'content-type':f.endsWith('.json')?'application/json':'application/octet-stream','content-length':String(ab.byteLength)}}));}
+    await wtCheck();if(!WT.have)throw new Error('檔案不完整');WT.avail=true;}
+  catch(e){WT.err='下載失敗：'+(e&&e.message||e)+'。請確認網路後再試一次。';try{await caches.delete(WT_CACHE);}catch(e2){}await wtCheck();}
+  WT.dl=null;wtMark('');wtRenderSet();wwHint();if(WT.have&&WT.on)wtStart();}
+// 沒有 Cache Storage 的瀏覽器（例如不是 https）：模型放在記憶體，這次開著網頁期間可用，重新整理後要再抓一次
+async function wtDownloadMem(){WT.err='';WT.dl={got:0,total:WT_MB*1048576};wtRenderSet();
+  try{const r1=await fetch(wtUrl('model.json'),{cache:'no-store'}),r2=await fetch(wtUrl('model.bin'));if(!r1.ok||!r2.ok)throw new Error('讀不到模型檔');
+    const meta=await r1.json(),buf=await wtRead(r2,0);if(meta.bytes&&buf.byteLength!==meta.bytes)throw new Error('沒有下載完整');WT.mem={meta,buf};WT.avail=true;}
   catch(e){WT.err='下載失敗：'+(e&&e.message||e)+'。請確認網路後再試一次。';}
-  WT.dl=null;wtMark('');wtRenderSet();if(WT.have&&WT.on)wtStart();}
-async function wtDelete(){wtStop();try{await caches.delete('ww-talk-model');}catch(e){}await wtCheck();wtRenderSet();}
+  WT.dl=null;await wtCheck();wtRenderSet();wwHint();if(WT.have&&WT.on)wtStart();}
+// 讀完整個回應，邊讀邊更新進度條
+async function wtRead(r,done){if(!r.body||!r.body.getReader){const ab=await r.arrayBuffer();if(WT.dl)WT.dl.got=done+ab.byteLength;wtProg();return ab;}
+  const rd=r.body.getReader(),parts=[];let n=0,t=0;
+  for(;;){const{done:end,value}=await rd.read();if(end)break;parts.push(value);n+=value.length;if(WT.dl)WT.dl.got=done+n;const now=Date.now();if(now-t>200){t=now;wtProg();}}
+  const u=new Uint8Array(n);let o=0;for(const p of parts){u.set(p,o);o+=p.length;}wtProg();return u.buffer;}
+async function wtDelete(){wtStop();WT.mem=null;try{await caches.delete(WT_CACHE);}catch(e){}await wtCheck();wtRenderSet();wwHint();}
 function wtStop(){if(WT.worker){WT.worker.terminate();WT.worker=null;}WT.ready=false;WT.loading=false;wtMark('');wwSetTalk(null);
   for(const k in WT.wait){WT.wait[k](null);delete WT.wait[k];}}
 // 載入模型（背景執行，進狼人殺或開始遊戲時呼叫）
-async function wtStart(){if(!WT.on||WT.worker||WT.slow)return;await wtCheck();if(!WT.have||!WT.on||WT.worker)return;
-  let w;try{w=new Worker('ai/ww/talk-worker.js',{type:'module'});}catch(e){WT.err='無法啟動 AI 發言';return;}
-  WT.worker=w;WT.loading=true;WT.ready=false;wtMark('load');wwSetTalk(wtTalk);
-  w.onmessage=ev=>{const m=ev.data||{};
-    if(m.type==='ready'){wtMark('');WT.loading=false;WT.ready=true;wtRenderSet();wwHint();return;}
-    if(m.type==='error'){WT.err='AI 發言模型載入失敗：'+m.msg;wtStop();wtRenderSet();wwHint();return;}
-    if(m.type==='gen'){const f=WT.wait[m.id];delete WT.wait[m.id];if(!Object.keys(WT.wait).length)wtMark('');
-      if(m.text!=null){WT.ms.push(m.ms);if(WT.ms.length>20)WT.ms.shift();
-        // 太慢的裝置（連續 3 次都超過 9 秒）就不用了，電腦玩家改回說「過」
-        const r=WT.ms.slice(-3);if(r.length===3&&r.every(x=>x>9000)){WT.slow=true;WT.err='這台裝置跑 AI 發言太慢，電腦玩家先改回說「過」。';wtStop();wtRenderSet();}}
-      if(f)f(m.text);}};
-  w.onerror=()=>{WT.err='AI 發言模型發生錯誤';wtStop();wtRenderSet();};
-  w.postMessage({cmd:'load',url:wtBase(),dtype:WT.gpu});
-  // 載入太久（例如 GPU 卡住）就放棄，電腦玩家改回說「過」
-  setTimeout(()=>{if(WT.worker===w&&!WT.ready){WT.err='AI 發言模型載入太久，先改回說「過」（重新整理網頁可再試一次）。';wtStop();wtRenderSet();wwHint();}},90000);}
+async function wtStart(){if(!WT.on||WT.worker||WT.slow||WT.starting)return;WT.starting=true;wtDropOld();
+  try{await wtCheck();
+    // 開關是開的但還沒有模型（例如從 0.22.x 升級上來、或清過資料）：模型很小，自動下載一次，下載完會自己載入
+    if(!WT.have&&WT.on&&!WT.dl&&!WT.autoDl){WT.autoDl=true;wtDownload();return;}
+    if(!WT.have||!WT.on||WT.worker)return;
+    let w,meta,buf;wtMark('load');
+    try{if(WT.mem){meta=WT.mem.meta;buf=WT.mem.buf.slice(0);}
+      else if(WT_LOCAL){meta=await(await fetch(wtUrl('model.json'))).json();buf=await(await fetch(wtUrl('model.bin'))).arrayBuffer();if(meta.bytes&&buf.byteLength!==meta.bytes)throw new Error('模型檔不完整');}
+      else{const c=await caches.open(WT_CACHE);meta=await(await c.match(wtUrl('model.json'))).json();buf=await(await c.match(wtUrl('model.bin'))).arrayBuffer();}
+      if(!WT.on){wtMark('');return;}w=new Worker('ai/ww/mini.js');}
+    catch(e){wtMark('');WT.err=WT_LOCAL?'無法啟動 AI 發言（模型檔讀不到）':'無法啟動 AI 發言（模型檔讀不到，請刪除後重新下載）';wtRenderSet();return;}
+    WT.worker=w;WT.loading=true;WT.ready=false;wwSetTalk(wtTalk);
+    w.onmessage=ev=>{const m=ev.data||{};
+      if(m.type==='ready'){wtMark('');WT.loading=false;WT.ready=true;WT.simd=m.simd;WT.loadMs=m.ms;WT.mb=m.mb;wtRenderSet();wwHint();return;}
+      if(m.type==='error'){WT.err='AI 發言模型載入失敗：'+m.msg;wtStop();wtRenderSet();wwHint();return;}
+      if(m.type==='gen'){const f=WT.wait[m.id];delete WT.wait[m.id];if(!Object.keys(WT.wait).length)wtMark('');
+        if(m.text!=null){WT.ms.push(m.ms);if(WT.ms.length>20)WT.ms.shift();
+          // 太慢的裝置（連續 3 次都超過 9 秒）就不用了，電腦玩家改回說「過」
+          const r=WT.ms.slice(-3);if(r.length===3&&r.every(x=>x>9000)){WT.slow=true;WT.err='這台裝置跑 AI 發言太慢，電腦玩家先改回說「過」。';wtStop();wtRenderSet();}}
+        if(f)f(m.text);}};
+    w.onerror=()=>{WT.err='AI 發言模型發生錯誤';wtStop();wtRenderSet();};
+    w.postMessage({cmd:'load',meta,buf},[buf]);
+    // 載入太久就放棄，電腦玩家改回說「過」
+    setTimeout(()=>{if(WT.worker===w&&!WT.ready){WT.err='AI 發言模型載入太久，先改回說「過」（重新整理網頁可再試一次）。';wtStop();wtRenderSet();wwHint();}},90000);}
+  finally{WT.starting=false;}}
 function wtTalk(prompt){if(!WT.ready||!WT.worker)return Promise.resolve(null);
   return new Promise(res=>{const id=++WT.id;WT.wait[id]=res;wtMark('gen');WT.worker.postMessage({cmd:'gen',id,prompt});});}
-const wtMB=b=>Math.round(b/1048576);
+const wtMB=b=>b<10485760?(b/1048576).toFixed(1):String(Math.round(b/1048576));
 function wtProg(){const el=$('wtBar');if(el&&WT.dl){const p=Math.min(100,WT.dl.got/WT.dl.total*100);el.style.width=p.toFixed(1)+'%';$('wtTxt').textContent=`下載中… ${wtMB(WT.dl.got)}／約 ${wtMB(WT.dl.total)} MB`;}}
 // 設定頁的「狼人殺 AI 發言」區塊
 function wtRenderSet(){const b=$('wtBtn');if(!b)return;b.setAttribute('aria-pressed',WT.on);b.classList.toggle('on',WT.on);$('wtState').textContent=WT.on?'開':'關';
   const box=$('wtBox');let h='';
-  if(WT.gpu===false)h='<p class="sknote">這台裝置的瀏覽器不支援 WebGPU，沒辦法跑 AI 發言，電腦玩家會說「過」。</p>';
-  else if(WT.gpu===null)h='<p class="sknote">檢查中…</p>';
-  else if(WT.dl)h=`<div class="wtbar"><i id="wtBar"></i></div><p class="sknote" id="wtTxt">下載中…</p>`;
-  else if(WT.have)h=`<p class="sknote">模型已下載（${wtMB(WT.size)} MB），存在這台裝置，之後離線也能用。${WT.ready?'已載入'+(WT.ms.length?`，每段發言平均 ${(WT.ms.reduce((a,b)=>a+b,0)/WT.ms.length/1000).toFixed(1)} 秒`:''):WT.loading?'載入中…':''}</p><button class="wtdel" data-act="wtDel">刪除模型</button>`;
-  else if(WT.avail===false)h='<p class="sknote">AI 發言模型還沒放上網站，暫時無法下載（電腦玩家會說「過」）。</p>';
-  else h=`<button class="wtdl" data-act="wtDl">下載 AI 發言模型（約 ${WT_MB[WT.gpu]} MB）</button><p class="sknote">建議連 Wi-Fi 下載。下載後存在這台裝置，離線也能用；連線對戰時由房主的裝置替電腦玩家發言。</p>`;
+  if(WT.dl)h=`<div class="wtbar"><i id="wtBar"></i></div><p class="sknote" id="wtTxt">下載中…</p>`;
+  else if(WT.have)h=`<p class="sknote">${WT_LOCAL?`模型內建在 App 裡（約 ${WT_MB} MB），不用下載。`:WT.mem?`模型已下載（${wtMB(WT.size)} MB），這個瀏覽器沒辦法存檔，重新整理網頁後要再下載一次。`:`模型已下載（${wtMB(WT.size)} MB），存在這台裝置，之後離線也能用。`}${WT.ready?'已載入'+(WT.ms.length?`，每段發言平均 ${(WT.ms.reduce((a,b)=>a+b,0)/WT.ms.length/1000).toFixed(1)} 秒`:''):WT.loading?'載入中…':''}</p>${WT_LOCAL?'':'<button class="wtdel" data-act="wtDel">刪除模型</button>'}`;
+  else if(WT.avail===false)h='<p class="sknote">現在讀不到 AI 發言模型（可能是離線），連上網路後再回來下載；在那之前電腦玩家會說「過」。</p>';
+  else h=`<button class="wtdl" data-act="wtDl">下載 AI 發言模型（約 ${WT_MB} MB）</button><p class="sknote">下載後存在這台裝置，離線也能用；連線對戰時由房主的裝置替電腦玩家發言。</p>`;
   if(WT.err)h+=`<p class="sknote wterr">${WT.err}</p>`;
+  if(!WT.on)h+=`<p class="sknote">0.23.0 起換成狼人殺專用的迷你模型：只有約 ${WT_MB} MB（以前是 470 MB）、不需要 WebGPU，舊手機也跑得動。之前在這台裝置閃退、太慢或不能用的，可以再打開試試。</p>`;
   box.innerHTML=h;wtProg();}
 function wtToggle(){WT.on=!WT.on;try{localStorage.setItem('xq-wwtalk',WT.on?'1':'0');}catch(e){}if(WT.on){WT.slow=false;WT.err='';wtStart();}else wtStop();wtRenderSet();wwHint();}
 // 狼人殺大廳的一行提示（還沒開啟或沒下載時，附一個直接到設定的按鈕）
-function wwHintHTML(){if(WT.gpu===false||(!WT.have&&WT.avail===false))return'';if(WT.crashed&&!WT.on)return`<p class="wwai">⚠️ ${WT.err||'AI 發言已自動關閉'}</p>`;if(WT.on&&WT.have)return WT.ready?'<p class="wwai">🗣️ AI 發言已開啟</p>':WT.loading?'<p class="wwai">🗣️ AI 發言模型載入中…</p>':'';
+function wwHintHTML(){if(!WT.have&&WT.avail===false)return'';if(WT.crashed&&!WT.on)return`<p class="wwai">⚠️ ${WT.err||'AI 發言已自動關閉'}</p>`;if(WT.on&&(WT.dl||(WT.starting&&!WT.ready)))return'<p class="wwai">🗣️ AI 發言模型'+(WT.dl?'下載中…':'準備中…')+'</p>';if(WT.on&&WT.have)return WT.ready?'<p class="wwai">🗣️ AI 發言已開啟</p>':WT.loading?'<p class="wwai">🗣️ AI 發言模型載入中…</p>':'';
   return`<p class="wwai">電腦玩家現在只會說「過」。<button data-act="setOpen">到設定開啟 AI 發言</button></p>`;}
 function wwHint(){if(!$('ww').hidden&&!$('wwLobby').hidden&&WW.phase==='lobby')wwRenderLobby();}
 // 房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料；連線沿用撲克牌的 pkNet（另一個房間種類 'ww'）
@@ -5080,7 +5107,7 @@ function wwSyncMenu(){$('wwRule').textContent=WW_RULE;const ok=!!R;$('wwCreateBt
 function wwHumans(){return WW.seats.filter(s=>s&&s.kind!=='ai').length;}
 
 /* ---------- 大廳（含房主的身份設定） ---------- */
-function wwOpenSolo(){wtGpu().then(wtStart).then(()=>WT.have||wtAvail()).then(wwHint);wwStop();WW.role='solo';WW.code=null;WW.me=0;WW.phase='lobby';WW.seats=[{kind:'me'}];wwShow();wwRenderLobby();}
+function wwOpenSolo(){wtStart().then(()=>WT.have||wtAvail()).then(wwHint);wwStop();WW.role='solo';WW.code=null;WW.me=0;WW.phase='lobby';WW.seats=[{kind:'me'}];wwShow();wwRenderLobby();}
 function wwSetCount(n){n=Math.max(Math.max(6,wwHumans()),Math.min(12,n));const keep={win:WW.cfg.win,speak:WW.cfg.speak};WW.cfg=wwCfgFix({...wwCfgFor(n),...keep});wwCfgChanged();}
 function wwCfgChanged(){wwSaveCfg();if(WW.role==='host')wwHostLobby();else wwRenderLobby();}
 function wwRoleSet(k,v){const c=WW.cfg;if(!WW_KEYS.includes(k)||!(v>=0))return;const old=c.roles[k]|0;c.roles[k]=v;if(wwVil(c)<0){c.roles[k]=old;wwNote('人數不夠，先把人數調高或減少其他身份');wwRenderLobby();return;}wwCfgChanged();}
@@ -5218,7 +5245,7 @@ function wwSend(){const inp=$('wwIn'),t=inp.value.trim();if(!t||inp.disabled)ret
 
 /* ---------- 線上：房主 ---------- */
 async function wwCreate(){
-  wtGpu().then(wtStart).then(()=>WT.have||wtAvail()).then(wwHint);
+  wtStart().then(()=>WT.have||wtAvail()).then(wwHint);
   if(!R){wwMenuMsg('連線元件還沒準備好',true);return;}wwMenuMsg('建立房間中…');
   let net;try{net=await pkNet.host('ww',12);}catch(e){net=null;}
   if(!net){wwMenuMsg('無法建立房間，請稍後再試',true);return;}
@@ -6601,7 +6628,7 @@ function mount(kind,H){
 
 /* ===== 設定頁 ===== */
 function setRenderSheet(){
-  syncOpt3d();syncF2f();syncAnim();wtRenderSet();wtGpu().then(wtCheck).then(()=>WT.have||wtAvail()).then(wtRenderSet);
+  syncOpt3d();syncF2f();syncAnim();wtRenderSet();wtCheck().then(()=>WT.have||wtAvail()).then(wtRenderSet);
   const ht=$('handTiles');
   ht.innerHTML=HANDS.map(h=>`<button class="tile${h.id===handPick?' on':''}" data-act="hand" data-v="${h.id}" aria-pressed="${h.id===handPick}"><span class="thumb" data-hand="${h.id}"></span><span>${h.n}</span></button>`).join('');
   document.querySelectorAll('#persSeg button').forEach(b=>{const on=b.dataset.v===persTab;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});
@@ -7071,7 +7098,7 @@ start({});
       try{const r=await fetch('sw.js?fresh='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const t=await r.text();const m=t.match(/APPV='([\d.]+)'/),remote=m&&m[1];
         if(remote&&remote!==cur()){b.textContent='下載 v'+remote+'…';
           try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(x=>x.unregister()));}catch(e){}
-          try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='ww-talk-model').map(k=>caches.delete(k)));}catch(e){}
+          try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=='ww-tiny-model').map(k=>caches.delete(k)));}catch(e){}
           location.replace(location.pathname+'?v='+remote);return;}
         try{const reg=await navigator.serviceWorker.getRegistration();if(reg)await reg.update();}catch(e){}
         done('✓ 已是最新版 v'+cur());}
