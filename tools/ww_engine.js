@@ -313,10 +313,10 @@ function wwTalkPrompt(st,seat){
   L.push(body);
   L.push(last?`現在：我出局了，發表遺言。`:`現在：第${st.day}天，輪到我發言。`);
   return L.join('\n');}
-// 口頭禪：小模型很愛說「我手上有點資訊／東西，但先不說」，整個分句拿掉（拿掉後沒話可說就重寫）
-function wwTalkTic(line){const out=[];for(const c of line.trim().split(/(?<=[，。！？；,.!?;])/)){const t=c.replace(/[\s，。！？；,.!?;]/g,'');
-    if(/(手上|手裡|手中|身上).{0,10}(資訊|東西|消息|情報|料|底牌|牌)/.test(t)&&!/查|驗|金水|藥|槍|守/.test(t))continue;
-    if(/^(但|不過|只是|可是|所以)?(我)?(現在|今天|目前)?(先|暫時|暫且|還)(不說|不講|不爆|不透露|不方便說|壓著|保留)(太多|出來|身份)?$/.test(t))continue;
+// 口頭禪：小模型很愛說「我手上有點資訊／東西，但先不說」，一出現就從那裡截斷，後面的都不說（0.22.4 起；截斷後沒話可說就重寫）
+function wwTalkTic(line){const out=[];for(const c of line.trim().split(/(?<=[，。！？；,.!?;\n])/)){const t=c.replace(/[\s，。！？；,.!?;]/g,'');
+    if(/(手上|手裡|手中|身上).{0,10}(資訊|東西|消息|情報|料|底牌|牌)/.test(t)&&!/查|驗|金水|藥|槍|守/.test(t))break;
+    if(/^(但|不過|只是|可是|所以)?(我)?(現在|今天|目前)?(先|暫時|暫且|還)(不說|不講|不爆|不透露|不方便說|壓著|保留)(太多|出來|身份)?$/.test(t))break;
     out.push(c);}
   return out.join('').replace(/^[，、；,;\s]+/,'').replace(/[，、；,;]\s*$/,'。').trim();}
 // 模型輸出：1～3 句發言，最後一行「投:3」或「投:棄」
@@ -324,7 +324,7 @@ function wwTalkParse(txt){
   if(typeof txt!=='string')return null;txt=txt.replace(/<\|im_end\|>[\s\S]*$/,'').replace(/瞭解藥/g,'了解藥').trim();  // 訓練資料轉正體時「用了解藥」被轉成「用瞭解藥」
   const m=/(?:^|\n)\s*投[:：]\s*(\d+|棄)\s*號?\s*$/.exec(txt);if(!m)return null;
   const sp=txt.slice(0,m.index).trim();if(!sp)return null;
-  const lines=sp.split(/\n+/).map(wwTalkTic).filter(Boolean);if(!lines.length)return null;
+  const lines=wwTalkTic(sp).split(/\n+/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return null;
   return{lines,speech:lines.join(''),vote:m[1]==='棄'?-1:(+m[1]-1)};}
 // 發言裡明說要投誰（「投3號」「歸票5」「出7號」）
 // 分句（逗號、句號都算），用來分辨「我自己說的」和「轉述別人的」
