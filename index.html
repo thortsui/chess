@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.22.4">v0.22.4</span>
+  <span class="ver" aria-label="版本 0.22.5">v0.22.5</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -4998,6 +4998,13 @@ const WT_FILES=d=>['config.json','generation_config.json','tokenizer.json','toke
 const WT_MB={q4f16:470,q4:551};   // 大約大小（MB）
 const WT={on:false,gpu:null,have:false,avail:null,size:0,dl:null,err:'',worker:null,ready:false,loading:false,id:0,wait:{},ms:[],slow:false};
 try{WT.on=localStorage.getItem('xq-wwtalk')==='1';}catch(e){}
+// 閃退保護：載入模型／生成／下載時先在這台裝置記一筆（xq-wwtalk-run），正常結束就清掉。開頁面時這筆還在＝上次做到一半整頁被系統關掉（手機記憶體不夠），
+// 就自動把 AI 發言關掉並說明，避免每次進狼人殺都再閃退一次。切到背景或正常離開頁面時也會清掉，不會誤判。
+const wtMark=v=>{WT.mark=v||'';try{if(v)localStorage.setItem('xq-wwtalk-run',v);else localStorage.removeItem('xq-wwtalk-run');}catch(e){}};
+try{const m=localStorage.getItem('xq-wwtalk-run');if(m){localStorage.removeItem('xq-wwtalk-run');WT.on=false;WT.crashed=true;localStorage.setItem('xq-wwtalk','0');
+  WT.err=m==='dl'?'上次下載 AI 發言模型時網頁被系統關掉了（這台裝置的記憶體可能不夠），已先關閉 AI 發言。':'上次跑 AI 發言時網頁被系統關掉了（這台裝置的記憶體可能不夠），已自動關閉 AI 發言，電腦玩家會說「過」。';}}catch(e){}
+addEventListener('pagehide',()=>{try{localStorage.removeItem('xq-wwtalk-run');}catch(e){}});
+document.addEventListener('visibilitychange',()=>{try{if(document.hidden)localStorage.removeItem('xq-wwtalk-run');else if(WT.mark)localStorage.setItem('xq-wwtalk-run',WT.mark);}catch(e){}});
 const wtBase=()=>new URL(WW_TALK_URL.replace(/\/*$/,'/'),location.href).href;
 // 有 WebGPU 才能跑；有 shader-f16 用 q4f16（比較小、比較快），沒有就用 q4
 async function wtGpu(){if(WT.gpu!==null)return WT.gpu;
@@ -5007,7 +5014,7 @@ async function wtCheck(){const d=await wtGpu();WT.have=false;WT.size=0;if(!d||ty
     WT.have=true;WT.size=sz;}catch(e){}}
 // 模型檔有沒有放在網址上（還沒上架時不顯示下載按鈕）
 async function wtAvail(){if(WT.avail!==null)return WT.avail;try{const r=await fetch(wtBase()+'config.json',{cache:'no-store'});WT.avail=r.ok;}catch(e){WT.avail=false;}return WT.avail;}
-async function wtDownload(){if(WT.dl)return;const d=await wtGpu();if(!d)return;WT.err='';WT.dl={got:0,total:WT_MB[d]*1048576};wtRenderSet();
+async function wtDownload(){if(WT.dl)return;const d=await wtGpu();if(!d)return;WT.err='';WT.dl={got:0,total:WT_MB[d]*1048576};wtMark('dl');wtRenderSet();
   try{const c=await caches.open('ww-talk-model');let done=0;
     // 舊版模型（網址不同）先清掉，避免佔兩份空間
     for(const k of await c.keys())if(!k.url.startsWith(wtBase()))await c.delete(k);
@@ -5019,18 +5026,18 @@ async function wtDownload(){if(WT.dl)return;const d=await wtGpu();if(!d)return;W
       if(len&&n!==len){await c.delete(url);throw new Error(`${f} 沒有下載完整`);}done+=n;}
     await wtCheck();if(!WT.have)throw new Error('檔案不完整');}
   catch(e){WT.err='下載失敗：'+(e&&e.message||e)+'。請確認網路後再試一次。';}
-  WT.dl=null;wtRenderSet();if(WT.have&&WT.on)wtStart();}
+  WT.dl=null;wtMark('');wtRenderSet();if(WT.have&&WT.on)wtStart();}
 async function wtDelete(){wtStop();try{await caches.delete('ww-talk-model');}catch(e){}await wtCheck();wtRenderSet();}
-function wtStop(){if(WT.worker){WT.worker.terminate();WT.worker=null;}WT.ready=false;WT.loading=false;wwSetTalk(null);
+function wtStop(){if(WT.worker){WT.worker.terminate();WT.worker=null;}WT.ready=false;WT.loading=false;wtMark('');wwSetTalk(null);
   for(const k in WT.wait){WT.wait[k](null);delete WT.wait[k];}}
 // 載入模型（背景執行，進狼人殺或開始遊戲時呼叫）
 async function wtStart(){if(!WT.on||WT.worker||WT.slow)return;await wtCheck();if(!WT.have||!WT.on||WT.worker)return;
   let w;try{w=new Worker('ai/ww/talk-worker.js',{type:'module'});}catch(e){WT.err='無法啟動 AI 發言';return;}
-  WT.worker=w;WT.loading=true;WT.ready=false;wwSetTalk(wtTalk);
+  WT.worker=w;WT.loading=true;WT.ready=false;wtMark('load');wwSetTalk(wtTalk);
   w.onmessage=ev=>{const m=ev.data||{};
-    if(m.type==='ready'){WT.loading=false;WT.ready=true;wtRenderSet();wwHint();return;}
+    if(m.type==='ready'){wtMark('');WT.loading=false;WT.ready=true;wtRenderSet();wwHint();return;}
     if(m.type==='error'){WT.err='AI 發言模型載入失敗：'+m.msg;wtStop();wtRenderSet();wwHint();return;}
-    if(m.type==='gen'){const f=WT.wait[m.id];delete WT.wait[m.id];
+    if(m.type==='gen'){const f=WT.wait[m.id];delete WT.wait[m.id];if(!Object.keys(WT.wait).length)wtMark('');
       if(m.text!=null){WT.ms.push(m.ms);if(WT.ms.length>20)WT.ms.shift();
         // 太慢的裝置（連續 3 次都超過 9 秒）就不用了，電腦玩家改回說「過」
         const r=WT.ms.slice(-3);if(r.length===3&&r.every(x=>x>9000)){WT.slow=true;WT.err='這台裝置跑 AI 發言太慢，電腦玩家先改回說「過」。';wtStop();wtRenderSet();}}
@@ -5040,7 +5047,7 @@ async function wtStart(){if(!WT.on||WT.worker||WT.slow)return;await wtCheck();if
   // 載入太久（例如 GPU 卡住）就放棄，電腦玩家改回說「過」
   setTimeout(()=>{if(WT.worker===w&&!WT.ready){WT.err='AI 發言模型載入太久，先改回說「過」（重新整理網頁可再試一次）。';wtStop();wtRenderSet();wwHint();}},90000);}
 function wtTalk(prompt){if(!WT.ready||!WT.worker)return Promise.resolve(null);
-  return new Promise(res=>{const id=++WT.id;WT.wait[id]=res;WT.worker.postMessage({cmd:'gen',id,prompt});});}
+  return new Promise(res=>{const id=++WT.id;WT.wait[id]=res;wtMark('gen');WT.worker.postMessage({cmd:'gen',id,prompt});});}
 const wtMB=b=>Math.round(b/1048576);
 function wtProg(){const el=$('wtBar');if(el&&WT.dl){const p=Math.min(100,WT.dl.got/WT.dl.total*100);el.style.width=p.toFixed(1)+'%';$('wtTxt').textContent=`下載中… ${wtMB(WT.dl.got)}／約 ${wtMB(WT.dl.total)} MB`;}}
 // 設定頁的「狼人殺 AI 發言」區塊
@@ -5054,9 +5061,9 @@ function wtRenderSet(){const b=$('wtBtn');if(!b)return;b.setAttribute('aria-pres
   else h=`<button class="wtdl" data-act="wtDl">下載 AI 發言模型（約 ${WT_MB[WT.gpu]} MB）</button><p class="sknote">建議連 Wi-Fi 下載。下載後存在這台裝置，離線也能用；連線對戰時由房主的裝置替電腦玩家發言。</p>`;
   if(WT.err)h+=`<p class="sknote wterr">${WT.err}</p>`;
   box.innerHTML=h;wtProg();}
-function wtToggle(){WT.on=!WT.on;try{localStorage.setItem('xq-wwtalk',WT.on?'1':'0');}catch(e){}if(WT.on){WT.slow=false;wtStart();}else wtStop();wtRenderSet();wwHint();}
+function wtToggle(){WT.on=!WT.on;try{localStorage.setItem('xq-wwtalk',WT.on?'1':'0');}catch(e){}if(WT.on){WT.slow=false;WT.err='';wtStart();}else wtStop();wtRenderSet();wwHint();}
 // 狼人殺大廳的一行提示（還沒開啟或沒下載時，附一個直接到設定的按鈕）
-function wwHintHTML(){if(WT.gpu===false||(!WT.have&&WT.avail===false))return'';if(WT.on&&WT.have)return WT.ready?'<p class="wwai">🗣️ AI 發言已開啟</p>':WT.loading?'<p class="wwai">🗣️ AI 發言模型載入中…</p>':'';
+function wwHintHTML(){if(WT.gpu===false||(!WT.have&&WT.avail===false))return'';if(WT.crashed&&!WT.on)return`<p class="wwai">⚠️ ${WT.err||'AI 發言已自動關閉'}</p>`;if(WT.on&&WT.have)return WT.ready?'<p class="wwai">🗣️ AI 發言已開啟</p>':WT.loading?'<p class="wwai">🗣️ AI 發言模型載入中…</p>':'';
   return`<p class="wwai">電腦玩家現在只會說「過」。<button data-act="setOpen">到設定開啟 AI 發言</button></p>`;}
 function wwHint(){if(!$('ww').hidden&&!$('wwLobby').hidden&&WW.phase==='lobby')wwRenderLobby();}
 // 房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料；連線沿用撲克牌的 pkNet（另一個房間種類 'ww'）
