@@ -1,5 +1,5 @@
 #!/bin/bash
-# DGX：暖身蒸餾（老師資料）→ 自我對弈訓練（不會停，要停就 docker stop chess-selfplay）
+# DGX：暖身蒸餾（老師資料）→ 自我對弈訓練（不會停，當機會自動重啟；要停就 docker stop chess-selfplay && docker rm chess-selfplay）
 #   bash train/start_dgx.sh            # 全部重跑
 #   SKIP_DISTILL=1 bash train/start_dgx.sh   # 已經有 runs/ckpt.pt，直接接著自我對弈
 cd "$(dirname "$0")/.."
@@ -11,7 +11,7 @@ if [ -z "$SKIP_DISTILL" ]; then
   cp runs/distill/ckpt.pt runs/ckpt.pt
 fi
 # 1 個訓練主控＋N 個只下棋的主控（各自服務一部分 Node 行程，CPU 與 GPU 並行用滿）
-$RUN -d --name chess-selfplay $IMG python -u train/selfplay.py --mode train --procs 0 --out runs --ckpt runs/ckpt.pt
+${RUN/--rm/--restart unless-stopped} -d --name chess-selfplay $IMG python -u train/selfplay.py --mode train --procs 0 --out runs --ckpt runs/ckpt.pt
 for i in $(seq 1 ${EXTRA:-7}); do
   $RUN -d --name chess-sp$i $IMG python -u train/selfplay.py --mode worker --procs ${PROCS:-8} --remote /w/runs --out runs_w$i --sync-every 120
 done
