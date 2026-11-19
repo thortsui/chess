@@ -824,7 +824,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.20.0">v0.20.0</span>
+  <span class="ver" aria-label="版本 0.20.1">v0.20.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -5111,11 +5111,11 @@ function bgRanks(n){const P='pppppppp',k=BG_KIND[n];
   return['rnbqkbnr',P];}
 // 輪流方式（0.20.0 起，只有八國聯軍）：rr 為真時是「八國各一步、清軍連三步」——聯軍那一輪每個還活著的國家各走一步（順序自選，st.mv[n] 記這輪走過了沒），
 // 清軍那一輪連走 BG_RR_Q 步（st.ql 是這輪還可以走幾步）。舊規則（一步換一步）的局面沒有 rr／ql／mv 這三個欄位，行為完全不變。
-const BG_RR_Q=3;
+const BG_RR_Q=3,BG_RR_NOC=5;   // BG_RR_NOC：新輪流方式拿掉的那排炮（清軍陣形第 6 排，馬後面）
 function bgNew(kinds,rr){
   if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
-  BG_QING.forEach((row,ry)=>[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};}));
+  BG_QING.forEach((row,ry)=>{if(rr&&ry===BG_RR_NOC)return;[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};});});   // 新輪流方式：清軍少一排炮（馬後面那排）
   BG_NATIONS.forEach((N,n)=>{const ranks=bgRanks(n);
     for(let d=0;d<ranks.length;d++)for(let a=0;a<8;a++){const t=ranks[d][a];if(t==='.')continue;let x,y;
       if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}
