@@ -51,19 +51,51 @@ function bgRanks(n){const P='pppppppp',k=BG_KIND[n];
   if(k==='ta')return['rnbqkbnr','ppppoppp'];if(k==='sh')return['ljsgkgsl','.r....b.','uuuuuuuu'];if(k==='co')return['racmkfwr',P];
   if(k==='f9'||k==='vi')for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(k==='vi'||(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')))return[s,P];}
   return['rnbqkbnr',P];}
-// 輪流方式（0.20.0 起，只有八國聯軍）：rr 為真時是「八國各一步、清軍連三步」——聯軍那一輪每個還活著的國家各走一步（順序自選，st.mv[n] 記這輪走過了沒），
-// 清軍那一輪連走 BG_RR_Q 步（st.ql 是這輪還可以走幾步）。舊規則（一步換一步）的局面沒有 rr／ql／mv 這三個欄位，行為完全不變。
-const BG_RR_Q=3,BG_RR_NOC=5;   // BG_RR_NOC：新輪流方式拿掉的那排炮（清軍陣形第 6 排，馬後面）
+// ===== 地圖設定（0.21.0 起，只有八國聯軍）：x 十字形（預設，上面那些常數就是它）｜l 長條 =====
+// 長條地圖 42×24（全部都是有效格）：八國全部在上面、兩排交錯（像砌磚）——
+//   後排（第 0～1 列，選將棋時 0～2 列）：法國 0～7、美國 10～17、奧匈 20～27、義大利 30～37 路；
+//   第 2 列空著當「走道」（後排的城堡、皇后可以橫移到空隙）；
+//   前排（第 3～4 列，日本將棋 3～5 列）：俄國 4～11、日本 14～21、德國 24～31、英國 34～41 路；前排國與國之間空 2 路（12～13、22～23、32～33），
+//   後排的美、奧、義正對這三個空隙（空隙在它們的第 3、4 路＝西洋棋的主教、皇后那兩路），法國正對前排左邊空著的 0～3 路。
+//   前排放短程子力多的（日本將棋、德國信使棋）與歷史上出兵最多的日、俄、英；後排四國都是有皇后、兩城堡、兩主教的西洋棋系。
+//   清軍是最下面 5 列（第 19～23 列）整條 42 格寬；中間第 6～18 列是空地。全部棋子前進方向朝下（走到第 23 列升變）。
+const BGL_W=42,BGL_H=24,BGL_QY=19;
+const BGL_AT=[{x:4,y:3},{x:14,y:3},{x:34,y:3},{x:10,y:0},{x:0,y:0},{x:24,y:3},{x:30,y:0},{x:20,y:0}];   // 順序同 BG_NATIONS：俄 日 英 美 法 德 義 奧
+const BG_NATL=BG_NAT0.map((N,n)=>Object.assign({},N,{side:'t',x:BGL_AT[n].x,y:BGL_AT[n].y,row:BGL_AT[n].y?'前排':'後排'}));
+const BGL_VALID=new Uint8Array(BGL_W*BGL_H).fill(1);
+const bgPalmL=(x,y)=>y>=BGL_QY&&y<BGL_H&&x>=0&&x<BGL_W;   // 清軍陣地＝最下面 5 列整條
+const bgHomeL=n=>{const N=BG_NATIONS[n];return{x:N.x,y:N.y,w:8,h:BG_KIND[n]==='sh'?3:2};};
+// 清軍長條陣形（42 格寬、5 列深，由前到後；x 從 0 起算）：
+//   第 1 列：將在單數路，隔一格一顆（偶數路空著，後面的馬、車直接開得出去）
+//   第 2 列：馬在 4 的倍數路（正前方空、往前跳的落點在中央空地）、炮在 4k+1 路（正前方就是將＝現成的炮架）
+//   第 3 列：車在 4k+2 路（整路一直到中央都空著，開局就能直接衝出去）、炮在 4k+3 路（前面隔一格是將＝炮架）
+//   第 4 列：馬在 4k+1 路（正前方空、往前跳到第 2 列的 4k+2 路）、車在 4k+2 路（跟在前面的車後面）
+//   第 5 列：車在 4 的倍數路（前面的馬跳出去就開了）；中間是 相 士 慈 … 禧 士 相
+const BGL_QING=(()=>{const rep=(s,n)=>s.repeat(Math.ceil(n/s.length)).slice(0,n),W=BGL_W;
+  const r4=[...'.'.repeat(W)].map((c,x)=>x%4===0&&x!==20?'R':'.');Object.assign(r4,{15:'E',18:'A',19:'X',22:'Y',23:'A',27:'E'});
+  const r3=[...rep('.HR.',W)];r3[W-1]='.';   // 最右邊那隻馬往前跳的落點是自己的馬，拿掉
+  return[rep('.G',W),rep('HC..',W),rep('..RC',W),r3.join(''),r4.join('')];})();
+let BG_MAP='x',BG_QCUR=BG_QING,BG_QOX=BG_QX,BG_QOY=BG_QY;
+// 換地圖（只在八國聯軍用；二次大戰用 bgUse('w2')）。十字形的值就是原本的常數，行為與狀態格式完全不變
+function bgSetMap(m){BG_MAP=m==='l'?'l':'x';
+  if(BG_MAP==='l'){BG_W=BGL_W;BG_H=BGL_H;BG_VALID=BGL_VALID;BG_NATIONS=BG_NATL;BG_RIVER=BGL_QY-1;bgPalm=bgPalmL;bgHome=bgHomeL;BG_QCUR=BGL_QING;BG_QOX=0;BG_QOY=BGL_QY;}
+  else{BG_W=BG0_W;BG_H=BG0_H;BG_VALID=BG0_VALID;BG_NATIONS=BG_NAT0;BG_RIVER=BG_RIVER0;bgPalm=bgPalm0;bgHome=bgHome0;BG_QCUR=BG_QING;BG_QOX=BG_QX;BG_QOY=BG_QY;}
+  BGR=BG_RULES;}
+// 輪流方式（只有八國聯軍）：rr 為真時是「每四國走完，清軍走一步」（0.21.0 起；0.20.x 是「八國各一步、清軍連三步」，已取消）——
+// 清軍走 1 步 → 聯軍挑 BG_RR_A（4）個這輪還沒走過的國家各走一步 → 清軍 1 步 → 剩下還沒走的國家各走一步 → 清軍 1 步 → 新的一輪（活著的國家全部重新可走）。
+// st.mv[n]：這一輪 n 國走過了沒；st.ql：聯軍這半輪還可以走幾國。半輪走滿 4 國、或這輪已經沒有國家可走，就換清軍；某國沒棋可走就跳過。
+// 清軍陣形和舊規則一樣（不再拿掉一排炮）。舊規則（一步換一步）的局面沒有 rr／ql／mv 這三個欄位，行為完全不變。
+const BG_RR_A=4;
 function bgNew(kinds,rr){
   if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
-  BG_QING.forEach((row,ry)=>{if(rr&&ry===BG_RR_NOC)return;[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QX+rx,BG_QY+ry)]={s:'Q',t:ch,n:-1};});});   // 新輪流方式：清軍少一排炮（馬後面那排）
+  BG_QCUR.forEach((row,ry)=>{[...row].forEach((ch,rx)=>{if(ch!=='.')b[bgIdx(BG_QOX+rx,BG_QOY+ry)]={s:'Q',t:ch,n:-1};});});
   BG_NATIONS.forEach((N,n)=>{const ranks=bgRanks(n);
     for(let d=0;d<ranks.length;d++)for(let a=0;a<8;a++){const t=ranks[d][a];if(t==='.')continue;let x,y;
-      if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}
+      if(N.y!=null){x=N.x+a;y=N.y+d;}else if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}   // 長條地圖：每國直接給左上角 (N.x, N.y)
       b[bgIdx(x,y)]={s:'A',t,n};}});
   const st={b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};
-  if(rr){st.rr=1;st.ql=BG_RR_Q;st.mv=Array(8).fill(false);}
+  if(rr){st.rr=1;st.ql=BG_RR_A;st.mv=Array(8).fill(false);}
   return st;}
 // 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
 function bgMoves(st,i,capsOnly){
@@ -103,13 +135,13 @@ function bgMoves(st,i,capsOnly){
     }
   }
   return out;}
-function bgAll(st,side,capsOnly){const out=[],skip=st.rr&&side==='A'&&st.turn==='A'?st.mv:null;   // 新輪流方式：聯軍這輪已經走過的國家不能再走
+function bgAll(st,side,capsOnly){const out=[],skip=st.rr&&side==='A'&&st.turn==='A'?st.mv:null;   // 新輪流方式：聯軍這一輪已經走過的國家不能再走
   for(let i=0;i<st.b.length;i++){const p=st.b[i];if(p&&p.s===side&&!(skip&&skip[p.n]))for(const t of bgMoves(st,i,capsOnly))out.push([i,t]);}return out;}
-// 新輪流方式：走完一步後決定下一步輪到誰（清軍三步走完或沒棋可走→換聯軍；聯軍還沒走、還有棋可走的國家都走完→換清軍）
+// 新輪流方式：走完一步後決定下一步輪到誰（清軍走一步→換聯軍；聯軍這半輪走滿 4 國或這輪沒國家可走→換清軍）
 function bgRoundNext(st,p){
-  if(st.turn==='Q'){st.ql--;if(st.ql>0&&bgAll(st,'Q',false).length)return;st.turn='A';st.mv=Array(8).fill(false);st.ql=BG_RR_Q;return;}
-  st.mv[p.n]=true;if(bgAll(st,'A',false).length)return;
-  st.turn='Q';st.ql=BG_RR_Q;st.mv=Array(8).fill(false);}
+  if(st.turn==='Q'){st.turn='A';st.ql=BG_RR_A;if(!bgAll(st,'A',false).length)st.mv=Array(8).fill(false);return;}   // 清軍走一步就換聯軍；這一輪的國家都走過了（或剩下的都沒棋可走）就開始新的一輪
+  st.mv[p.n]=true;st.ql--;if(st.ql>0&&bgAll(st,'A',false).length)return;   // 這半輪走滿 4 國、或這輪沒國家可走 → 換清軍
+  st.turn='Q';}
 // 新輪流方式：聯軍這一輪還沒走的國家（活著、還沒走；has 為真時只算現在有棋可走的）
 function bgRoundLeft(st,has){if(!st.rr||st.turn!=='A')return[];const ok=new Set();if(has)for(const[f]of bgAll(st,'A',false))ok.add(st.b[f].n);
   return BG_NATIONS.map((N,n)=>n).filter(n=>!st.dead[n]&&!st.mv[n]&&(!has||ok.has(n)));}
@@ -154,4 +186,4 @@ function bgAI(st,opts){
     s+=Math.random()*0.05;
     if(s>bs){bs=s;best=[f,t];}}
   return best;}
-if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,bgClone,bgRoundLeft,BG_RR_Q,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};
+if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,bgClone,bgRoundLeft,BG_RR_A,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};
