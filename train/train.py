@@ -100,8 +100,9 @@ class Replay:
     def add(s, recs):
         for bits, aux, ks, lab, z, tv, pi in recs:
             m = ks.shape[0]
-            if m > s.M:
-                continue
+            # 壞資料（索引超出棋盤、種類格超出 8 格、標籤超出走法數）會讓 GPU 的 gather 直接當掉整個訓練，這裡先擋掉並計數
+            if m > s.M or m == 0 or lab >= m or ks[:, 0].min() < 0 or ks[:, 0].max() > 2 or ks[:, 1:3].max() >= s.H * s.W or ks[:, 3].max() >= 8 or ks[:, 1:].min() < -1:
+                s.bad = getattr(s, 'bad', 0) + (m <= s.M); continue
             i = s.pos
             s.bits[i] = bits; s.aux[i] = aux; s.keys[i] = -1; s.keys[i, :m] = ks
             s.pi[i] = 0

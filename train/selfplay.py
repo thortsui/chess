@@ -24,7 +24,7 @@ def fetch(src, dst):
     if ':' in src.split('/')[0] and not os.path.isabs(src):
         return subprocess.run(['scp', '-q', src, dst]).returncode == 0
     try:
-        shutil.copyfile(src, dst); return True
+        shutil.copyfile(src, dst + '.part'); os.replace(dst + '.part', dst); return True   # 先寫到 .part 再改名，訓練主控不會讀到寫一半的檔
     except OSError:
         return False
 SIMS = {'bg': 16, 'go': 160, 'gm': 128}        # 每步模擬次數（其餘 128）
@@ -231,7 +231,7 @@ def main():
                 torch.save({'sd': net.state_dict(), 'C': a.C, 'B': a.B, 'FC': a.FC}, local_ck + '.tmp'); os.replace(local_ck + '.tmp', local_ck)
                 export(net, os.path.join(a.out, 'model')); net.to(dev)
                 print(time.strftime('%H:%M'), f'估值 {nevals / (now - t_ev):.0f}/秒；訓練 {steps} 步；', ' | '.join(f'{g} p{r[0]/r[3]:.2f} v{r[1]/r[3]:.3f} 準{r[2]/r[3]:.0%}' for g, r in trainlog.items()),
-                      '；棋局', {g: s for g, s in stats.items() if s[0]}, '；回放區', {g: r.n for g, r in rb.items()}, flush=True)
+                      '；棋局', {g: s for g, s in stats.items() if s[0]}, '；回放區', {g: r.n for g, r in rb.items()}, '；擋掉的壞資料', {g: r.bad for g, r in rb.items() if getattr(r, 'bad', 0)}, flush=True)
                 trainlog = {}
         elif a.remote and now - t_sync >= a.sync_every:
             t_sync = now
