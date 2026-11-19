@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.22.0">v0.22.0</span>
+  <span class="ver" aria-label="版本 0.22.1">v0.22.1</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -862,7 +862,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
       <p class="msg" id="pkMenuMsg"></p>
     </div>
     <div class="pkmenu" id="bgMenu" hidden>
-      <p class="pkrule">1900 年八國聯軍：十字形的西洋棋盤：中央一塊空地，上面站四國、左右各兩國，下面是清軍的腹地，八國都朝中央殺過來。清軍照象棋走（將、士、相只能在腹地）。<b>八國預設各用自己國家的代表棋</b>（英、法、義 西洋棋；美國 菲舍爾任意制；奧匈 維也納棋；德國 信使棋；日本 將棋；俄國 塔夫列利），不會下的可以在下面「各國用什麼棋」換成西洋棋或別種。清軍走一步、聯軍挑一國走一步，輪流進行（也可以在下面「輪流方式」改成每四國走完、清軍走一步）。「地圖」可以改成<b>長條</b>：八國全部在上面排成兩排交錯，清軍整條排在下面。哪一國的國王被吃，那一國整隊撤退；八國國王全被吃清軍贏，「慈」「禧」兩顆都被吃聯軍贏。地圖可以兩指縮放、單指拖動。</p>
+      <p class="pkrule">1900 年八國聯軍：十字形的西洋棋盤：中央一塊空地，上面站四國、左右各兩國，下面是清軍的腹地，八國都朝中央殺過來。清軍照象棋走（將、士、相只能在腹地）。<b>八國預設各用自己國家的代表棋</b>（英、法、義 西洋棋；美國 菲舍爾任意制；奧匈 維也納棋；德國 信使棋；日本 將棋；俄國 塔夫列利），不會下的可以在下面「各國用什麼棋」換成西洋棋或別種。清軍走一步、聯軍挑一國走一步，輪流進行（也可以在下面「輪流方式」改成「分批走」：長條地圖每四國走完、十字形八國都走完，清軍才走一步）。「地圖」可以改成<b>長條</b>：八國全部在上面排成兩排交錯，清軍整條排在下面。哪一國的國王被吃，那一國整隊撤退；八國國王全被吃清軍贏，「慈」「禧」兩顆都被吃聯軍贏。地圖可以兩指縮放、單指拖動。</p>
       <details class="bgcfg" id="bgCfg"><summary>各國用什麼棋<b id="bgCfgSum"></b></summary>
         <div class="bgklist" id="bgCfgList"></div>
         <div class="bgkall"><button data-act="bgKindAll" data-v="own">各國代表棋</button><button data-act="bgKindAll" data-v="ch">全部改成西洋棋</button></div>
@@ -870,7 +870,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
         <p class="bgknote">連線對戰時用房主的設定。</p>
       </details>
       <div class="bgcfg bgrr" id="bgRr"><div class="bgrrh">輪流方式<b id="bgRrSum"></b></div>
-        <div class="bgkall"><button data-act="bgRrSet" data-v="0">一步換一步</button><button data-act="bgRrSet" data-v="1">每四國走完，清軍走一步</button></div>
+        <div class="bgkall"><button data-act="bgRrSet" data-v="0">一步換一步</button><button data-act="bgRrSet" data-v="1">分批走（長條 4 國、十字 8 國）</button></div>
         <p class="bgknote" id="bgRrNote"></p>
       </div>
       <div class="bgcfg bgrr" id="bgMap"><div class="bgrrh">地圖<b id="bgMapSum"></b></div>
@@ -5357,11 +5357,11 @@ function bgSetMap(m){BG_MAP=m==='l'?'l':'x';
   if(BG_MAP==='l'){BG_W=BGL_W;BG_H=BGL_H;BG_VALID=BGL_VALID;BG_NATIONS=BG_NATL;BG_RIVER=BGL_QY-1;bgPalm=bgPalmL;bgHome=bgHomeL;BG_QCUR=BGL_QING;BG_QOX=0;BG_QOY=BGL_QY;}
   else{BG_W=BG0_W;BG_H=BG0_H;BG_VALID=BG0_VALID;BG_NATIONS=BG_NAT0;BG_RIVER=BG_RIVER0;bgPalm=bgPalm0;bgHome=bgHome0;BG_QCUR=BG_QING;BG_QOX=BG_QX;BG_QOY=BG_QY;}
   BGR=BG_RULES;}
-// 輪流方式（只有八國聯軍）：rr 為真時是「每四國走完，清軍走一步」（0.21.0 起；0.20.x 是「八國各一步、清軍連三步」，已取消）——
+// 輪流方式（只有八國聯軍）：rr 為真時是「分批走」（長條地圖每四國、十字形八國走完，清軍走一步；0.21.1 起十字形改成八國）（0.21.0 起；0.20.x 是「八國各一步、清軍連三步」，已取消）——
 // 清軍走 1 步 → 聯軍挑 BG_RR_A（4）個這輪還沒走過的國家各走一步 → 清軍 1 步 → 剩下還沒走的國家各走一步 → 清軍 1 步 → 新的一輪（活著的國家全部重新可走）。
 // st.mv[n]：這一輪 n 國走過了沒；st.ql：聯軍這半輪還可以走幾國。半輪走滿 4 國、或這輪已經沒有國家可走，就換清軍；某國沒棋可走就跳過。
 // 清軍陣形和舊規則一樣（不再拿掉一排炮）。舊規則（一步換一步）的局面沒有 rr／ql／mv 這三個欄位，行為完全不變。
-const BG_RR_A=4;
+const BG_RR_A=4,bgRrA=()=>BG_MAP==='l'?BG_RR_A:8;   // 聯軍半輪幾國：長條地圖 4 國一換，十字形 8 國一換（八國都走完才換清軍）
 function bgNew(kinds,rr){
   if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
@@ -5371,7 +5371,7 @@ function bgNew(kinds,rr){
       if(N.y!=null){x=N.x+a;y=N.y+d;}else if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}   // 長條地圖：每國直接給左上角 (N.x, N.y)
       b[bgIdx(x,y)]={s:'A',t,n};}});
   const st={b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};
-  if(rr){st.rr=1;st.ql=BG_RR_A;st.mv=Array(8).fill(false);}
+  if(rr){st.rr=1;st.ql=bgRrA();st.mv=Array(8).fill(false);}
   return st;}
 // 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
 function bgMoves(st,i,capsOnly){
@@ -5415,7 +5415,7 @@ function bgAll(st,side,capsOnly){const out=[],skip=st.rr&&side==='A'&&st.turn===
   for(let i=0;i<st.b.length;i++){const p=st.b[i];if(p&&p.s===side&&!(skip&&skip[p.n]))for(const t of bgMoves(st,i,capsOnly))out.push([i,t]);}return out;}
 // 新輪流方式：走完一步後決定下一步輪到誰（清軍走一步→換聯軍；聯軍這半輪走滿 4 國或這輪沒國家可走→換清軍）
 function bgRoundNext(st,p){
-  if(st.turn==='Q'){st.turn='A';st.ql=BG_RR_A;if(!bgAll(st,'A',false).length)st.mv=Array(8).fill(false);return;}   // 清軍走一步就換聯軍；這一輪的國家都走過了（或剩下的都沒棋可走）就開始新的一輪
+  if(st.turn==='Q'){st.turn='A';st.ql=bgRrA();if(!bgAll(st,'A',false).length)st.mv=Array(8).fill(false);return;}   // 清軍走一步就換聯軍；這一輪的國家都走過了（或剩下的都沒棋可走）就開始新的一輪
   st.mv[p.n]=true;st.ql--;if(st.ql>0&&bgAll(st,'A',false).length)return;   // 這半輪走滿 4 國、或這輪沒國家可走 → 換清軍
   st.turn='Q';}
 // 新輪流方式：聯軍這一輪還沒走的國家（活著、還沒走；has 為真時只算現在有棋可走的）
@@ -5482,7 +5482,7 @@ function bgCfgRR(){try{return localStorage.getItem('xq-bg-rr')==='1';}catch(e){r
 function bgRrSave(v){try{localStorage.setItem('xq-bg-rr',v?'1':'0');}catch(e){}bgRrRender();}
 function bgRrRender(){const v=bgCfgRR();$('bgRrSum').textContent=v?'四國一換':'一步換一步';
   document.querySelectorAll('#bgRr [data-act=bgRrSet]').forEach(b=>b.classList.toggle('on',(b.dataset.v==='1')===v));
-  $('bgRrNote').textContent=v?'清軍走 1 步 → 聯軍挑 4 個這輪還沒走過的國家各走一步 → 清軍 1 步 → 剩下的國家各走一步 → 清軍 1 步 → 新的一輪（每輪八國各走一次、清軍走兩步；沒棋可走的國家跳過）。連線對戰時用房主的設定。':'清軍走一步、聯軍挑其中一國走一步，交替進行。連線對戰時用房主的設定。';}
+  $('bgRrNote').textContent=v?'長條地圖：清軍 1 步 → 聯軍挑 4 個這輪還沒走過的國家各走一步 → 清軍 1 步 → 剩下的國家各走一步 → 清軍 1 步 → 新的一輪（每輪清軍走兩步）。十字形：清軍 1 步 → 八國各走一步（順序自己挑）→ 清軍 1 步 → 新的一輪。沒棋可走的國家跳過；連線對戰時用房主的設定。':'清軍走一步、聯軍挑其中一國走一步，交替進行。連線對戰時用房主的設定。';}
 document.addEventListener('change',e=>{const el=e.target;if(!el||el.tagName!=='SELECT'||el.dataset.act!=='bgKindSel')return;const k=bgCfgKinds();if(BG_KINDS[el.value]){k[+el.dataset.n]=el.value;bgCfgSave(k);}});
 // 地圖（存在這台裝置；連線時用房主的設定）：x 十字形（預設）、l 長條
 function bgCfgMap(){try{return localStorage.getItem('xq-bg-map')==='l'?'l':'x';}catch(e){return'x';}}

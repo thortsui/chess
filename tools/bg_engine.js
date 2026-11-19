@@ -81,11 +81,11 @@ function bgSetMap(m){BG_MAP=m==='l'?'l':'x';
   if(BG_MAP==='l'){BG_W=BGL_W;BG_H=BGL_H;BG_VALID=BGL_VALID;BG_NATIONS=BG_NATL;BG_RIVER=BGL_QY-1;bgPalm=bgPalmL;bgHome=bgHomeL;BG_QCUR=BGL_QING;BG_QOX=0;BG_QOY=BGL_QY;}
   else{BG_W=BG0_W;BG_H=BG0_H;BG_VALID=BG0_VALID;BG_NATIONS=BG_NAT0;BG_RIVER=BG_RIVER0;bgPalm=bgPalm0;bgHome=bgHome0;BG_QCUR=BG_QING;BG_QOX=BG_QX;BG_QOY=BG_QY;}
   BGR=BG_RULES;}
-// 輪流方式（只有八國聯軍）：rr 為真時是「每四國走完，清軍走一步」（0.21.0 起；0.20.x 是「八國各一步、清軍連三步」，已取消）——
+// 輪流方式（只有八國聯軍）：rr 為真時是「分批走」（長條地圖每四國、十字形八國走完，清軍走一步；0.21.1 起十字形改成八國）（0.21.0 起；0.20.x 是「八國各一步、清軍連三步」，已取消）——
 // 清軍走 1 步 → 聯軍挑 BG_RR_A（4）個這輪還沒走過的國家各走一步 → 清軍 1 步 → 剩下還沒走的國家各走一步 → 清軍 1 步 → 新的一輪（活著的國家全部重新可走）。
 // st.mv[n]：這一輪 n 國走過了沒；st.ql：聯軍這半輪還可以走幾國。半輪走滿 4 國、或這輪已經沒有國家可走，就換清軍；某國沒棋可走就跳過。
 // 清軍陣形和舊規則一樣（不再拿掉一排炮）。舊規則（一步換一步）的局面沒有 rr／ql／mv 這三個欄位，行為完全不變。
-const BG_RR_A=4;
+const BG_RR_A=4,bgRrA=()=>BG_MAP==='l'?BG_RR_A:8;   // 聯軍半輪幾國：長條地圖 4 國一換，十字形 8 國一換（八國都走完才換清軍）
 function bgNew(kinds,rr){
   if(bgKindsOk(kinds))BG_KIND=kinds.slice();
   const b=Array(BG_W*BG_H).fill(null);
@@ -95,7 +95,7 @@ function bgNew(kinds,rr){
       if(N.y!=null){x=N.x+a;y=N.y+d;}else if(N.side==='t'){x=BG_AW+N.at+a;y=d;}else if(N.side==='l'){x=d;y=BG_TH+N.at+a;}else{x=BG_W-1-d;y=BG_TH+N.at+a;}   // 長條地圖：每國直接給左上角 (N.x, N.y)
       b[bgIdx(x,y)]={s:'A',t,n};}});
   const st={b,turn:'Q',over:null,last:null,seq:0,dead:Array(8).fill(false),log:[]};
-  if(rr){st.rr=1;st.ql=BG_RR_A;st.mv=Array(8).fill(false);}
+  if(rr){st.rr=1;st.ql=bgRrA();st.mv=Array(8).fill(false);}
   return st;}
 // 一顆棋子能走到的格子（不檢查自己的王會不會被吃；王被吃就輸）
 function bgMoves(st,i,capsOnly){
@@ -139,7 +139,7 @@ function bgAll(st,side,capsOnly){const out=[],skip=st.rr&&side==='A'&&st.turn===
   for(let i=0;i<st.b.length;i++){const p=st.b[i];if(p&&p.s===side&&!(skip&&skip[p.n]))for(const t of bgMoves(st,i,capsOnly))out.push([i,t]);}return out;}
 // 新輪流方式：走完一步後決定下一步輪到誰（清軍走一步→換聯軍；聯軍這半輪走滿 4 國或這輪沒國家可走→換清軍）
 function bgRoundNext(st,p){
-  if(st.turn==='Q'){st.turn='A';st.ql=BG_RR_A;if(!bgAll(st,'A',false).length)st.mv=Array(8).fill(false);return;}   // 清軍走一步就換聯軍；這一輪的國家都走過了（或剩下的都沒棋可走）就開始新的一輪
+  if(st.turn==='Q'){st.turn='A';st.ql=bgRrA();if(!bgAll(st,'A',false).length)st.mv=Array(8).fill(false);return;}   // 清軍走一步就換聯軍；這一輪的國家都走過了（或剩下的都沒棋可走）就開始新的一輪
   st.mv[p.n]=true;st.ql--;if(st.ql>0&&bgAll(st,'A',false).length)return;   // 這半輪走滿 4 國、或這輪沒國家可走 → 換清軍
   st.turn='Q';}
 // 新輪流方式：聯軍這一輪還沒走的國家（活著、還沒走；has 為真時只算現在有棋可走的）
@@ -186,4 +186,4 @@ function bgAI(st,opts){
     s+=Math.random()*0.05;
     if(s>bs){bs=s;best=[f,t];}}
   return best;}
-if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,bgClone,bgRoundLeft,BG_RR_A,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};
+if(typeof module!=='undefined')module.exports={bgNew,bgMoves,bgAll,bgApply,bgAI,bgIn,bgClone,bgRoundLeft,BG_RR_A,bgRrA,BG_W,BG_H,BG_VALID,bgIdx,BG_NATIONS,BG_OWN,BG_KINDS};

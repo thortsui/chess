@@ -24,7 +24,7 @@ const E = k => vm.runInContext(k, ctx), BG = ctx.__BG;
 // 控制流程段落裡的 bgAfter 會呼叫畫面函式；畫面段落沒有載入，用空函式代替
 E('bgRender=()=>{};bgPush=()=>{};bgShow=()=>{};bgFit=()=>{};');
 let fail = 0; const ok = (c, m) => { if (!c) { fail++; console.log('FAIL', m); } };
-const OWN = E('BG_OWN'), W = E('BG_W'), idx = (x, y) => y * W + x;
+const RA = E('bgRrA()'), OWN = E('BG_OWN'), W = E('BG_W'), idx = (x, y) => y * W + x;
 const nNat = st => st.b.filter(p => p && p.s === 'A').map(p => p.n);
 const alive = st => [0, 1, 2, 3, 4, 5, 6, 7].filter(n => !st.dead[n]);
 const key = st => st.b.map(p => p ? p.s + p.t + p.n + (p.m ? 'm' : '') : '').join(',') + '|' + st.turn + st.ql + JSON.stringify(st.mv) + st.seq + JSON.stringify(st.dead);
@@ -33,22 +33,22 @@ const ai = st => ctx.bgAI(st);
 
 // ---- 每四國走完，清軍走一步 ----
 const qCnt = st => st.b.filter(p => p && p.s === 'Q').length;
-{ const st = ctx.bgNew(OWN, true); ok(st.rr === 1 && st.ql === 4 && st.mv.length === 8 && st.turn === 'Q', '新規則開局');
+{ const st = ctx.bgNew(OWN, true); ok(st.rr === 1 && st.ql === RA && st.mv.length === 8 && st.turn === 'Q', '新規則開局');
   ok(qCnt(st) === qCnt(ctx.bgNew(OWN)), '新規則清軍陣形和舊規則一樣（不再少一排炮）');
   const rounds = [];
   for (let r = 0; r < 2; r++) {   // 跑兩輪：Q A×4 Q A×4 Q A×4 Q A×4
     const seen = new Set();
-    for (let h = 0; h < 2; h++) {
+    for (let h = 0; h < 8 / RA; h++) {
       ok(st.turn === 'Q', `第 ${r + 1} 輪第 ${h + 1} 個半輪前是清軍`); play(st, ai(st)); if (st.over) break;
-      ok(st.turn === 'A' && st.ql === 4, '清軍只走一步就換聯軍（半輪 4 國）');
+      ok(st.turn === 'A' && st.ql === RA, '清軍只走一步就換聯軍（半輪 4 國）');
       if (h === 0) ok(st.mv.every((x, n) => !x || st.dead[n]), '新的一輪：國家全部重新可走');
-      const want = Math.min(4, ctx.bgRoundLeft(st, true).length); let n = 0;
+      const want = Math.min(RA, ctx.bgRoundLeft(st, true).length); let n = 0;
       while (st.turn === 'A' && !st.over) {
         const L = ctx.bgAll(st, 'A', false), ns = new Set(L.map(([f]) => st.b[f].n));
         seen.forEach(x => ok(!ns.has(x), '這輪走過的國家還能走 ' + x));
         ok(ctx.bgRoundLeft(st, true).length === ns.size, 'bgRoundLeft 和 bgAll 不一致');
         const mv = ai(st), who = st.b[mv[0]].n; ok(!seen.has(who), '電腦挑了走過的國家'); seen.add(who); play(st, mv); n++;
-        if (st.turn === 'A') ok(st.mv[who] && st.ql === 4 - n, '走完要記下來、半輪少一國');
+        if (st.turn === 'A') ok(st.mv[who] && st.ql === RA - n, '走完要記下來、半輪少一國');
       }
       if (!st.over) ok(n === want, `半輪走 ${want} 國（實際 ${n}）`);
     }
@@ -68,9 +68,9 @@ const mk = () => { const st = ctx.bgNew(OWN, true); st.b.fill(null);
   for (const n of [0, 1, 3, 6, 7]) st.dead[n] = true; return st; };
 { const st = mk();
   play(st, [idx(4, 5), idx(4, 1)]);   // 清軍車吃英國國王
-  ok(st.dead[2] && !nNat(st).includes(2), '英國國王被吃整隊撤退'); ok(st.turn === 'A' && st.ql === 4 && !st.over, '吃王後換聯軍');
+  ok(st.dead[2] && !nNat(st).includes(2), '英國國王被吃整隊撤退'); ok(st.turn === 'A' && st.ql === RA && !st.over, '吃王後換聯軍');
   ok(JSON.stringify(ctx.bgRoundLeft(st, false)) === '[4,5]', '撤退的國家不用走');
-  play(st, [idx(28, 0), idx(28, 1)]); ok(st.turn === 'A' && st.mv[5] && st.ql === 3, '德國走完還輪聯軍');
+  play(st, [idx(28, 0), idx(28, 1)]); ok(st.turn === 'A' && st.mv[5] && st.ql === RA - 1, '德國走完還輪聯軍');
   ok(ctx.bgAll(st, 'A', false).every(([f]) => st.b[f].n === 4), '只剩法國能走');
   play(st, [idx(20, 0), idx(20, 1)]); ok(st.turn === 'Q', '活著的國家不足 4 國：都走過就換清軍');
   play(st, [idx(4, 1), idx(4, 2)]); ok(st.turn === 'A' && st.mv.every(x => !x), '這輪都走過了，清軍一步後開始新的一輪'); }
@@ -92,7 +92,7 @@ const mk = () => { const st = ctx.bgNew(OWN, true); st.b.fill(null);
 
 // ---- 打包解包 ----
 { const st = ctx.bgNew(OWN, true); play(st, ai(st)); play(st, ai(st)); play(st, ai(st));
-  ok(st.turn === 'A' && st.mv.filter(x => x).length === 2 && st.ql === 2, '聯軍這半輪走了兩國');
+  ok(st.turn === 'A' && st.mv.filter(x => x).length === 2 && st.ql === RA - 2, '聯軍這半輪走了兩國');
   const pk = JSON.parse(JSON.stringify(ctx.bgPack(st))), u = ctx.bgUnpack(pk);
   ok(key(u) === key(st), '打包解包後局面一樣（含 ql、mv）'); ok(pk.rr === 1 && pk.ql === st.ql && pk.mv.length === 8, '打包帶 rr/ql/mv');
   const L1 = ctx.bgAll(st, 'A', false).length, L2 = ctx.bgAll(u, 'A', false).length; ok(L1 === L2, '解包後可走的一樣');
@@ -102,16 +102,16 @@ const mk = () => { const st = ctx.bgNew(OWN, true); st.b.fill(null);
 E('localStorage.getItem=k=>k==="xq-bg-rr"?"1":null;');
 { BG.role = 'solo'; BG.me = 'Q'; BG.seats = []; BG.mySeat = 0; E('bgNewGame()'); ok(BG.st.rr === 1, '設定 xq-bg-rr=1 時開新局用新規則');
   const s0 = key(BG.st);
-  let mv = ai(BG.st); E(`bgDo(${mv[0]},${mv[1]})`); ok(BG.st.turn === 'A' && BG.st.ql === 4, '我（清軍）走一步就換電腦聯軍');
+  let mv = ai(BG.st); E(`bgDo(${mv[0]},${mv[1]})`); ok(BG.st.turn === 'A' && BG.st.ql === RA, '我（清軍）走一步就換電腦聯軍');
   let k = 0; while (BG.st.turn === 'A' && k++ < 20) { mv = ctx.bgAI(BG.st); E(`bgDo(${mv[0]},${mv[1]})`); }
-  ok(k === 4 && BG.st.turn === 'Q', '電腦聯軍走 4 國換我（' + k + '）'); const s1 = key(BG.st);
+  ok(k === RA && BG.st.turn === 'Q', '電腦聯軍走 '+RA+' 國換我（' + k + '）'); const s1 = key(BG.st);
   mv = ai(BG.st); E(`bgDo(${mv[0]},${mv[1]})`); k = 0; while (BG.st.turn === 'A' && k++ < 20) { mv = ctx.bgAI(BG.st); E(`bgDo(${mv[0]},${mv[1]})`); }
-  ok(k === 4 && BG.st.mv.filter(x => x).length === 8, '第二個半輪走剩下的 4 國');
+  ok(k === RA && BG.st.mv.filter(x => x).length === 8, '第二個半輪（十字形是新的一輪）');
   E('bgUndo()'); ok(key(BG.st) === s1, '悔棋退過電腦的半輪，回到我第 2 步之前');
   E('bgUndo()'); ok(key(BG.st) === s0, '再悔棋回到開局'); }
 { BG.role = 'solo'; BG.me = 'A'; BG.mySeat = 1; E('bgNewGame()'); let mv = ctx.bgAI(BG.st); E(`bgDo(${mv[0]},${mv[1]})`);
   ok(BG.st.turn === 'A', '電腦清軍一步後換我（聯軍）'); const a0 = key(BG.st);
-  mv = ai(BG.st); const who = BG.st.b[mv[0]].n; E(`bgDo(${mv[0]},${mv[1]})`); ok(BG.st.mv[who] && BG.st.ql === 3, '我走了一國，這半輪還剩 3 國');
+  mv = ai(BG.st); const who = BG.st.b[mv[0]].n; E(`bgDo(${mv[0]},${mv[1]})`); ok(BG.st.mv[who] && BG.st.ql === RA - 1, '我走了一國，這半輪少一國');
   const p2 = BG.st.b.findIndex((p, i) => p && p.s === 'A' && p.n === who && ctx.bgMoves(BG.st, i, false).length);
   ok(!E(`bgCanPick(${p2})`), '走過的國家不能再選'); ok(!E(`bgDo(${p2},${ctx.bgMoves(BG.st, p2, false)[0]})`), '走過的國家 bgDo 不接受');
   E('bgUndo()'); ok(key(BG.st) === a0 && !BG.st.mv[who], '悔棋退回、那一國又可以走'); }
@@ -127,7 +127,7 @@ E('localStorage.getItem=k=>k==="xq-bg-rr"?"1":null;');
     halves.push(order.join(','));
   }
   console.log('連線每半輪的順序', halves.join(' ｜ '));
-  ok(halves[0] === '3,5,ai,ai' && halves[1] === 'ai,ai,ai,ai' && halves[2] === '3,5,ai,ai', '連線輪流順序（真人每輪各一次、照座位順序先走）');
+  ok(RA === 8 ? halves.slice(0, 3).every(h => h === '3,5,ai,ai,ai,ai,ai,ai') : (halves[0] === '3,5,ai,ai' && halves[1] === 'ai,ai,ai,ai' && halves[2] === '3,5,ai,ai'), '連線輪流順序（真人每輪各一次、照座位順序先走）');
   BG.role = 'solo'; }
 console.log(fail ? '失敗 ' + fail : '新輪流方式規則檢查通過');
 
