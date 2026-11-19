@@ -824,7 +824,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.20.1">v0.20.1</span>
+  <span class="ver" aria-label="版本 0.20.2">v0.20.2</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -4510,9 +4510,9 @@ function pkRenderOver(v,names){
 function pkLobby(){
   const host=PK.role==='host';$('pkTitle').textContent=PK_GAMES[PK.g].n;$('pkCode').textContent=PK.code?`房號 ${PK.code}`:'';
   for(let p=1;p<4;p++){const el=$('pkS'+p);el.className='pkseat p'+p;el.innerHTML='';}$('pkS0').innerHTML='';$('pkHand').innerHTML='';$('pkBtns').innerHTML='';$('pkOver').hidden=true;
-  const seats=host?PK.seats:(PK.lobby||[]);
+  const seats=host?PK.seats:(PK.lobby||[]),me=host?0:PK.me;
   $('pkTable').innerHTML=`<div class="pklobby"><p>房號</p><b class="code">${PK.code||'----'}</b><p>把房號給朋友，在「撲克牌」選單輸入後加入</p>`
-    +`<ul>${[0,1,2,3].map(i=>{const s=seats[i];return`<li class="${s&&s.kind!=='ai'?'in':''}">${s&&s.kind!=='ai'?s.name:'（空位，開始時由電腦補上）'}</li>`;}).join('')}</ul>`
+    +`<ul>${[0,1,2,3].map(i=>{const s=seats[i];return`<li class="${s&&s.kind!=='ai'?'in':''}">${s&&s.kind!=='ai'?s.name+(i===me?'（你）':''):'（空位，開始時由電腦補上）'}</li>`;}).join('')}</ul>`
     +(host?`<button class="go" data-act="pkGo">開始${PK_GAMES[PK.g].n}</button>`:'<p class="wait">等房主開始…</p>')+`</div>`;
 }
 
@@ -4521,13 +4521,13 @@ async function pkCreate(){
   if(!R){pkMenuMsg('連線元件還沒準備好',true);return;}pkMenuMsg('建立房間中…');
   let net;try{net=await pkNet.host();}catch(e){net=null;}
   if(!net){pkMenuMsg('無法建立房間，請稍後再試',true);return;}
-  PK.net=net;PK.role='host';PK.code=net.code;PK.me=0;PK.phase='lobby';PK.seats=[{kind:'me',name:'房主（你）'},null,null,null];
+  PK.net=net;PK.role='host';PK.code=net.code;PK.me=0;PK.phase='lobby';PK.seats=[{kind:'me',name:'房主'},null,null,null];
   net.onMsg((peer,m)=>pkHostMsg(peer,m));net.onLeave(peer=>{const i=PK.seats.findIndex(s=>s&&s.peer===peer);if(i<0)return;
     if(PK.phase==='lobby'){PK.seats[i]=null;pkHostLobby();}else{PK.seats[i]={kind:'ai',name:PK.seats[i].name+'（離線，電腦接手）'};pkNote(PK.seats[i].name,2500);pkAfter();}});
   pkShow();pkHostLobby();pkMenuMsg('');
 }
 function pkHostLobby(){pkLobby();const lob=PK.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind,name:s.name}:null);
-  PK.seats.forEach(s=>{if(s&&s.kind==='net')PK.net.sendTo(s.peer,{k:'lobby',seats:lob,game:PK.g,code:PK.code});});}
+  PK.seats.forEach((s,i)=>{if(s&&s.kind==='net')PK.net.sendTo(s.peer,{k:'lobby',seats:lob,game:PK.g,code:PK.code,me:i});});}   // me：讓加入者知道自己是第幾個位置
 function pkHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
   if(m.k==='join'){let i=PK.seats.findIndex(s=>s&&s.peer===peer);
@@ -4548,7 +4548,7 @@ async function pkJoin(c){
   let got=false;
   net.onMsg((peer,m)=>{if(!m||typeof m!=='object')return;got=true;
     if(m.k==='full'){pkExit();pkMenuMsg(m.why||'房間已滿',true);return;}
-    if(m.k==='lobby'){PK.g=m.game;PK.lobby=m.seats;PK.phase='lobby';if($('pk').hidden){pkShow();pkMenuMsg('');}pkLobby();return;}
+    if(m.k==='lobby'){PK.g=m.game;PK.lobby=m.seats;if(typeof m.me==='number')PK.me=m.me;PK.phase='lobby';if($('pk').hidden){pkShow();pkMenuMsg('');}pkLobby();return;}
     if(m.k==='view'){PK.g=m.game;PK.phase='play';PK.view=m.v;PK.me=m.v.me;PK.names=m.names||[];if($('pk').hidden){pkShow();pkMenuMsg('');}
       if(PK.view.g==='b2'&&PK._seq!==m.v.seq){PK._seq=m.v.seq;}pkRender();return;}
     if(m.k==='fx'&&typeof m.kind==='string'){pkFxRecv(m.kind);return;}
