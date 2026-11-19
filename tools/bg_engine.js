@@ -1,11 +1,15 @@
 /* ===== 八國聯軍：規則引擎＋電腦玩家（十字形方格地圖：中央一塊空地，上、左、右、下四邊各貼一塊；清軍照象棋走、聯軍 8 國照西洋棋走） ===== */
 // 地圖 40×34：中央 32×16；上面那塊 32×2 站四國；左右各一塊 4×16，各站兩國；下面那塊 20×16 是清軍（左右各內縮 6 格）；四個角落沒有格子。每國是一整副西洋棋（8 格寬、2 排）
-const BG_AW=4,BG_CW=32,BG_TH=2,BG_CH=16,BG_QH=16,BG_W=BG_AW*2+BG_CW,BG_H=BG_TH+BG_CH+BG_QH,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW+6,BG_PW=BG_CW-12;   // 清軍腹地左右各比中央內縮 6 格
-const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：沿著那一邊的起點）
+// 通用化（0.19.0）：BG_W、BG_H、BG_VALID、BG_NATIONS、BG_KIND、BG_RIVER、bgPalm、bgHome、BGR 是「目前這一場戰役」的設定，
+// 預設是八國聯軍；二次大戰（w2）開局前用 bgUse('w2') 換成自己的地圖與規則，回到八國聯軍時 bgUse('bg') 換回來。移動規則 bgMoves 與電腦 bgAI 兩場共用。
+const BG_AW=4,BG_CW=32,BG_TH=2,BG_CH=16,BG_QH=16,BG0_W=BG_AW*2+BG_CW,BG0_H=BG_TH+BG_CH+BG_QH,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW+6,BG_PW=BG_CW-12;   // 清軍腹地左右各比中央內縮 6 格
+let BG_W=BG0_W,BG_H=BG0_H;
+const BG_NAT0=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：沿著那一邊的起點）
   {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:8,g:'塔夫列利'},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'l',at:0,g:'將棋',d:3},
   {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:0,g:'西洋棋'},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8,g:'菲舍爾任意制'},
   {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:16,g:'西洋棋'},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:24,g:'信使棋'},
   {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'r',at:0,g:'義式西洋棋'},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:8,g:'維也納棋'}];
+let BG_NATIONS=BG_NAT0;
 const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'};
 // 聯軍各國用自己國家的棋。棋種：k 國王 q 皇后 r 城堡 b 主教 n 騎士 p 士兵｜俄國 o 王前兵（升變成 e 赫爾吉＝皇后＋騎士）
 // ｜德國信使棋 c 信使 m 謀士 f 小后 w 弄臣 a 弓手｜日本將棋 g 金 s 銀 j 桂 l 香 u 歩，升變 d 龍 y 馬 t 成金
@@ -16,17 +20,26 @@ const BG_JP={k:'王',r:'飛',b:'角'},BG_JPN={k:'王將',r:'飛車',b:'角行'},
 const BG_KINDS={ch:'西洋棋',f9:'菲舍爾任意制',vi:'維也納棋',co:'信使棋',sh:'將棋',ta:'塔夫列利'},BG_OWN=['ta','sh','ch','f9','ch','co','ch','vi'];
 let BG_KIND=BG_OWN.slice();
 const bgKindsOk=k=>Array.isArray(k)&&k.length===8&&k.every(x=>typeof x==='string'&&BG_KINDS.hasOwnProperty(x));
+// 信使棋特有的棋用圖示（信使＝信封、謀士＝人像、小后＝小皇冠、弄臣＝小丑帽、弓手＝弓箭）
+const BG_SVG={c:'<path d="M3 6h18v12H3z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M3.5 6.5l8.5 7 8.5-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>',
+  m:'<circle cx="12" cy="7.5" r="4.2" fill="currentColor"/><path d="M3.5 21c0-5.5 3.6-8 8.5-8s8.5 2.5 8.5 8z" fill="currentColor"/>',
+  f:'<path d="M4 18l-1.5-9.5 5 4L12 5l4.5 7.5 5-4L20 18z" fill="currentColor"/><rect x="4" y="19" width="16" height="2.4" rx="1" fill="currentColor"/>',
+  w:'<path d="M4 17c0-4 1-9 3.5-11.5C8.5 8 10 9 12 9s3.5-1 4.5-3.5C19 8 20 13 20 17z" fill="currentColor"/><circle cx="7.4" cy="4.6" r="1.7" fill="currentColor"/><circle cx="16.6" cy="4.6" r="1.7" fill="currentColor"/><circle cx="12" cy="7" r="1.7" fill="currentColor"/><rect x="3.5" y="18" width="17" height="2.6" rx="1.2" fill="currentColor"/>',
+  a:'<path d="M7 3c8 3 8 15 0 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M7 3v18" stroke="currentColor" stroke-width="1.2"/><path d="M3 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 8.5l5 3.5-5 3.5z" fill="currentColor"/>'};
 const bgJP=p=>BG_KIND[p.n]==='sh',bgGlyph=p=>(bgJP(p)&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(bgJP(p)&&BG_JPN[p.t])||BG_CN[p.t];
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y<BG_TH?[BG_AW,BG_AW+BG_CW-1]:y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
-const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
+const BG0_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
+let BG_VALID=BG0_VALID;
 const bgIn=(x,y)=>x>=0&&y>=0&&x<BG_W&&y<BG_H&&BG_VALID[bgIdx(x,y)]===1;
-const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地：將、士、相、慈、禧只能在這裡
-// 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
-const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
+const bgPalm0=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地：將、士、相、慈、禧只能在這裡
+let bgPalm=bgPalm0;   // 二次大戰換成中華民國的陣地（帥、仕、相只能在這裡）
+// 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左；二次大戰下方的國家 b 往上），走到地圖盡頭升變
+const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:s==='b'?[0,-1]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n],d=BG_KIND[n]==='sh'?3:2;return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:d}:N.side==='l'?{x:0,y:BG_TH+N.at,w:d,h:8}:{x:BG_W-d,y:BG_TH+N.at,w:d,h:8};};   // 將棋有三排
-const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
+const bgHome0=n=>{const N=BG_NATIONS[n],d=BG_KIND[n]==='sh'?3:2;return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:d}:N.side==='l'?{x:0,y:BG_TH+N.at,w:d,h:8}:{x:BG_W-d,y:BG_TH+N.at,w:d,h:8};};   // 將棋有三排
+let bgHome=bgHome0;
+const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER0=BG_QY-1;let BG_RIVER=BG_RIVER0;   // 象棋的兵走到這一列（含）以上算過河，可以橫走
 // 清軍陣形（20 格寬、16 格深）：兩排將貼著腹地最前緣、空一排、炮馬炮（炮左右各內縮兩格，都是隔一格一顆、交錯）、空四排、三排車貼在最邊邊（左右各兩層）；
 // 最後三排相連：最左、最右兩層都是車；中間照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（不會被拐腳），最後一排的馬往前跳的落點也空出來；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
 const BG_QING=(()=>{const rev=t=>[...t].reverse().join(''),mir=h=>h+rev(h),E='.'.repeat(20),edge='RR'+'.'.repeat(16)+'RR',C='..'+'C.'.repeat(8)+'..';
@@ -54,7 +67,7 @@ function bgMoves(st,i,capsOnly){
   const add=(xx,yy)=>{if(!bgIn(xx,yy))return false;const q=b[bgIdx(xx,yy)];if(q&&q.s===p.s)return false;if(capsOnly&&!q)return!q;out.push(bgIdx(xx,yy));return!q;};
   const slide=dirs=>{for(const[dx,dy]of dirs){let xx=x+dx,yy=y+dy;while(bgIn(xx,yy)){const q=b[bgIdx(xx,yy)];if(!q){if(!capsOnly)out.push(bgIdx(xx,yy));}else{if(enemy(q))out.push(bgIdx(xx,yy));break;}xx+=dx;yy+=dy;}}};
   const D4=[[1,0],[-1,0],[0,1],[0,-1]],DG=[[1,1],[1,-1],[-1,1],[-1,-1]],KN=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
-  if(p.s==='A'){
+  if(p.t>='a'){   // 小寫：西洋棋系（各國）；大寫：象棋系（清軍、二次大戰的中華民國）
     switch(p.t){
       case 'k':for(const[dx,dy]of[...D4,...DG])add(x+dx,y+dy);break;
       case 'q':slide([...D4,...DG]);break;case 'r':slide(D4);break;case 'b':slide(DG);break;
@@ -107,19 +120,22 @@ function bgNationVal(st,n){let v=12;for(const p of st.b)if(p&&p.s==='A'&&p.n===n
 function bgVal(st,p,i){if(p.s==='A')return p.t==='k'?bgNationVal(st,p.n):BG_V[p.t];
   if(p.t==='X'||p.t==='Y'){const g=st.b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length;return g<=1?500:30;}
   if(p.t==='P'&&((i/BG_W)|0)<=BG_RIVER)return 2;return BG_V[p.t];}
-function bgThreat(st,side){let best=0;for(const[f,t]of bgAll(st,side,true)){const q=st.b[t];if(q){const v=bgVal(st,q,t);if(v>best)best=v;}}return best;}
+function bgThreat(st,side){let best=0;for(const[f,t]of bgAll(st,side,true)){const q=st.b[t];if(q){const v=BGR.val(st,q,t);if(v>best)best=v;}}return best;}
 function bgTargets(st,side){const out=[];st.b.forEach((p,i)=>{if(p&&p.s!==side&&(p.t==='X'||p.t==='Y'||p.t==='k'))out.push(i);});return out;}
 const bgDist=(a,b2)=>Math.abs(a%BG_W-b2%BG_W)+Math.abs(((a/BG_W)|0)-((b2/BG_W)|0));
+// 目前戰役的規則掛鉤：apply 走一步、val 棋子價值、targets 對方的「王」、still 不加推進分的棋、king 國王（動了扣一點分）
+const BG_RULES={apply:bgApply,val:bgVal,targets:bgTargets,still:p=>p.t==='X'||p.t==='Y'||p.t==='k'||p.t==='A'||p.t==='E',king:p=>p.t==='k'};
+let BGR=BG_RULES;
 function bgAI(st,opts){
   const side=st.turn,moves=bgAll(st,side,false).filter(([f])=>!opts||!opts.only||opts.only(st.b[f]));if(!moves.length)return null;
-  const tg=bgTargets(st,side),near=i=>tg.length?Math.min(...tg.map(t=>bgDist(i,t))):0;
+  const tg=BGR.targets(st,side),near=i=>tg.length?Math.min(...tg.map(t=>bgDist(i,t))):0;
   let best=null,bs=-1e9;
-  for(const[f,t]of moves){const p=st.b[f],q=st.b[t];let s=q?bgVal(st,q,t)*1.02:0;
-    const c=bgClone(st);bgApply(c,f,t);
+  for(const[f,t]of moves){const p=st.b[f],q=st.b[t];let s=q?BGR.val(st,q,t)*1.02:0;
+    const c=bgClone(st);BGR.apply(c,f,t);
     if(c.over&&c.over.win===side)return[f,t];
     s-=0.9*bgThreat(c,c.turn);
-    if(!(p.t==='X'||p.t==='Y'||p.t==='k'||p.t==='A'||p.t==='E'))s+=(near(f)-near(t))*0.06;
-    if(p.t==='k')s-=0.3;
+    if(!BGR.still(p))s+=(near(f)-near(t))*0.06;
+    if(BGR.king(p))s-=0.3;
     s+=Math.random()*0.05;
     if(s>bs){bs=s;best=[f,t];}}
   return best;}

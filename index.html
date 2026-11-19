@@ -802,6 +802,15 @@ html,body{overflow:hidden;overscroll-behavior:none}
   --sc-title:#fff4dc;--sc-sub:#ffe6c4;--sc-tsh:0 1px 4px rgba(40,10,0,.6)}
 .logo.bgl .duo span:first-child{font-size:24px}
 .logo.bgl .duo span:last-child{transform:none;font-size:13px;letter-spacing:-.02em;background:radial-gradient(circle at 35% 30%,#fff,#e8e2d6);color:#1e4fd8;font-family:var(--ui);font-weight:900}
+/* 二次大戰（0.19.0）：選單主題、歷史卡片、中華民國的象棋子（木色圓棋、紅字、國家顏色外圈）、國家列的陣營標籤 */
+.menu[data-th="w2"]{--sc-bg:linear-gradient(#1d2a44,#5b5a7a 35%,#e39a6b 52%,#c8b48a 75%);--page:rgba(240,236,222,.92);--bar:rgba(250,247,238,.86);--bar-fg:#232a22;--muted:#5c6150;--hint-strong:#4b5d2e;--sc-line:rgba(75,93,46,.35);
+  --sc-title:#fff6e4;--sc-sub:#f6e8cc;--sc-tsh:0 1px 4px rgba(10,15,30,.65)}
+.w2cards{display:grid;gap:8px}.w2card{border-radius:14px;background:var(--bar);color:var(--bar-fg);border:1px solid var(--sc-line,transparent);padding:10px 14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.w2card h3{margin:4px 0 4px;font-size:16px}.w2card p{margin:0;font-size:13.5px;line-height:1.6}
+.logo.w2l .duo span:first-child{color:#1e4fa0}.logo.w2l .duo span:last-child{color:#2b2b2f;transform:none}
+.bgp.q.xq span{box-shadow:0 2px 0 #7f5226,0 3px 6px rgba(0,0,0,.35),inset 0 0 0 3px var(--nc)}
+.bgp.q.xq.gen span{background:radial-gradient(circle at 35% 30%,#fff2b8,#f2c230 60%,#c9961a);color:#7a0d0a;box-shadow:0 2px 0 #7a5a10,0 0 0 3px var(--nc),0 4px 10px rgba(0,0,0,.4)}
+.bgns{flex:0 0 auto;align-self:center;font-size:12px;font-weight:900;color:#fff;background:#4b5d2e;border-radius:6px;padding:3px 7px}.bgns.x{background:#2b2b2f}
 #aiInfo{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;max-width:min(92vw,420px);padding:6px 12px;border-radius:12px;background:rgba(20,16,12,.78);color:#f6ead8;font-size:12px;line-height:1.45;pointer-events:none;opacity:0;transition:opacity .3s;text-align:center}
 #aiInfo.on{opacity:1}
 #aiInfo b{color:#ffd27a;font-weight:600}
@@ -813,7 +822,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.18.6">v0.18.6</span>
+  <span class="ver" aria-label="版本 0.19.0">v0.19.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -822,7 +831,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
     <div class="vwrap" id="vWrap"><button class="varr l" data-act="modeStep" data-d="-1" aria-label="上一個模式">‹</button>
       <div class="seg vseg" id="varSeg"><button data-act="var" data-v="xq" class="on">象棋</button><button data-act="var" data-v="dk">暗棋</button><button data-act="var" data-v="ch">西洋棋</button><button data-act="var" data-v="gm">五子棋</button><button data-act="var" data-v="go">圍棋</button><button data-act="var" data-v="pk">撲克牌</button><button data-act="var" data-v="ww">狼人殺</button><button data-act="var" data-v="hw">歷史戰役</button></div>
     <button class="varr r" data-act="modeStep" data-d="1" aria-label="下一個模式">›</button></div>
-    <div class="seg hwseg" id="hwSeg" hidden><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="jw">甲午戰爭</button><button data-act="var" data-v="bg">八國聯軍</button></div>
+    <div class="seg hwseg" id="hwSeg" hidden><button data-act="var" data-v="qf">清法戰爭</button><button data-act="var" data-v="jw">甲午戰爭</button><button data-act="var" data-v="bg">八國聯軍</button><button data-act="var" data-v="w2">二次大戰</button></div>
     <p class="pkrule" id="jwRule" hidden>1894 年甲午戰爭：象棋棋盤上，清軍用象棋（紅方，後走），日軍用將棋（黑方，先走）。<b>清軍</b>比一般象棋多 2 隻俥（共 4 隻）、兵 9 隻。<b>日軍</b>照將棋走：王八方向一步、飛直走、角斜走、金（前、斜前、左右、後各一步）、銀（前、四個斜角各一步）、桂（往前跳日字、不會被拐腳）、香（往前直衝）、歩（往前一步，吃法也是往前）。日軍的棋走進清軍最後三排會<b>升變</b>（飛變龍、角變馬，其餘變成金的走法）；日軍<b>吃到的清軍棋子會收到手上</b>（俥→飛、傌→桂、相→銀、仕→金、炮→香、兵→歩），輪到自己時可以不走棋、改把手上的一顆放到任何空格（歩不能和自己的歩同一路）。帥與王不能照面；將死或困死對方就贏。</p>
     <div class="qfhist" id="qfRule" hidden>
       <div class="qfhtrack" id="qfTrack" role="region" aria-roledescription="輪播" aria-label="清法戰爭的歷史，左右滑動翻頁">
@@ -859,6 +868,16 @@ html,body{overflow:hidden;overscroll-behavior:none}
       <button class="big" data-act="bgCreate" id="bgCreateBtn">創建房間<small>最多 9 人，各自選清軍或一個國家，空位由電腦補上</small></button>
       <div class="join"><input id="bgCodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="八國聯軍房號"><button data-act="bgJoin" id="bgJoinBtn">加入</button></div>
       <p class="msg" id="bgMenuMsg"></p>
+    </div>
+    <div class="pkmenu" id="w2Menu" hidden>
+      <p class="pkrule">1939–1945 年第二次世界大戰：方格地圖上下對立。<b>軸心國</b>在上，由左到右 德國（信使棋，完整 12 路）、日本（將棋，完整 9 路）、義大利（義式西洋棋）；<b>同盟國</b>在下，由左到右 英國（西洋棋）、美國（菲舍爾任意制）、蘇聯（塔夫列利）、中華民國（象棋子：帥、仕、相只能在自己陣地，兵過了中線可以橫走）。一方挑自己陣營的一國走一步，換對方陣營挑一國走一步；同陣營不能互吃。哪一國的王被吃，那一國整隊撤退；對方陣營所有的王都被吃就贏，600 步還沒分出勝負判和。<b>軸心國有強化</b>：德國底線後面多一隻城堡、義大利底線後面多兩隻皇后（電腦自我對局約一比一）。地圖可以兩指縮放、單指拖動。</p>
+      <div class="w2cards"><article class="w2card"><div class="qfcd"><span class="qfic">🌊</span><span>1944 年 6 月 6 日</span></div><h3>諾曼第登陸</h3><p>盟軍在黎明時分搭登陸艇衝上法國諾曼第的五處海灘（霸王行動），上萬架飛機掩護，開闢了西線戰場。不到一年，1945 年 5 月德國投降。</p></article>
+        <article class="w2card"><div class="qfcd"><span class="qfic">🕊️</span><span>1937–1945</span></div><h3>八年抗戰與終戰</h3><p>中華民國從 1937 年起獨力對日抗戰，1941 年珍珠港事變後與美、英、蘇等國結為同盟國。1945 年 8 月日本宣布投降，大戰結束。</p></article></div>
+      <button class="big" data-act="bgW2SoloL">我當同盟國<small>你指揮英、美、蘇、中四國，軸心國由電腦控制</small></button>
+      <button class="big" data-act="bgW2SoloX">我當軸心國<small>你指揮德、日、義三國，同盟國由電腦控制</small></button>
+      <button class="big" data-act="bgW2Create" id="w2CreateBtn">創建房間<small>最多 7 人，每國一個位置，空位由電腦補上</small></button>
+      <div class="join"><input id="w2CodeIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="輸入 4 位數房號" autocomplete="off" aria-label="二次大戰房號"><button data-act="bgW2Join" id="w2JoinBtn">加入</button></div>
+      <p class="msg" id="w2MenuMsg"></p>
     </div>
     <div class="pkmenu" id="wwMenu" hidden>
       <p class="pkrule" id="wwRule"></p>
@@ -930,7 +949,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <p class="wwmsg" id="wwMsg" aria-live="polite"></p>
 </div>
 <div class="bg" id="bg" hidden>
-  <div class="bghead"><button data-act="bgExit" aria-label="回選單">‹ 選單</button><b>八國聯軍</b><span id="bgCode"></span></div>
+  <div class="bghead"><button data-act="bgExit" aria-label="回選單">‹ 選單</button><b id="bgTitle">八國聯軍</b><span id="bgCode"></span></div>
   <div class="bgnat" id="bgNat"></div>
   <div class="bgview" id="bgView"><div class="bgworld" id="bgWorld"></div>
     <div class="bgzoom"><button data-act="bgZoom" data-f="1.4" aria-label="放大">＋</button><button data-act="bgZoom" data-f="0.7" aria-label="縮小">－</button><button data-act="bgFit" data-v="all" aria-label="看全圖">⤢</button></div>
@@ -2684,6 +2703,19 @@ SCENES.bg=`<svg ${SCENE_VB}><defs><linearGradient id="sbS" x1="0" y1="0" x2="0" 
 <rect x="-26" y="-112" width="52" height="16" fill="#1b3a6e" stroke="#e8c45c" stroke-width="1.5"/><text x="0" y="-100" font-size="11" text-anchor="middle" fill="#f2d27a" font-family="serif" font-weight="700">正陽門</text></g>
 <g fill="#cbb6a6" opacity=".5"><circle cx="70" cy="520" r="16"/><circle cx="58" cy="498" r="20"/><circle cx="44" cy="470" r="24"/><circle cx="340" cy="530" r="14"/><circle cx="352" cy="506" r="19"/></g>
 <rect y="700" width="400" height="160" fill="#3a2622"/></svg>`;
+SCENES.w2=`<svg ${SCENE_VB}><defs><linearGradient id="s2S" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d2a44"/><stop offset=".32" stop-color="#4f5476"/><stop offset=".48" stop-color="#c98572"/><stop offset=".56" stop-color="#f2c48e"/><stop offset="1" stop-color="#f2c48e"/></linearGradient>
+<linearGradient id="s2W" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d8a8c"/><stop offset="1" stop-color="#34484f"/></linearGradient><radialGradient id="s2G" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe2b0"/><stop offset="1" stop-color="#ffe2b0" stop-opacity="0"/></radialGradient></defs>
+<rect width="400" height="860" fill="url(#s2S)"/><circle cx="96" cy="482" r="120" fill="url(#s2G)"/><circle cx="96" cy="488" r="26" fill="#ffd9a0" opacity=".9"/>
+<g fill="#ffffff" opacity=".5">${[[40,90],[120,60],[210,110],[300,70],[360,130],[170,170],[60,200],[330,210]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.3"/>`).join('')}</g>
+<g fill="#1b2130" opacity=".85">${[[250,250,1],[300,285,.8],[200,300,.7],[330,330,.6],[150,345,.55]].map(([x,y,s])=>`<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="0" rx="16" ry="3.2"/><path d="M-3 -1 L-24 6 L-24 9 L-2 4z M3 -1 L24 6 L24 9 L2 4z"/><path d="M-14 -1 l-4 -6 h3 l5 6z"/></g>`).join('')}</g>
+<g fill="#2a3240" opacity=".75"><path d="M250 492h80l-6 8h-70z"/><rect x="276" y="480" width="18" height="12"/><rect x="284" y="470" width="3" height="10"/><path d="M340 494h46l-4 6h-38z"/><rect x="356" y="486" width="10" height="8"/></g>
+<rect y="500" width="400" height="190" fill="url(#s2W)"/>
+<g stroke="#fff" stroke-width="1.6" opacity=".22" fill="none">${[530,565,605,650].map((y,i)=>`<path d="M0 ${y}q40 -${6+i*2} 80 0t80 0t80 0t80 0t80 0"/>`).join('')}</g>
+<g>${[[70,560,.7],[180,590,.85],[300,575,.75],[120,630,1],[260,640,1.05]].map(([x,y,s])=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M-30 0h60l-8 14h-44z" fill="#3c4a3e"/><rect x="-24" y="-9" width="48" height="9" fill="#526150"/><rect x="-24" y="-12" width="48" height="3" fill="#2c362d"/><path d="M-40 14q40 8 80 0" stroke="#e9efe8" stroke-width="2" fill="none" opacity=".5"/></g>`).join('')}</g>
+<path d="M0 690 Q120 668 220 680 T400 672 V860 H0z" fill="#c8b48a"/><path d="M0 740 Q160 724 400 736 V860 H0z" fill="#b39d72"/>
+<g stroke="#3a332a" stroke-width="4" stroke-linecap="round">${[[50,712],[140,705],[230,716],[320,708],[370,722]].map(([x,y])=>`<path d="M${x-9} ${y+8}L${x+9} ${y-8}M${x+9} ${y+8}L${x-9} ${y-8}M${x} ${y-10}V${y+9}"/>`).join('')}</g>
+<path d="M330 690 L360 640 L400 630 V690z" fill="#5a5a4c"/><path d="M0 690 L0 650 L30 660 L52 690z" fill="#5a5a4c"/>
+<rect y="790" width="400" height="70" fill="#8f7c58"/></svg>`;
 function sceneSet(v){const el=$('scene');if(!el)return;const k=SCENES[v]?v:'xq';if(el.dataset.v===k)return;el.dataset.v=k;$('menu').dataset.th=k;
   el.innerHTML=`<div class="scenein">${SCENES[k]}</div>`;}
 
@@ -2699,8 +2731,8 @@ function qfNudge(){const tr=$('qfTrack');if(!tr||tr.scrollLeft>2)return;if(match
   setTimeout(()=>{if(tr.scrollLeft>2||$('qfRule').hidden)return;try{tr.scrollTo({left:70,behavior:'smooth'});setTimeout(()=>{if(tr.scrollLeft<=80)tr.scrollTo({left:0,behavior:'smooth'});},650);}catch(e){}},500);}
 
 /* ---------- 模式切換：螢幕邊緣滑動、邊緣標籤、模式列箭頭 ---------- */
-const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺',bg:'八國聯軍',jw:'甲午戰爭',hw:'歷史戰役'};
-const isWar=v=>v==='qf'||v==='bg'||v==='jw',modeKey=v=>isWar(v)?'hw':v;   // 歷史戰役這一類底下有三場戰役
+const MODE_N={xq:'象棋',dk:'暗棋',ch:'西洋棋',qf:'清法戰爭',gm:'五子棋',go:'圍棋',pk:'撲克牌',ww:'狼人殺',bg:'八國聯軍',jw:'甲午戰爭',w2:'二次大戰',hw:'歷史戰役'};
+const isWar=v=>v==='qf'||v==='bg'||v==='jw'||v==='w2',modeKey=v=>isWar(v)?'hw':v;   // 歷史戰役這一類底下有四場戰役
 function modeGo(k){if(k==='hw')k=hwPick;if(isWar(k))hwPick=k;menuVariant=k;syncVariant();}
 function modeList(){return[...document.querySelectorAll('#varSeg button')].map(b=>b.dataset.v);}
 function modeStep(d){const L=modeList(),i=L.indexOf(modeKey(menuVariant)),j=i+d;if(j<0||j>=L.length)return false;modeGo(L[j]);try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}return true;}
@@ -2727,7 +2759,7 @@ function modeEdges(){const L=modeList(),i=L.indexOf(modeKey(menuVariant)),p=L[i-
 function modeNudge(){const sg=$('varSeg');if(!sg||sg.dataset.nudged||matchMedia('(prefers-reduced-motion: reduce)').matches)return;sg.dataset.nudged=1;const x0=sg.scrollLeft;
   setTimeout(()=>{if($('menu').hidden)return;try{sg.scrollTo({left:x0+70,behavior:'smooth'});setTimeout(()=>sg.scrollTo({left:x0,behavior:'smooth'}),650);}catch(e){}},700);}
 function syncVariant(){
-  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7,bg:8,jw:9}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
+  const v=menuVariant,i={xq:0,dk:1,ch:2,gm:3,go:4,pk:5,ww:6,qf:7,bg:8,jw:9,w2:10}[v],T=(...a)=>a[i]??'';sceneSet(v);setTimeout(modeEdges,0);setTimeout(modeEdges,450);
   document.querySelectorAll('#varSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===modeKey(v)));
   $('hwSeg').hidden=!isWar(v);document.querySelectorAll('#hwSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$('jwRule').hidden=v!=='jw';
   {const sg=$('varSeg'),on=sg.querySelector('button.on');if(on&&sg.scrollWidth>sg.clientWidth){const l=on.offsetLeft-(sg.clientWidth-on.offsetWidth)/2;try{sg.scrollTo({left:l,behavior:'smooth'});}catch(e){sg.scrollLeft=l;}}}
@@ -2739,9 +2771,10 @@ function syncVariant(){
   $('sdR').textContent=T('我執紅（先走）','我先手','我執白（先走）','我執黑（先下）','我執黑（先下）','','','我當清軍（後走）','','我當清軍（後走）');
   $('sdB').textContent=T('我執黑','AI 先手','我執黑','我執白','我執白','','','我當法軍（先走）','','我當日軍（先走）');
   $('createSub').textContent=T('你當紅方','你先手','你執白','你執黑先下','你執黑先下','','','你當清軍（後走）','','你當清軍（後走）')+'，取得 4 位數房號給朋友';
-  const pk=v==='pk',ww=v==='ww',bgv=v==='bg',other=pk||ww||bgv;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;$('bgMenu').hidden=!bgv;lg.classList.toggle('bgl',bgv);['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
+  const pk=v==='pk',ww=v==='ww',bgv=v==='bg',w2v=v==='w2',other=pk||ww||bgv||w2v;$('pkMenu').hidden=!pk;$('wwMenu').hidden=!ww;$('bgMenu').hidden=!bgv;$('w2Menu').hidden=!w2v;lg.classList.toggle('bgl',bgv);lg.classList.toggle('w2l',w2v);['localBtn','createBtn','setBtn'].forEach(id=>$(id).hidden=other);
   document.querySelector('.card>.aibox').hidden=other;document.querySelector('.card>.join').hidden=other;lg.classList.toggle('pkl',pk);lg.classList.toggle('wwl',ww);
   if(bgv){$('skinBtn').hidden=true;$('ttl').textContent='八國聯軍';$('logoA').textContent='清';$('logoB').textContent='八國';bgSyncMenu();}
+  if(w2v){$('skinBtn').hidden=true;$('ttl').textContent='二次大戰';$('logoA').textContent='盟';$('logoB').textContent='軸';w2SyncMenu();}
   if(ww){$('skinBtn').hidden=true;$('ttl').textContent='狼人殺';$('logoA').textContent='🐺';$('logoB').textContent='🌕';wwSyncMenu();}
   if(pk){$('skinBtn').hidden=true;$('ttl').textContent='撲克牌';$('logoA').textContent='♥';$('logoB').textContent='♠';pkSyncMenu();}
 }
@@ -5019,12 +5052,16 @@ document.addEventListener('scroll',e=>{if(e.target&&e.target.id==='wwLog'){const
 
 /* ===== 八國聯軍：規則引擎＋電腦玩家（十字形方格地圖：中央一塊空地，上、左、右、下四邊各貼一塊；清軍照象棋走、聯軍 8 國照西洋棋走） ===== */
 // 地圖 40×34：中央 32×16；上面那塊 32×2 站四國；左右各一塊 4×16，各站兩國；下面那塊 20×16 是清軍（左右各內縮 6 格）；四個角落沒有格子。每國是一整副西洋棋（8 格寬、2 排）
-const BG_AW=4,BG_CW=32,BG_TH=2,BG_CH=16,BG_QH=16,BG_W=BG_AW*2+BG_CW,BG_H=BG_TH+BG_CH+BG_QH,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW+6,BG_PW=BG_CW-12;   // 清軍腹地左右各比中央內縮 6 格
-const BG_NATIONS=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：沿著那一邊的起點）
+// 通用化（0.19.0）：BG_W、BG_H、BG_VALID、BG_NATIONS、BG_KIND、BG_RIVER、bgPalm、bgHome、BGR 是「目前這一場戰役」的設定，
+// 預設是八國聯軍；二次大戰（w2）開局前用 bgUse('w2') 換成自己的地圖與規則，回到八國聯軍時 bgUse('bg') 換回來。移動規則 bgMoves 與電腦 bgAI 兩場共用。
+const BG_AW=4,BG_CW=32,BG_TH=2,BG_CH=16,BG_QH=16,BG0_W=BG_AW*2+BG_CW,BG0_H=BG_TH+BG_CH+BG_QH,BG_PY=BG_TH+BG_CH,BG_PX=BG_AW+6,BG_PW=BG_CW-12;   // 清軍腹地左右各比中央內縮 6 格
+let BG_W=BG0_W,BG_H=BG0_H;
+const BG_NAT0=[   // 名稱、主色、字色、位置（side：l 左 t 上 r 右；at：沿著那一邊的起點）
   {n:'俄國',c:'#f4f4f2',fg:'#1b1b1b',side:'l',at:8,g:'塔夫列利'},{n:'日本',c:'#e2557a',fg:'#ffffff',side:'l',at:0,g:'將棋',d:3},
   {n:'英國',c:'#c62828',fg:'#ffffff',side:'t',at:0,g:'西洋棋'},{n:'美國',c:'#00897b',fg:'#ffffff',side:'t',at:8,g:'菲舍爾任意制'},
   {n:'法國',c:'#1e4fd8',fg:'#ffffff',side:'t',at:16,g:'西洋棋'},{n:'德國',c:'#2b2b2f',fg:'#f2d25c',side:'t',at:24,g:'信使棋'},
   {n:'義大利',c:'#2e7d32',fg:'#ffffff',side:'r',at:0,g:'義式西洋棋'},{n:'奧匈',c:'#e0a516',fg:'#1b1b1b',side:'r',at:8,g:'維也納棋'}];
+let BG_NATIONS=BG_NAT0;
 const BG_QN={R:'車',H:'馬',C:'炮',P:'兵',A:'士',E:'相',G:'將',X:'慈',Y:'禧'};
 // 聯軍各國用自己國家的棋。棋種：k 國王 q 皇后 r 城堡 b 主教 n 騎士 p 士兵｜俄國 o 王前兵（升變成 e 赫爾吉＝皇后＋騎士）
 // ｜德國信使棋 c 信使 m 謀士 f 小后 w 弄臣 a 弓手｜日本將棋 g 金 s 銀 j 桂 l 香 u 歩，升變 d 龍 y 馬 t 成金
@@ -5044,14 +5081,17 @@ const BG_SVG={c:'<path d="M3 6h18v12H3z" fill="none" stroke="currentColor" strok
 const bgJP=p=>BG_KIND[p.n]==='sh',bgGlyph=p=>(bgJP(p)&&BG_JP[p.t])||BG_CG[p.t],bgCName=p=>(bgJP(p)&&BG_JPN[p.t])||BG_CN[p.t];
 const bgIdx=(x,y)=>y*BG_W+x;
 const BG_ROWS=y=>y<BG_TH?[BG_AW,BG_AW+BG_CW-1]:y<BG_PY?[0,BG_W-1]:[BG_PX,BG_PX+BG_PW-1];   // 每一列有格子的範圍
-const BG_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
+const BG0_VALID=(()=>{const v=new Uint8Array(BG_W*BG_H);for(let y=0;y<BG_H;y++){const[a,b]=BG_ROWS(y);for(let x=a;x<=b;x++)v[bgIdx(x,y)]=1;}return v;})();
+let BG_VALID=BG0_VALID;
 const bgIn=(x,y)=>x>=0&&y>=0&&x<BG_W&&y<BG_H&&BG_VALID[bgIdx(x,y)]===1;
-const bgPalm=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地：將、士、相、慈、禧只能在這裡
-// 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左），走到地圖盡頭升變
-const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:[-1,0];};
+const bgPalm0=(x,y)=>y>=BG_PY&&y<BG_H&&x>=BG_PX&&x<BG_PX+BG_PW;   // 清軍腹地：將、士、相、慈、禧只能在這裡
+let bgPalm=bgPalm0;   // 二次大戰換成中華民國的陣地（帥、仕、相只能在這裡）
+// 每國士兵前進方向（上方六國往下、俄國往右、奧匈往左；二次大戰下方的國家 b 往上），走到地圖盡頭升變
+const bgDir=n=>{const s=BG_NATIONS[n].side;return s==='t'?[0,1]:s==='l'?[1,0]:s==='b'?[0,-1]:[-1,0];};
 // 每國陣地的左上角與大小
-const bgHome=n=>{const N=BG_NATIONS[n],d=BG_KIND[n]==='sh'?3:2;return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:d}:N.side==='l'?{x:0,y:BG_TH+N.at,w:d,h:8}:{x:BG_W-d,y:BG_TH+N.at,w:d,h:8};};   // 將棋有三排
-const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER=BG_QY-1;
+const bgHome0=n=>{const N=BG_NATIONS[n],d=BG_KIND[n]==='sh'?3:2;return N.side==='t'?{x:BG_AW+N.at,y:0,w:8,h:d}:N.side==='l'?{x:0,y:BG_TH+N.at,w:d,h:8}:{x:BG_W-d,y:BG_TH+N.at,w:d,h:8};};   // 將棋有三排
+let bgHome=bgHome0;
+const BG_QX=BG_PX,BG_QY=BG_PY,BG_RIVER0=BG_QY-1;let BG_RIVER=BG_RIVER0;   // 象棋的兵走到這一列（含）以上算過河，可以橫走
 // 清軍陣形（20 格寬、16 格深）：兩排將貼著腹地最前緣、空一排、炮馬炮（炮左右各內縮兩格，都是隔一格一顆、交錯）、空四排、三排車貼在最邊邊（左右各兩層）；
 // 最後三排相連：最左、最右兩層都是車；中間照 馬炮相車 重複、每排錯開兩格，馬正前方的相拿掉（不會被拐腳），最後一排的馬往前跳的落點也空出來；左右對稱，最後一排中間是士與慈、禧（兩個都被吃才算輸）
 const BG_QING=(()=>{const rev=t=>[...t].reverse().join(''),mir=h=>h+rev(h),E='.'.repeat(20),edge='RR'+'.'.repeat(16)+'RR',C='..'+'C.'.repeat(8)+'..';
@@ -5079,7 +5119,7 @@ function bgMoves(st,i,capsOnly){
   const add=(xx,yy)=>{if(!bgIn(xx,yy))return false;const q=b[bgIdx(xx,yy)];if(q&&q.s===p.s)return false;if(capsOnly&&!q)return!q;out.push(bgIdx(xx,yy));return!q;};
   const slide=dirs=>{for(const[dx,dy]of dirs){let xx=x+dx,yy=y+dy;while(bgIn(xx,yy)){const q=b[bgIdx(xx,yy)];if(!q){if(!capsOnly)out.push(bgIdx(xx,yy));}else{if(enemy(q))out.push(bgIdx(xx,yy));break;}xx+=dx;yy+=dy;}}};
   const D4=[[1,0],[-1,0],[0,1],[0,-1]],DG=[[1,1],[1,-1],[-1,1],[-1,-1]],KN=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
-  if(p.s==='A'){
+  if(p.t>='a'){   // 小寫：西洋棋系（各國）；大寫：象棋系（清軍、二次大戰的中華民國）
     switch(p.t){
       case 'k':for(const[dx,dy]of[...D4,...DG])add(x+dx,y+dy);break;
       case 'q':slide([...D4,...DG]);break;case 'r':slide(D4);break;case 'b':slide(DG);break;
@@ -5132,19 +5172,22 @@ function bgNationVal(st,n){let v=12;for(const p of st.b)if(p&&p.s==='A'&&p.n===n
 function bgVal(st,p,i){if(p.s==='A')return p.t==='k'?bgNationVal(st,p.n):BG_V[p.t];
   if(p.t==='X'||p.t==='Y'){const g=st.b.filter(x=>x&&x.s==='Q'&&(x.t==='X'||x.t==='Y')).length;return g<=1?500:30;}
   if(p.t==='P'&&((i/BG_W)|0)<=BG_RIVER)return 2;return BG_V[p.t];}
-function bgThreat(st,side){let best=0;for(const[f,t]of bgAll(st,side,true)){const q=st.b[t];if(q){const v=bgVal(st,q,t);if(v>best)best=v;}}return best;}
+function bgThreat(st,side){let best=0;for(const[f,t]of bgAll(st,side,true)){const q=st.b[t];if(q){const v=BGR.val(st,q,t);if(v>best)best=v;}}return best;}
 function bgTargets(st,side){const out=[];st.b.forEach((p,i)=>{if(p&&p.s!==side&&(p.t==='X'||p.t==='Y'||p.t==='k'))out.push(i);});return out;}
 const bgDist=(a,b2)=>Math.abs(a%BG_W-b2%BG_W)+Math.abs(((a/BG_W)|0)-((b2/BG_W)|0));
+// 目前戰役的規則掛鉤：apply 走一步、val 棋子價值、targets 對方的「王」、still 不加推進分的棋、king 國王（動了扣一點分）
+const BG_RULES={apply:bgApply,val:bgVal,targets:bgTargets,still:p=>p.t==='X'||p.t==='Y'||p.t==='k'||p.t==='A'||p.t==='E',king:p=>p.t==='k'};
+let BGR=BG_RULES;
 function bgAI(st,opts){
   const side=st.turn,moves=bgAll(st,side,false).filter(([f])=>!opts||!opts.only||opts.only(st.b[f]));if(!moves.length)return null;
-  const tg=bgTargets(st,side),near=i=>tg.length?Math.min(...tg.map(t=>bgDist(i,t))):0;
+  const tg=BGR.targets(st,side),near=i=>tg.length?Math.min(...tg.map(t=>bgDist(i,t))):0;
   let best=null,bs=-1e9;
-  for(const[f,t]of moves){const p=st.b[f],q=st.b[t];let s=q?bgVal(st,q,t)*1.02:0;
-    const c=bgClone(st);bgApply(c,f,t);
+  for(const[f,t]of moves){const p=st.b[f],q=st.b[t];let s=q?BGR.val(st,q,t)*1.02:0;
+    const c=bgClone(st);BGR.apply(c,f,t);
     if(c.over&&c.over.win===side)return[f,t];
     s-=0.9*bgThreat(c,c.turn);
-    if(!(p.t==='X'||p.t==='Y'||p.t==='k'||p.t==='A'||p.t==='E'))s+=(near(f)-near(t))*0.06;
-    if(p.t==='k')s-=0.3;
+    if(!BGR.still(p))s+=(near(f)-near(t))*0.06;
+    if(BGR.king(p))s-=0.3;
     s+=Math.random()*0.05;
     if(s>bs){bs=s;best=[f,t];}}
   return best;}
@@ -5153,9 +5196,9 @@ function bgAI(st,opts){
 // 座位：0 清軍、1..8 各國。單機時 me 決定玩家是清軍還是全部聯軍；連線時由房主跑規則，加入者只送出走法
 const BG={role:null,st:null,hist:[],me:'Q',seats:[],net:null,code:null,sel:-1,tg:[],view:{s:1,tx:0,ty:0},timer:null,ac:0,mySeat:0,lobby:null,msg:''};
 const BG_CS=44;   // 每格的世界座標大小
-function bgShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=true;$('ww').hidden=true;$('bg').hidden=false;}
+function bgShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=true;$('ww').hidden=true;$('bg').hidden=false;$('bg').dataset.cp=BG_CP;$('bgTitle').textContent=BG_CP==='w2'?'二次大戰':'八國聯軍';}
 function bgExit(){clearTimeout(BG.timer);if(BG.net){try{BG.net.close();}catch(e){}BG.net=null;}BG.role=null;BG.st=null;$('bg').hidden=true;showMenu('');}
-function bgMenuMsg(t,err){const m=$('bgMenuMsg');if(m){m.textContent=t;m.classList.toggle('err',!!err);}}
+function bgMenuMsg(t,err){const m=$(BG_CP==='w2'?'w2MenuMsg':'bgMenuMsg');if(m){m.textContent=t;m.classList.toggle('err',!!err);}}
 // 各國用什麼棋（存在這台裝置；連線時用房主的設定）
 function bgCfgKinds(){try{const k=JSON.parse(localStorage.getItem('xq-bg-kinds')||'null');if(bgKindsOk(k))return k;}catch(e){}return BG_OWN.slice();}
 function bgCfgSave(k){try{localStorage.setItem('xq-bg-kinds',JSON.stringify(k));}catch(e){}bgCfgRender();}
@@ -5165,36 +5208,38 @@ function bgCfgRender(){const k=bgCfgKinds(),own=k.every((x,i)=>x===BG_OWN[i]),al
   document.querySelectorAll('#bgCfg [data-act=bgKindAll]').forEach(b=>b.classList.toggle('on',b.dataset.v==='own'?own:allCh));}
 document.addEventListener('change',e=>{const el=e.target;if(!el||el.tagName!=='SELECT'||el.dataset.act!=='bgKindSel')return;const k=bgCfgKinds();if(BG_KINDS[el.value]){k[+el.dataset.n]=el.value;bgCfgSave(k);}});
 function bgSyncMenu(){const ok=!!R;$('bgCreateBtn').disabled=!ok;$('bgJoinBtn').disabled=!ok;bgCfgRender();}
+function w2SyncMenu(){const ok=!!R;$('w2CreateBtn').disabled=!ok;$('w2JoinBtn').disabled=!ok;}
 /* ---------- 誰可以走 ---------- */
-// 聯軍的「操作者」：連線時每位選了國家的真人各算一位，其他由電腦接手的國家合起來算一位；聯軍的回合依序輪流
-function bgCtrls(){const st=BG.st,out=[];if(!st)return out;
-  const humanN=new Map();BG.seats.forEach((s,k)=>{if(k>0&&s&&s.kind!=='ai'&&!st.dead[k-1])humanN.set(k,s);});
-  [...humanN.keys()].forEach(k=>out.push({seat:k,nations:[k-1]}));
-  const aiN=[];for(let n=0;n<8;n++)if(!st.dead[n]&&!humanN.has(n+1))aiN.push(n);if(aiN.length)out.push({seat:-1,nations:aiN});
+// 聯軍（二次大戰：輪到的那一個陣營）的「操作者」：連線時每位選了國家的真人各算一位，其他由電腦接手的國家合起來算一位；依序輪流
+// 座位：八國聯軍 0 清軍、1..8 各國；二次大戰 0..6 就是 7 個國家
+function bgCtrls(){const st=BG.st,out=[];if(!st)return out;const w2=BG_CP==='w2',sn=k=>w2?k:k-1,side=n=>BG_NATIONS[n].s||'A';
+  const humanN=new Map();BG.seats.forEach((s,k)=>{const n=sn(k);if(n>=0&&s&&s.kind!=='ai'&&!st.dead[n]&&side(n)===st.turn)humanN.set(k,s);});
+  [...humanN.keys()].forEach(k=>out.push({seat:k,nations:[sn(k)]}));
+  const aiN=[];for(let n=0;n<BG_NATIONS.length;n++)if(!st.dead[n]&&side(n)===st.turn&&!humanN.has(w2?n:n+1))aiN.push(n);if(aiN.length)out.push({seat:-1,nations:aiN});
   return out;}
-function bgCurCtrl(){const c=bgCtrls();return c.length?c[BG.ac%c.length]:null;}
+function bgCurCtrl(){const c=bgCtrls();return c.length?c[(BG_CP==='w2'?BG.st.seq>>1:BG.ac)%c.length]:null;}   // 二次大戰兩邊嚴格輪流，用步數算輪到哪一位
 // 這一手由誰走：{ai:true, only} 或 {seat, nations}
 function bgWho(){const st=BG.st;if(!st||st.over)return null;
-  if(BG.role==='solo'){if(st.turn==='Q')return BG.me==='Q'?{human:true}:{ai:true};return BG.me==='A'?{human:true}:{ai:true};}
-  if(st.turn==='Q'){const s=BG.seats[0];return s&&s.kind!=='ai'?{seat:0}:{ai:true};}
+  if(BG.role==='solo')return st.turn===BG.me?{human:true}:{ai:true};
+  if(BG_CP==='bg'&&st.turn==='Q'){const s=BG.seats[0];return s&&s.kind!=='ai'?{seat:0}:{ai:true};}
   const c=bgCurCtrl();if(!c)return null;return c.seat<0?{ai:true,nations:c.nations}:{seat:c.seat,nations:c.nations};}
 function bgMyTurn(){const w=bgWho();if(!w||w.ai)return false;if(BG.role==='solo')return true;return w.seat===BG.mySeat;}
 function bgCanPick(i){const st=BG.st,p=st.b[i];if(!p||p.s!==st.turn||!bgMyTurn())return false;const w=bgWho();
-  if(p.s==='A'&&w.nations&&!w.nations.includes(p.n))return false;return true;}
+  if(p.n>=0&&w.nations&&!w.nations.includes(p.n))return false;return true;}
 /* ---------- 開局 ---------- */
-function bgStartSolo(me){BG.role='solo';BG.me=me;BG.code=null;BG.seats=[];BG.mySeat=me==='Q'?0:1;bgNewGame();bgShow();bgFit(me==='Q'?'mine':'all');}
-function bgNewGame(){clearTimeout(BG.timer);BG.st=bgNew(bgCfgKinds());BG.hist=[];BG.sel=-1;BG.tg=[];BG.ac=0;BG.msg='';bgAfter();}
+function bgStartSolo(me,cp){bgUse(cp||'bg');BG.role='solo';BG.me=me;BG.code=null;BG.seats=[];BG.mySeat=me==='Q'?0:1;bgNewGame();bgShow();bgFit(me==='Q'||BG_CP==='w2'?'mine':'all');}
+function bgNewGame(){clearTimeout(BG.timer);BG.st=BG_CP==='w2'?w2New():bgNew(bgCfgKinds());BG.hist=[];BG.sel=-1;BG.tg=[];BG.ac=0;BG.msg='';bgAfter();}
 function bgDo(f,t){const st=BG.st;if(!st||st.over)return false;const p=st.b[f];if(!p||p.s!==st.turn||!bgMoves(st,f,false).includes(t))return false;
   if(BG.role==='solo'){BG.hist.push(bgClone(st));if(BG.hist.length>80)BG.hist.shift();}   // 悔棋紀錄最多留 80 步，長局不會一直吃記憶體
-  const wasA=st.turn==='A',q=st.b[t];const r=bgApply(st,f,t);
+  const wasA=st.turn==='A',q=st.b[t];const r=BGR.apply(st,f,t);
   BG.msg=bgDescribe(r.p,r.q)+(r.note?'・'+r.note:'');if(wasA)BG.ac++;BG.sel=-1;BG.tg=[];bgAfter();return true;}
-function bgName(p){return p.s==='Q'?'清軍'+BG_QN[p.t]:BG_NATIONS[p.n].n+bgCName(p);}
+function bgName(p){return p.s==='Q'?'清軍'+BG_QN[p.t]:BG_NATIONS[p.n].n+(p.t<'a'?W2_XQN[p.t]:bgCName(p));}
 function bgDescribe(p,q){return bgName(p)+(q?' 吃掉 '+bgName(q):' 移動');}
 function bgAfter(){bgPush();bgRender();bgSchedule();}
 function bgSchedule(){clearTimeout(BG.timer);const st=BG.st;if(!st||st.over||BG.role==='guest')return;const w=bgWho();if(!w||!w.ai)return;
   const seq=st.seq,old=()=>bgAI(st,w.nations?{only:p=>p.s==='Q'||w.nations.includes(p.n)}:null);
   BG.timer=setTimeout(()=>{if(BG.st!==st||st.seq!==seq||st.over)return;
-    if(BR.ok){const t0=Date.now();   // 下棋模型：在 Worker 裡想，想完再確認局面沒變
+    if(BR.ok&&BG_CP==='bg'){const t0=Date.now();   // 下棋模型（只給八國聯軍；二次大戰用 bgAI 啟發式）：在 Worker 裡想，想完再確認局面沒變
       brainThink('bg',{st:JSON.parse(JSON.stringify(st)),kinds:BG_KIND.slice(),only:w.nations||null},Math.min(aiLevel,5),false).then(r=>{   // 八國聯軍最高 Lv5
         if(BG.st!==st||st.seq!==seq||st.over)return;const mv=r&&r.res&&bgMoves(st,r.res[0],false).includes(r.res[1])?r.res:old();if(mv)bgDo(mv[0],mv[1]);});
       return;}
@@ -5202,50 +5247,64 @@ function bgSchedule(){clearTimeout(BG.timer);const st=BG.st;if(!st||st.over||BG.
 function bgUndo(){if(BG.role!=='solo'||!BG.hist.length)return;clearTimeout(BG.timer);
   do{BG.st=BG.hist.pop();}while(BG.hist.length&&!bgMyTurn());BG.sel=-1;BG.tg=[];BG.msg='悔棋';bgRender();bgSchedule();}
 /* ---------- 畫面 ---------- */
-function bgBoardSVG(){const CS=BG_CS;let r='';
+function bgBoardSVG(){const CS=BG_CS,w2=BG_CP==='w2',pal=w2?['#bdb58c','#d8d2ae','#cdb98a','#e4d6ae']:['#cfa67b','#e6c69c','#d9b48a','#ecd2ae'];let r='';   // 二次大戰用卡其色地圖
   for(let y=0;y<BG_H;y++)for(let x=0;x<BG_W;x++){if(!bgIn(x,y))continue;const dark=(x+y)&1,palm=bgPalm(x,y);
-    r+=`<rect x="${x*CS}" y="${y*CS}" width="${CS}" height="${CS}" fill="${palm?(dark?'#d9b48a':'#ecd2ae'):(dark?'#cfa67b':'#e6c69c')}"/>`;}
+    r+=`<rect x="${x*CS}" y="${y*CS}" width="${CS}" height="${CS}" fill="${palm?(dark?pal[2]:pal[3]):(dark?pal[0]:pal[1])}"/>`;}
+  if(w2){const my=(BG_RIVER+1)*CS;r+=`<line x1="0" y1="${my}" x2="${BG_W*CS}" y2="${my}" stroke="#5a5030" stroke-width="3" stroke-dasharray="14 10" opacity=".55"/>`
+    +`<text x="${BG_W*CS/2}" y="${my-CS*.3}" font-size="${CS*.38}" text-anchor="middle" fill="#5a5030" font-weight="700" opacity=".6">中線（中華民國的兵過了這條線可以橫走）</text>`;}
   BG_NATIONS.forEach((N,n)=>{const{x,y,w,h}=bgHome(n);
     r+=`<rect x="${x*CS}" y="${y*CS}" width="${w*CS}" height="${h*CS}" fill="${N.c}" opacity=".28"/>`;
-    const lx=N.side==='t'?(x+w/2)*CS:N.side==='l'?(x+w+1)*CS:(x-1)*CS,ly=N.side==='t'?(h+.5)*CS:(y+h/2)*CS;
-    r+=`<text x="${lx}" y="${ly}" font-size="${CS*.42}" text-anchor="middle" dominant-baseline="middle" fill="#6b4a2a" font-weight="700" opacity=".7">${N.n}・${BG_KINDS[BG_KIND[n]]}</text>`;});
+    const lx=N.side==='t'||N.side==='b'?(x+w/2)*CS:N.side==='l'?(x+w+1)*CS:(x-1)*CS,ly=N.side==='t'?(h+.5)*CS:N.side==='b'?(y-.5)*CS:(y+h/2)*CS;
+    r+=`<text x="${lx}" y="${ly}" font-size="${CS*.42}" text-anchor="middle" dominant-baseline="middle" fill="#6b4a2a" font-weight="700" opacity=".7">${N.n}・${w2?N.g:BG_KINDS[BG_KIND[n]]}</text>`;});
   return`<svg width="${BG_W*CS}" height="${BG_H*CS}" viewBox="0 0 ${BG_W*CS} ${BG_H*CS}" aria-hidden="true">${r}</svg>`;}
 function bgRender(){const st=BG.st;if(!st)return;const CS=BG_CS;
-  const w=$('bgWorld'),bk=BG_KIND.join();if(w.dataset.ok!==bk){w.innerHTML=bgBoardSVG()+'<div class="bglayer" id="bgLayer"></div>';w.style.width=BG_W*CS+'px';w.style.height=BG_H*CS+'px';w.dataset.ok=bk;}   // 棋種換了要重畫底圖（國名旁的棋種、陣地大小）
+  const w=$('bgWorld'),bk=BG_CP+BG_W+'x'+BG_H+BG_KIND.join();if(w.dataset.ok!==bk){w.innerHTML=bgBoardSVG()+'<div class="bglayer" id="bgLayer"></div>';w.style.width=BG_W*CS+'px';w.style.height=BG_H*CS+'px';w.dataset.ok=bk;}   // 棋種換了要重畫底圖（國名旁的棋種、陣地大小）
   let h='';const P=i=>`left:${(i%BG_W)*CS}px;top:${((i/BG_W)|0)*CS}px`;
   if(st.last){h+=`<div class="bglast" style="${P(st.last.f)}"></div><div class="bglast to" style="${P(st.last.t)}"></div>`;}
   st.b.forEach((p,i)=>{if(!p)return;const sel=i===BG.sel,cap=BG.tg.includes(i);
     if(p.s==='Q')h+=`<div class="bgp q${p.t==='X'||p.t==='Y'?' gen':''}${sel?' sel':''}${cap?' cap':''}" style="${P(i)}"><span>${BG_QN[p.t]}</span></div>`;
+    else if(p.t<'a')h+=`<div class="bgp q xq${p.t==='G'?' gen':''}${sel?' sel':''}${cap?' cap':''}" style="${P(i)};--nc:${BG_NATIONS[p.n].c}"><span>${W2_XQ[p.t]}</span></div>`;   // 二次大戰的中華民國：象棋子
     else{const N=BG_NATIONS[p.n],g=bgGlyph(p),han=g.charCodeAt(0)>0x3000,st2=`${P(i)};--nc:${N.c};--nf:${N.fg}`,cl=`${sel?' sel':''}${cap?' cap':''}`;
-      if(bgJP(p))h+=`<div class="bgp a koma${p.t==='k'?' king':''}${'dyt'.includes(p.t)?' up':''}${cl}" style="${st2};--kr:${N.side==='t'?180:N.side==='l'?90:-90}deg"><span><b>${g}</b></span></div>`;   // 將棋：五角形的駒，尖端朝前進方向，字保持正的
+      if(bgJP(p))h+=`<div class="bgp a koma${p.t==='k'?' king':''}${'dyt'.includes(p.t)?' up':''}${cl}" style="${st2};--kr:${N.side==='t'?180:N.side==='l'?90:N.side==='b'?0:-90}deg"><span><b>${g}</b></span></div>`;   // 將棋：五角形的駒，尖端朝前進方向，字保持正的
       else if(BG_SVG[p.t])h+=`<div class="bgp a${cl}" style="${st2}"><span><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">${BG_SVG[p.t]}</svg></span></div>`;
       else h+=`<div class="bgp a${p.t==='k'?' king':''}${han?' han':''}${p.t==='o'?' kp':''}${p.t==='e'?' up':''}${cl}" style="${st2}"><span>${g}${han?'':'︎'}</span></div>`;}});
   BG.tg.forEach(t=>{if(!st.b[t])h+=`<div class="bgtg" style="${P(t)}"></div>`;});
   $('bgLayer').innerHTML=h;
   // 國家列
   const cx=st.b.some(p=>p&&p.s==='Q'&&p.t==='X'),cy=st.b.some(p=>p&&p.s==='Q'&&p.t==='Y');
-  $('bgNat').innerHTML=`<button class="bgnc q" data-act="bgFocus" data-n="-1"><i></i>清軍<b>${cx?'慈':'✕'}${cy?'禧':'✕'}</b></button>`+BG_NATIONS.map((N,n)=>{const c=st.b.filter(p=>p&&p.s==='A'&&p.n===n).length;
+  if(BG_CP==='w2')$('bgNat').innerHTML=['X','L'].map(s=>`<span class="bgns${s==='X'?' x':''}">${W2_SIDE[s]}</span>`+BG_NATIONS.map((N,n)=>{if(N.s!==s)return'';const c=st.b.filter(p=>p&&p.n===n).length;
+    return`<button class="bgnc${st.dead[n]?' dead':''}" data-act="bgFocus" data-n="${n}" style="--nc:${N.c}"><i></i>${N.n}<b>${st.dead[n]?'撤退':c}</b></button>`;}).join('')).join('');
+  else $('bgNat').innerHTML=`<button class="bgnc q" data-act="bgFocus" data-n="-1"><i></i>清軍<b>${cx?'慈':'✕'}${cy?'禧':'✕'}</b></button>`+BG_NATIONS.map((N,n)=>{const c=st.b.filter(p=>p&&p.s==='A'&&p.n===n).length;
     return`<button class="bgnc${st.dead[n]?' dead':''}" data-act="bgFocus" data-n="${n}" style="--nc:${N.c}"><i></i>${N.n}<b>${st.dead[n]?'撤退':c}</b></button>`;}).join('');
   // 狀態列
   const who=bgWho();let t;
-  if(st.over)t=`${st.over.win==='Q'?'清軍獲勝':'八國聯軍獲勝'}：${st.over.why}`;
+  const w2=BG_CP==='w2',wt=o=>w2?(o.win==='D'?'和局':W2_SIDE[o.win]+'獲勝'):o.win==='Q'?'清軍獲勝':'八國聯軍獲勝';
+  if(st.over)t=`${wt(st.over)}：${st.over.why}`;
+  else if(w2){const c=bgCurCtrl(),nm=W2_SIDE[st.turn];t=bgMyTurn()?(BG.role==='solo'?`輪到你（${nm}，任選一國走一步）`:`輪到你（${c.nations.map(n=>BG_NATIONS[n].n).join('、')}）`):`${nm}思考中…`;}
   else if(st.turn==='Q')t=bgMyTurn()?'輪到你（清軍）':'清軍思考中…';
   else{const c=bgCurCtrl();t=bgMyTurn()?(BG.role==='solo'?'輪到你（聯軍，任選一國走一步）':`輪到你（${c.nations.map(n=>BG_NATIONS[n].n).join('、')}）`):'聯軍思考中…';}
   $('bgTurn').textContent=t;$('bgTurn').classList.toggle('mine',bgMyTurn());$('bgLast').textContent=BG.msg;
   $('bgUndo').hidden=BG.role!=='solo';$('bgUndo').disabled=!BG.hist.length;$('bgAgain').hidden=BG.role==='guest';
   $('bgCode').textContent=BG.code?`房號 ${BG.code}`:'';
   const ov=$('bgOver');if(st.over){ov.hidden=false;const win=(st.over.win==='Q'&&(BG.role==='solo'?BG.me==='Q':BG.mySeat===0))||(st.over.win==='A'&&(BG.role==='solo'?BG.me==='A':BG.mySeat>0));
-    ov.innerHTML=`<div class="bgobox"><h2>${st.over.win==='Q'?'清軍獲勝':'八國聯軍獲勝'}</h2><p>${st.over.why}</p>${BG.role!=='guest'?'<button class="go" data-act="bgAgain">再來一局</button>':'<p>等房主開新的一局</p>'}<button data-act="bgExit">回選單</button></div>`;}else ov.hidden=true;
+    ov.innerHTML=`<div class="bgobox"><h2>${wt(st.over)}</h2><p>${st.over.why}</p>${BG.role!=='guest'?'<button class="go" data-act="bgAgain">再來一局</button>':'<p>等房主開新的一局</p>'}<button data-act="bgExit">回選單</button></div>`;}else ov.hidden=true;
   bgApplyView();}
 /* ---------- 縮放與拖動 ---------- */
 function bgApplyView(){const v=BG.view;$('bgWorld').style.transform=`translate(${v.tx}px,${v.ty}px) scale(${v.s})`;}
 function bgFitRect(x0,y0,x1,y1){const vp=$('bgView').getBoundingClientRect(),CS=BG_CS,w=(x1-x0+1)*CS,h=(y1-y0+1)*CS;
-  const s=Math.min(vp.width/w,vp.height/h,2.2);BG.view={s,tx:(vp.width-w*s)/2-x0*CS*s,ty:(vp.height-h*s)/2-y0*CS*s};bgApplyView();}
-function bgFit(what){if(what==='all')bgFitRect(0,0,BG_W-1,BG_H-1);else if(what==='mine'&&(BG.role==='solo'?BG.me==='Q':BG.mySeat===0))bgFitRect(BG_PX,BG_PY-3,BG_PX+BG_PW-1,BG_H-1);
+  const s=Math.min(vp.width/w,vp.height/h,2.2);BG.view={s,tx:(vp.width-w*s)/2-x0*CS*s,ty:(vp.height-h*s)/2-y0*CS*s};
+  if(BG_CP==='w2'){const v=BG.view,mw=BG_W*CS*s,mh=BG_H*CS*s,cl=(t,m,vw)=>m>vw?Math.min(0,Math.max(vw-m,t)):(vw-m)/2;v.tx=cl(v.tx,mw,vp.width);v.ty=cl(v.ty,mh,vp.height);}   // 二次大戰：地圖比畫面大時不露出地圖外面
+  bgApplyView();}
+function bgFit(what){if(BG_CP==='w2'){if(what!=='mine'){bgFitRect(0,0,BG_W-1,BG_H-1);return;}   // 二次大戰：我方＝自己那半張地圖；手機太窄就先看自己的國家
+    const vp=$('bgView').getBoundingClientRect(),online=BG.role!=='solo'&&!!BG_NATIONS[BG.mySeat],s=online?BG_NATIONS[BG.mySeat].s:BG.me;
+    if(vp.width/BG_W<26){const n=online?BG.mySeat:BG_NATIONS.findIndex((N,k)=>N.s===s&&!(BG.st&&BG.st.dead[k]));bgFocusNation(n<0?0:n);return;}
+    const top=s==='X';bgFitRect(0,top?0:BG_H>>1,BG_W-1,top?(BG_H>>1)-1:BG_H-1);return;}
+  if(what==='all')bgFitRect(0,0,BG_W-1,BG_H-1);else if(what==='mine'&&(BG.role==='solo'?BG.me==='Q':BG.mySeat===0))bgFitRect(BG_PX,BG_PY-3,BG_PX+BG_PW-1,BG_H-1);
   else if(what==='mine'){const n=BG.role==='solo'?2:BG.mySeat-1;bgFocusNation(n);}else bgFitRect(0,0,BG_W-1,BG_H-1);}
 function bgFocusNation(n){const st=BG.st;if(n<0){bgFitRect(BG_PX,BG_PY-3,BG_PX+BG_PW-1,BG_H-1);return;}
-  let k=st.b.findIndex(p=>p&&p.s==='A'&&p.n===n&&p.t==='k');if(k<0){const N=BG_NATIONS[n];const h=bgHome(n);k=bgIdx(h.x+1,h.y+1);}
-  const x=k%BG_W,y=(k/BG_W)|0;bgFitRect(x-5,y-5,x+5,y+5);}
+  let k=st.b.findIndex(p=>p&&p.n===n&&BGR.king(p));if(k<0){const N=BG_NATIONS[n];const h=bgHome(n);k=bgIdx(h.x+1,h.y+1);}
+  let x=k%BG_W,y=(k/BG_W)|0;if(BG_CP==='w2'){x=Math.max(5,Math.min(BG_W-6,x));y=Math.max(5,Math.min(BG_H-6,y));}   // 二次大戰：不要看到地圖外面
+  bgFitRect(x-5,y-5,x+5,y+5);}
 function bgZoomAt(f,cx,cy){const v=BG.view,vp=$('bgView').getBoundingClientRect(),min=Math.min(vp.width/(BG_W*BG_CS),vp.height/(BG_H*BG_CS))*.8;
   const s=Math.max(min,Math.min(2.4,v.s*f)),k=s/v.s;v.tx=cx-(cx-v.tx)*k;v.ty=cy-(cy-v.ty)*k;v.s=s;bgApplyView();}
 (()=>{const pts=new Map();let moved=false,start=null,pinch=null;
@@ -5270,36 +5329,37 @@ function bgTap(sx,sy){const st=BG.st;if(!st||st.over)return;const v=BG.view,x=Ma
   bgRender();}
 function bgMine(f,t){if(BG.role==='guest'){if(BG.net)BG.net.sendHost({k:'mv',f,t,seq:BG.st.seq});BG.sel=-1;BG.tg=[];bgRender();return;}bgDo(f,t);}
 /* ---------- 連線 ---------- */
-function bgPack(st){const pc=[];st.b.forEach((p,i)=>{if(p)pc.push([i,p.s==='Q'?p.t:p.t+p.n,p.m?1:0]);});return{pc,turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead,kinds:BG_KIND};}
-function bgUnpack(o){if(bgKindsOk(o.kinds))BG_KIND=o.kinds.slice();const b=Array(BG_W*BG_H).fill(null);o.pc.forEach(([i,c,m])=>{b[i]=c.length===1&&/[RHCPAEGXY]/.test(c)?{s:'Q',t:c,n:-1}:{s:'A',t:c[0],n:+c.slice(1),m};});return{b,turn:o.turn,over:o.over,last:o.last,seq:o.seq,dead:o.dead,log:[]};}
+function bgPack(st){if(BG_CP==='w2')return w2Pack(st);const pc=[];st.b.forEach((p,i)=>{if(p)pc.push([i,p.s==='Q'?p.t:p.t+p.n,p.m?1:0]);});return{pc,turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead,kinds:BG_KIND};}
+function bgUnpack(o){if(o&&o.cp==='w2')return w2Unpack(o);if(bgKindsOk(o.kinds))BG_KIND=o.kinds.slice();const b=Array(BG_W*BG_H).fill(null);o.pc.forEach(([i,c,m])=>{b[i]=c.length===1&&/[RHCPAEGXY]/.test(c)?{s:'Q',t:c,n:-1}:{s:'A',t:c[0],n:+c.slice(1),m};});return{b,turn:o.turn,over:o.over,last:o.last,seq:o.seq,dead:o.dead,log:[]};}
 function bgSeatsPub(){return BG.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind}:null);}
 function bgPush(){if(BG.role!=='host'||!BG.net)return;const pk=BG.st?bgPack(BG.st):null;
   BG.guests.forEach(g=>BG.net.sendTo(g.peer,{k:pk?'st':'lobby',st:pk,seats:bgSeatsPub(),mySeat:BG.seats.findIndex(s=>s&&s.peer===g.peer),ac:BG.ac,msg:BG.msg,code:BG.code}));}
-async function bgCreate(){if(!R){bgMenuMsg('連線元件還沒準備好',true);return;}bgMenuMsg('建立房間中…');
-  let net;try{net=await pkNet.host('bg',9);}catch(e){net=null;}if(!net){bgMenuMsg('無法建立房間，請稍後再試',true);return;}
-  BG.net=net;BG.role='host';BG.code=net.code;BG.guests=[];BG.seats=Array(9).fill(null);BG.seats[0]={kind:'me'};BG.mySeat=0;BG.st=null;
+async function bgCreate(cp){cp=cp||'bg';bgUse(cp);if(!R){bgMenuMsg('連線元件還沒準備好',true);return;}bgMenuMsg('建立房間中…');
+  const nS=cp==='w2'?BG_NATIONS.length:9,me0=cp==='w2'?3:0;   // 二次大戰房主預設英國
+  let net;try{net=await pkNet.host(cp,nS);}catch(e){net=null;}if(!net){bgMenuMsg('無法建立房間，請稍後再試',true);return;}
+  BG.net=net;BG.role='host';BG.code=net.code;BG.guests=[];BG.seats=Array(nS).fill(null);BG.seats[me0]={kind:'me'};BG.mySeat=me0;BG.st=null;
   net.onMsg((peer,m)=>bgHostMsg(peer,m));
   net.onLeave(peer=>{BG.guests=BG.guests.filter(g=>g.peer!==peer);const k=BG.seats.findIndex(s=>s&&s.peer===peer);if(k>=0)BG.seats[k]=BG.st?{kind:'ai'}:null;if(BG.st){bgAfter();}else bgLobby();});
   bgShow();bgLobby();bgMenuMsg('');}
 function bgHostMsg(peer,m){if(!m||typeof m!=='object')return;
-  if(m.k==='join'){if(!BG.guests.some(g=>g.peer===peer)){if(BG.guests.length>=8){BG.net.sendTo(peer,{k:'full',why:'房間已經滿 9 人'});return;}BG.guests.push({peer});
-      if(!BG.st){const k=BG.seats.findIndex((s,i)=>i>0&&!s);if(k>0)BG.seats[k]={kind:'net',peer};}}
+  if(m.k==='join'){if(!BG.guests.some(g=>g.peer===peer)){if(BG.guests.length>=BG.seats.length-1){BG.net.sendTo(peer,{k:'full',why:`房間已經滿 ${BG.seats.length} 人`});return;}BG.guests.push({peer});
+      if(!BG.st){const k=BG.seats.findIndex((s,i)=>(BG_CP==='w2'||i>0)&&!s);if(k>=0)BG.seats[k]={kind:'net',peer};}}
     if(BG.st)bgAfter();else bgLobby();return;}
-  if(m.k==='seat'&&!BG.st){const k=m.i|0;if(k<0||k>8||(BG.seats[k]&&BG.seats[k].peer!==peer))return;const old=BG.seats.findIndex(s=>s&&s.peer===peer);if(old>=0)BG.seats[old]=null;BG.seats[k]={kind:'net',peer};bgLobby();return;}
+  if(m.k==='seat'&&!BG.st){const k=m.i|0;if(k<0||k>=BG.seats.length||(BG.seats[k]&&BG.seats[k].peer!==peer))return;const old=BG.seats.findIndex(s=>s&&s.peer===peer);if(old>=0)BG.seats[old]=null;BG.seats[k]={kind:'net',peer};bgLobby();return;}
   if(m.k==='mv'&&BG.st){const k=BG.seats.findIndex(s=>s&&s.peer===peer),st=BG.st;if(k<0||m.seq!==st.seq)return;const w=bgWho();if(!w||w.seat!==k)return;
-    const p=st.b[m.f];if(!p||p.s!==st.turn||(p.s==='A'&&!w.nations.includes(p.n)))return;bgDo(m.f,m.t);}}
+    const p=st.b[m.f];if(!p||p.s!==st.turn||(w.nations&&!w.nations.includes(p.n)))return;bgDo(m.f,m.t);}}
 function bgLobby(){const host=BG.role==='host',seats=host?BG.seats:(BG.lobby||[]),mine=host?0:BG.mySeat;
   $('bgView').hidden=true;$('bgFoot').hidden=true;$('bgNat').hidden=true;$('bgOver').hidden=true;$('bgLobby').hidden=false;$('bgCode').textContent=BG.code?`房號 ${BG.code}`:'';
-  const names=['清軍',...BG_NATIONS.map(N=>N.n)];
-  $('bgLobby').innerHTML=`<div class="wwcode"><p>房號</p><b>${BG.code||'----'}</b><p>把房號給朋友，在選單「八國聯軍」輸入後加入；點下面的位置換成你要玩的一方</p></div>`
-    +`<div class="bgseats">${names.map((nm,k)=>{const s=seats[k],me=k===mine&&s,c=k?BG_NATIONS[k-1].c:'#b8100d';
+  const w2=BG_CP==='w2',names=w2?BG_NATIONS.map(N=>W2_SIDE[N.s].slice(0,1)+'・'+N.n):['清軍',...BG_NATIONS.map(N=>N.n)];
+  $('bgLobby').innerHTML=`<div class="wwcode"><p>房號</p><b>${BG.code||'----'}</b><p>把房號給朋友，在選單「${w2?'歷史戰役 → 二次大戰':'八國聯軍'}」輸入後加入；點下面的位置換成你要玩的一方</p></div>`
+    +`<div class="bgseats">${names.map((nm,k)=>{const s=seats[k],me=k===mine&&s,c=w2?BG_NATIONS[k].c:k?BG_NATIONS[k-1].c:'#b8100d';
       return`<button class="bgseat${me?' me':''}${s&&s.kind!=='ai'?' taken':''}" data-act="bgSeat" data-i="${k}" style="--nc:${c}"><i></i><b>${nm}</b><span>${me?'你':s&&s.kind!=='ai'?'玩家':'電腦'}</span></button>`;}).join('')}</div>`
     +(host?'<button class="wwgo" data-act="bgGo">開始</button>':'<p class="wwwait">等房主開始…</p>');
   if(host)BG.guests.forEach(g=>BG.net.sendTo(g.peer,{k:'lobby',seats:bgSeatsPub(),mySeat:BG.seats.findIndex(s=>s&&s.peer===g.peer),code:BG.code}));}
-function bgGo(){for(let k=0;k<9;k++)if(!BG.seats[k])BG.seats[k]={kind:'ai'};bgEnter();bgNewGame();bgFit('mine');}
+function bgGo(){for(let k=0;k<BG.seats.length;k++)if(!BG.seats[k])BG.seats[k]={kind:'ai'};bgEnter();bgNewGame();bgFit('mine');}
 function bgEnter(){$('bgLobby').hidden=true;$('bgView').hidden=false;$('bgFoot').hidden=false;$('bgNat').hidden=false;}
-async function bgJoin(c){if(!/^\d{4}$/.test(c)){bgMenuMsg('請輸入 4 位數字房號',true);return;}if(!R){bgMenuMsg('連線元件還沒準備好',true);return;}
-  bgMenuMsg(`尋找房間 ${c}…`);let net;try{net=await pkNet.join(c,'bg');}catch(e){net=null;}if(!net){bgMenuMsg(`找不到房號 ${c} 的八國聯軍房間`,true);return;}
+async function bgJoin(c,cp){cp=cp||'bg';bgUse(cp);if(!/^\d{4}$/.test(c)){bgMenuMsg('請輸入 4 位數字房號',true);return;}if(!R){bgMenuMsg('連線元件還沒準備好',true);return;}
+  bgMenuMsg(`尋找房間 ${c}…`);let net;try{net=await pkNet.join(c,cp);}catch(e){net=null;}if(!net){bgMenuMsg(`找不到房號 ${c} 的${cp==='w2'?'二次大戰':'八國聯軍'}房間`,true);return;}
   BG.net=net;BG.role='guest';BG.code=c;BG.st=null;let got=false;
   net.onMsg((peer,m)=>{if(!m||typeof m!=='object')return;got=true;
     if(m.k==='full'){bgExit();bgMenuMsg(m.why||'房間已滿',true);return;}
@@ -5313,6 +5373,8 @@ async function bgJoin(c){if(!/^\d{4}$/.test(c)){bgMenuMsg('請輸入 4 位數字
 function bgClick(b){const act=b.dataset.act;
   switch(act){
     case 'bgSoloQ':bgStartSolo('Q');return true;case 'bgSoloA':bgStartSolo('A');return true;
+    case 'bgW2SoloL':bgStartSolo('L','w2');return true;case 'bgW2SoloX':bgStartSolo('X','w2');return true;
+    case 'bgW2Create':bgCreate('w2');return true;case 'bgW2Join':bgJoin($('w2CodeIn').value.trim(),'w2');return true;
     case 'bgKindAll':bgCfgSave(b.dataset.v==='ch'?Array(8).fill('ch'):BG_OWN.slice());return true;
     case 'bgCreate':bgCreate();return true;case 'bgJoin':bgJoin($('bgCodeIn').value.trim());return true;
     case 'bgExit':bgExit();return true;case 'bgUndo':bgUndo();return true;
@@ -5325,6 +5387,82 @@ function bgClick(b){const act=b.dataset.act;
   }
   return false;}
 addEventListener('resize',()=>{if(!$('bg').hidden&&BG.st)bgApplyView();});
+
+/* ===== 二次大戰：規則引擎＋電腦玩家（方格地圖，軸心國在上、同盟國在下；移動規則 bgMoves 與電腦 bgAI 和八國聯軍共用） ===== */
+// 棋子 {s:'X' 軸心國｜'L' 同盟國, t 棋種, n 國家編號（W2.nations 的順序）, m 動過}。
+// 中華民國用大寫的象棋子（R 俥 H 傌 E 相 A 仕 G 帥 C 炮 P 兵，走法同八國聯軍的清軍）；其他國家用八國聯軍的小寫棋子。
+// 同陣營不能互吃；哪一國的王（國王／王將／帥）被吃，那一國整隊撤退；對方陣營所有的王都被吃，或輪到的一方沒棋可走就輸；W2_MAX 步還沒分出勝負判和。
+const W2_MAX=600;
+const W2_SIDE={X:'軸心國',L:'同盟國'};
+const W2_XQ={R:'俥',H:'傌',E:'相',A:'仕',G:'帥',C:'炮',P:'兵'},W2_XQN={R:'俥',H:'傌',E:'相',A:'仕',G:'帥',C:'炮',P:'兵'};
+// 各國：國名、顏色、陣營 s、上 t／下 b、棋種 k（co 信使棋 sh 將棋 ch 西洋棋 f9 菲舍爾任意制 ta 塔夫列利 xq 象棋）、寬度 w
+const W2_NAT={
+  de:{n:'德國',c:'#2b2b2f',fg:'#f2d25c',s:'X',side:'t',k:'co',w:12,g:'信使棋'},
+  jp:{n:'日本',c:'#e2557a',fg:'#ffffff',s:'X',side:'t',k:'sh',w:9,g:'將棋'},
+  it:{n:'義大利',c:'#2e7d32',fg:'#ffffff',s:'X',side:'t',k:'ch',w:8,g:'義式西洋棋'},
+  uk:{n:'英國',c:'#283593',fg:'#ffffff',s:'L',side:'b',k:'ch',w:8,g:'西洋棋'},
+  us:{n:'美國',c:'#00897b',fg:'#ffffff',s:'L',side:'b',k:'f9',w:8,g:'菲舍爾任意制'},
+  su:{n:'蘇聯',c:'#c62828',fg:'#f2d25c',s:'L',side:'b',k:'ta',w:8,g:'塔夫列利'},
+  roc:{n:'中華民國',c:'#1e88e5',fg:'#ffffff',s:'L',side:'b',k:'xq',w:9,g:'象棋'}};
+// 各棋種的開局（由後往前，每一列由左到右，畫面上看）。信使棋是完整 12 路：城堡 騎士 弓手 信使 謀士 國王 小后 弄臣 信使 弓手 騎士 城堡＋12 兵；
+// 將棋完整 9 路（兩隻桂）；象棋：底線、空一排、炮、兵
+const W2_RANKS={co:['rnacmkfwcanr','pppppppppppp'],sh:['ljsgkgsjl','.r.....b.','uuuuuuuuu'],ch:['rnbqkbnr','pppppppp'],ta:['rnbqkbnr','ppppoppp'],
+  xq:['RHEAGAEHR','.........','..C...C..','P.P.P.P.P']};   // 中華民國的炮放在兵的正後方（第 3、7 路），不然開局第一步就能隔著對面的兵打掉底線的棋
+// 地圖與擺法（平衡測試調出來的定案，見 docs/功能說明.md「第二次世界大戰模式」）：W×H 格；at 是每國最左邊那一格；add 是軸心國的強化（加在該國底線後面的列，由後往前）
+// 軸心國強化（0.19.0 定案）：德國底線後面多一排、只放一隻城堡（在國王正後方）；義大利底線後面多一排、放兩隻皇后（在原本皇后與國王的正後方）。同盟國先走。
+const W2_DEF={W:36,H:20,first:'L',
+  at:{de:0,jp:13,it:25,uk:0,us:9,su:18,roc:27},add:{de:['.....r......'],it:['...qq...']}};
+let W2=null;   // 目前用的設定（w2Layout 算出來）
+function w2Layout(o){const keys=['de','jp','it','uk','us','su','roc'],nations=keys.map(k=>{const N=Object.assign({key:k},W2_NAT[k]),add=(o.add&&o.add[k])||[];
+    N.at=o.at[k];N.add=add;N.d=(N.k==='xq'?5:(W2_RANKS[N.k==='f9'?'ch':N.k].length+add.length));return N;});   // d：陣地深度（中華民國 5 排，帥仕相只能在裡面）
+  return{W:o.W,H:o.H,first:o.first||'L',nations,o};}
+W2=w2Layout(W2_DEF);
+function w2Ranks(n){const N=W2.nations[n];let r;
+  if(N.k==='f9')for(;;){const s=bgShuffle([...'rnbqkbnr']).join('');if((s.indexOf('b')+s.lastIndexOf('b'))%2!==1)continue;if(s.indexOf('r')<s.indexOf('k')&&s.indexOf('k')<s.lastIndexOf('r')){r=[s,'pppppppp'];break;}}
+  else r=W2_RANKS[N.k].slice();
+  return[...N.add,...r];}
+const w2Home=n=>{const N=BG_NATIONS[n];return{x:N.at,y:N.side==='t'?0:BG_H-N.d,w:N.w,h:N.d};};
+const w2Palm=(x,y)=>{const N=BG_NATIONS.find(N=>N.k==='xq');if(!N)return false;const h=w2Home(BG_NATIONS.indexOf(N));return x>=h.x&&x<h.x+h.w&&y>=h.y&&y<h.y+h.h;};   // 中華民國的陣地
+const w2Promo=(n,x,y)=>BG_NATIONS[n].side==='t'?y>=BG_H-3:y<=2;   // 將棋：走進敵陣（對面最後三排）升變
+// 換戰役：八國聯軍 bg 或二次大戰 w2（換地圖、國家、棋種、陣地、河界與電腦的規則掛鉤）
+let BG_CP='bg',BG_KIND_BG=null;
+function bgUse(id,lay){
+  if(id==='w2'){if(BG_CP==='bg')BG_KIND_BG=BG_KIND;if(lay)W2=w2Layout(lay);BG_CP='w2';
+    BG_W=W2.W;BG_H=W2.H;BG_VALID=new Uint8Array(BG_W*BG_H).fill(1);BG_NATIONS=W2.nations;BG_KIND=W2.nations.map(N=>N.k);BG_RIVER=(BG_H>>1)-1;
+    bgPalm=w2Palm;bgHome=w2Home;BGR=W2_RULES;return;}
+  if(BG_CP==='w2'&&BG_KIND_BG)BG_KIND=BG_KIND_BG;BG_CP='bg';
+  BG_W=BG0_W;BG_H=BG0_H;BG_VALID=BG0_VALID;BG_NATIONS=BG_NAT0;BG_RIVER=BG_RIVER0;bgPalm=bgPalm0;bgHome=bgHome0;BGR=BG_RULES;}
+function w2New(){const b=Array(BG_W*BG_H).fill(null);
+  BG_NATIONS.forEach((N,n)=>{const ranks=w2Ranks(n);
+    for(let d=0;d<ranks.length;d++)for(let a=0;a<N.w;a++){const t=ranks[d][a];if(!t||t==='.')continue;const x=N.at+a,y=N.side==='t'?d:BG_H-1-d;b[bgIdx(x,y)]={s:N.s,t,n};}});
+  return{b,turn:W2.first,over:null,last:null,seq:0,dead:Array(BG_NATIONS.length).fill(false),log:[]};}
+const w2King=p=>p.t==='k'||p.t==='G';
+// 走一步（會改 st）；回傳這步的說明。升變照八國聯軍：西洋棋系的兵走到盡頭變皇后（信使棋變小后、塔夫列利的王前兵變赫爾吉）；將棋走進敵陣升變；象棋的兵不升變
+function w2Apply(st,f,t){
+  const b=st.b,p=b[f],q=b[t];let note='';
+  b[t]=p;b[f]=null;
+  if(p.t>='a'){p.m=1;const[dx,dy]=bgDir(p.n),x=t%BG_W,y=(t/BG_W)|0,end=!bgIn(x+dx,y+dy);
+    if((p.t==='p'||p.t==='o')&&end){b[t]={...p,t:p.t==='o'?'e':BG_KIND[p.n]==='co'?'f':'q'};note='升變'+BG_CN[b[t].t];}
+    else if(bgJP(p)&&BG_JPUP[p.t]&&(w2Promo(p.n,x,y)||end)){b[t]={...p,t:BG_JPUP[p.t]};note='升變'+BG_CN[b[t].t];}}
+  if(q&&w2King(q)){st.dead[q.n]=true;for(let i=0;i<b.length;i++)if(b[i]&&b[i].n===q.n)b[i]=null;note=BG_NATIONS[q.n].n+(q.t==='G'?'的帥':'的王')+'被吃，整隊撤退';}
+  st.last={f,t};st.turn=st.turn==='X'?'L':'X';st.seq++;
+  const left=s=>BG_NATIONS.some((N,n)=>N.s===s&&!st.dead[n]);
+  if(!left('X'))st.over={win:'L',why:'軸心國所有的王都被吃了'};
+  else if(!left('L'))st.over={win:'X',why:'同盟國所有的王都被吃了'};
+  else if(!bgAll(st,st.turn,false).length)st.over={win:st.turn==='X'?'L':'X',why:W2_SIDE[st.turn]+'沒有棋可以走'};
+  else if(st.seq>=W2_MAX)st.over={win:'D',why:`走滿 ${W2_MAX} 步還沒分出勝負，和局`};
+  return{p,q,note};}
+// 電腦的價值表：象棋子換成西洋棋的尺度；王的價值＝那一國剩下的子力，陣營只剩這一國時極高
+const W2_V=Object.assign({},BG_V,{R:5,H:2.8,C:3,P:1,A:1.5,E:1.5,G:0});
+function w2Val(st,p,i){
+  if(w2King(p)){const s=BG_NATIONS[p.n].s;if(BG_NATIONS.filter((N,n)=>N.s===s&&!st.dead[n]).length<=1)return 500;
+    let v=12;for(const x of st.b)if(x&&x.n===p.n&&!w2King(x))v+=W2_V[x.t];return v;}
+  if(p.t==='P'&&((i/BG_W)|0)<=BG_RIVER)return 1.6;return W2_V[p.t];}
+function w2Targets(st,side){const out=[];st.b.forEach((p,i)=>{if(p&&p.s!==side&&w2King(p))out.push(i);});return out;}
+const W2_RULES={apply:w2Apply,val:w2Val,targets:w2Targets,still:p=>p.t==='k'||p.t==='G'||p.t==='A'||p.t==='E',king:w2King};
+function w2Pack(st){const pc=[];st.b.forEach((p,i)=>{if(p)pc.push([i,p.s+p.t+p.n,p.m?1:0]);});return{cp:'w2',pc,turn:st.turn,over:st.over,last:st.last,seq:st.seq,dead:st.dead};}
+function w2Unpack(o){const b=Array(BG_W*BG_H).fill(null);o.pc.forEach(([i,c,m])=>{b[i]={s:c[0],t:c[1],n:+c.slice(2),m};});return{b,turn:o.turn,over:o.over,last:o.last,seq:o.seq,dead:o.dead,log:[]};}
+/* ===== 二次大戰：規則引擎（完） ===== */
 
 /* ---------- 電腦版隱藏快捷鍵（畫面上不顯示）：1 拍桌 2 弓箭 3 炸彈 4 翻桌 5 海嘯 6 龍捲風 7 火燒 ---------- */
 const FX_KEYS=['slap','arrow','bomb','flip','wave','tornado','fire'];
