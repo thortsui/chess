@@ -424,8 +424,12 @@ function wwTalkTick(st,now){const s=st.cur,key=st.phase+s+'@'+st.dl;let T=st.tal
 
   if(typeof console!=='undefined'&&err&&T.res!==undefined&&T.res!==null&&st.talkLog)console.log('AI 發言不採用：',err,T.res);
   wwAct(st,s,{type:'endSpeak'},now);return true;}
-function wwTalkReq(st,s,T){T.n++;const prompt=wwTalkPrompt(st,s);
-  T.p=Promise.resolve().then(()=>WW_TALK(prompt,st,s,T.n)).then(x=>{T.res=typeof x==='string'?x:null;},()=>{T.res=null;});}
+// 取樣溫度（0.27.0 起）：每位電腦開局各自分到 1.1～1.4 之間的溫度（原本大家都是 0.8），講的內容比較多變、不容易每個人都講同一套；
+// 檢查不過要重寫時降 0.3（最低 0.8）求穩。實測 1.3 單次合格率 94.6%（0.8 是 88.1%）、6 字片語只出現一次的比例 94% → 87%；1.6 開始出現亂碼，所以上限 1.4
+const WW_SAMPLE={lo:1.1,hi:1.4,retry:.3,min:.8,topp:.95};
+function wwTalkOpt(st,s,n){const t=(st.temp&&st.temp[s])||WW_SAMPLE.lo;return{temp:n>1?Math.max(WW_SAMPLE.min,t-WW_SAMPLE.retry):t,topp:WW_SAMPLE.topp};}
+function wwTalkReq(st,s,T){T.n++;const prompt=wwTalkPrompt(st,s),opt=wwTalkOpt(st,s,T.n);
+  T.p=Promise.resolve().then(()=>WW_TALK(prompt,st,s,T.n,opt)).then(x=>{T.res=typeof x==='string'?x:null;},()=>{T.res=null;});}
 // 每個人看得到的資料
 function wwView(st,seat,now){
   const r=st.roles[seat],killer=wwKiller(st,seat),ph=st.phase,end=!!st.over;
@@ -448,6 +452,7 @@ let WW_TALK=null;   // 由畫面設定：function(prompt,st,seat)→Promise<字�
 function wwSetTalk(f){WW_TALK=f||null;}
 // 開局時替每個人分配說話風格；狼人另外分配策略（最多一隻狼悍跳）
 function wwTalkInit(st){st.style=st.roles.map(()=>wwPick(WW_STYLE)+'，'+wwPick(WW_LEN));st.strat={};st.intent={};
+  st.temp=st.roles.map(()=>+(WW_SAMPLE.lo+Math.random()*(WW_SAMPLE.hi-WW_SAMPLE.lo)).toFixed(2));
   const ws=st.roles.map((r,i)=>i).filter(i=>wwIsWolf(st,i)&&st.roles[i]!=='hiddenWolf');const hasSeer=st.roles.includes('seer');
   const jumper=hasSeer&&ws.length&&Math.random()<WW_AI.jump?wwPick(ws):-1;
   st.roles.forEach((r,i)=>{if(wwIsWolf(st,i)){st.strat[i]=i===jumper?'jump':r==='hiddenWolf'?wwPick(['vil','vil','fakegod']):wwPick(['vil','vil','vil','fakegod','hook','hook','push','push']);}
@@ -533,6 +538,7 @@ function wwTalkCheck(st,seat,p){
   if(!p)return'格式錯誤';const sp=p.speech,r=st.roles[seat],wolf=wwIsWolf(st,seat),last=st.phase==='last';
   if(sp.length<4||sp.length>120)return'長度不對';if(p.lines.length>4)return'句數太多';
   if(/[A-Za-z<>{}\[\]\\]|法官說|作為(AI|模型)|系統/.test(sp))return'怪字';
+  if(/[Ͱ-ϿЀ-ӿ぀-ヿ가-힯]/.test(sp))return'怪字';   // 希臘、俄文字母、日文假名、韓文（溫度高時偶爾冒出來，0.27.0 新增）
   if(/[×【】]|(?:身份|紀錄|存活|策略|風格|狼隊友|現在)：|\d+\s*票（/.test(sp))return'怪字';   // 把提示的格式照抄出來（從頭訓練的小模型偶爾會）
   if(WW_SIMP.test(sp))return'簡體字';
   if(WW_NEWB.test(sp))return'說自己是新手';

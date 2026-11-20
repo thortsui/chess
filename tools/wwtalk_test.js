@@ -10,8 +10,8 @@ const tL=process.hrtime.bigint();const net=new M.Net(meta,bin.buffer.slice(bin.b
 let rss=0;const mem=()=>{const r=process.memoryUsage().rss;if(r>rss)rss=r;};
 const S={turns:0,try1:0,try2:0,ok1:0,ok2:0,why:{},ms:0,mx:0,gen:0,lines:0,pass:0,bad:0,stated:0,follow:0,samples:[]};
 let cur=null;
-E.wwSetTalk(async(prompt,st,seat,n)=>{
-  const t0=process.hrtime.bigint();const r=net.generate(prompt);const ms=Number(process.hrtime.bigint()-t0)/1e6;S.ms+=ms;S.gen++;if(ms>S.mx)S.mx=ms;
+E.wwSetTalk(async(prompt,st,seat,n,opt)=>{
+  const t0=process.hrtime.bigint();const r=net.generate(prompt,opt);const ms=Number(process.hrtime.bigint()-t0)/1e6;S.ms+=ms;S.gen++;if(ms>S.mx)S.mx=ms;
   if(n===1){S.turns++;S.try1++;}else S.try2++;mem();
   const p=E.wwTalkParse(r.text);const q=p&&{...p,lines:p.lines.slice()};const err=(q&&E.wwTalkCover(st,seat,q))||E.wwTalkCheck(st,seat,q)||(q&&E.wwTalkCopy(st,seat,q.speech))||null;
   if(err)S.why[err]=(S.why[err]||0)+1;else{if(n===1)S.ok1++;else S.ok2++;if(S.samples.length<12&&Math.random()<.02)S.samples.push(`${seat+1}號（${E.WW_ROLES[st.roles[seat]].n}，第${st.day}天${st.phase==='last'?'遺言':''}）：${p.speech}`);}
