@@ -155,6 +155,33 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  // 狼悍跳查殺平民：那位平民認定他是假的
  st.cur=W[1];ok(!E.wwAct(st,W[1],{type:'say',txt:`我才是預言家，查驗${V[1]+1}號是狼人，今天投${V[1]+1}號。`},0),'狼悍跳發言');
  ok(E.wwBelief(st,V[1]).liars.includes(W[1]),'被查殺的好人知道對方是假預言家');ok(E.wwBelief(st,se).liars.includes(W[1]),'真預言家知道對跳的是假的');}
+// 記憶不互通（0.26.0）：每位電腦的懷疑只能用他自己看得到的東西。把他不該知道的人的身份洗牌，算出來的懷疑要一模一樣
+{let checked=0,diff=0;
+ for(let g=0;g<40;g++){const n=7+g%6,cfg=E.wwCfgFix({n,roles:{wolf:2+(n>9),seer:1,witch:1,hunter:1,guard:n>9?1:0,gravekeeper:g%2,knight:g%3===0?1:0}});const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,k=0;
+  while(!st.over&&k++<30000){t+=300;E.wwTick(st,t);
+    if(k%37||st.over)continue;
+    for(let s=0;s<n;s++){if(!st.alive[s]||E.wwView(st,s,t).killer||st.roles[s]==='hiddenWolf')continue;
+      const a=E.wwMind(st,s);
+      // 他確定知道的：自己；別人的身份一律洗牌（但要維持「會殺人的狼」那幾個座位不變，否則法官的流程會不同）
+      const free=st.roles.map((r,i)=>i).filter(i=>i!==s);const c=JSON.parse(JSON.stringify(st));const pool=free.map(i=>c.roles[i]);
+      for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+      free.forEach((i,j)=>c.roles[i]=pool[j]);c.seerRes=st.roles[s]==='seer'?st.seerRes:{};
+      const b=E.wwMind(c,s);checked++;if(a.sus.some((x,i)=>Math.abs(x-b.sus[i])>1e-9)){diff++;if(diff<3)console.log('記憶外洩',s,st.roles[s],a.sus.map(x=>x.toFixed(1)).join(','),'|',b.sus.map(x=>x.toFixed(1)).join(','));}}}}
+ ok(checked>200&&!diff,`記憶不互通：檢查 ${checked} 次、不一樣 ${diff} 次`);}
+// 誰都可以偽裝：好人可以說自己是別的神職或平民，但不能假跳預言家；說過一個神職就不能換另一個
+{const st=E.wwNew(E.wwCfgFor(10),Array(10).fill(false),0);const R=r=>st.roles.indexOf(r),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0);st.phase='speak';
+ const chk=(s,txt)=>E.wwTalkCheck(st,s,E.wwTalkParse(txt+'\n投:棄'));
+ ok(!chk(V[0],'我是女巫，昨晚沒用藥。'),'平民可以假裝女巫');ok(!chk(R('hunter'),'我是平民。'),'獵人可以藏成平民');ok(!chk(R('witch'),'我是守衛。'),'女巫可以假裝守衛');
+ ok(chk(V[0],'我是預言家。')==='好人假冒預言家','好人不能假跳預言家');
+ st.pub={seer:{},rep:{},claim:{[V[1]]:['獵人']}};ok(chk(V[1],'我是守衛。')==='身份前後不一致','前後不一致');ok(!chk(V[1],'我是獵人。'),'維持同一個');
+ ok(E.wwClaimsOf('我其實是獵人，3號是狼').join()==='獵人'&&E.wwClaimsOf('我只是個平民').join()==='平民','身份宣稱解析');
+ ok(E.wwDefends('3號不像狼，5號是狼').join()==='2','護航解析 '+E.wwDefends('3號不像狼，5號是狼'));}
+// 懷疑分高低：有人說他是我的身份＝高度懷疑；點名我＝中度
+{const st=E.wwNew(E.wwCfgFor(9),Array(9).fill(true),0);const R=r=>st.roles.indexOf(r),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0),h=R('hunter');
+ st.gut={};st.roles.forEach((r,i)=>st.gut[i]=Array(9).fill(0));st.phase='speak';st.day=1;
+ st.cur=V[0];E.wwAct(st,V[0],{type:'say',txt:'我是獵人，大家相信我。'},0);st.cur=V[1];E.wwAct(st,V[1],{type:'say',txt:`我覺得${h+1}號就是狼，今天投${h+1}號。`},0);
+ const M=E.wwMind(st,h);ok(M.lv(V[0])==='高'&&M.lv(V[1])==='中'&&M.rank[0]===V[0],'獵人的懷疑 '+M.sus.map(x=>x.toFixed(1)));
+ const M2=E.wwMind(st,R('witch'));ok(M2.lv(V[0])==='低'&&M2.lv(V[1])==='低','女巫不知道誰是真獵人 '+M2.sus.map(x=>x.toFixed(1)));}
 // 隨機身份組合的全電腦對局（含騎士、白狼王由測試隨機觸發）
 {let done=0,tries=0;const keys=['wolfKing','whiteWolf','hiddenWolf','seer','witch','hunter','guard','idiot','knight','gravekeeper','crow','bear'];
  while(done<400&&tries<5000){tries++;const n=6+Math.floor(Math.random()*7),roles={wolf:1+Math.floor(Math.random()*2)};keys.forEach(k=>{if(Math.random()<.45)roles[k]=1;});

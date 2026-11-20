@@ -211,16 +211,20 @@ function wwTimeout(st,now){
 // 電腦玩家
 const wwPick=a=>a[Math.floor(Math.random()*a.length)];
 function wwHumanWolfPick(st){const hum=wwAliveOf(st,i=>wwKiller(st,i)&&!st.ai[i]);for(const i of hum)if(st.night.wolf[i]!=null)return st.night.wolf[i];return null;}
-// ===== 公開資訊與電腦好人的判斷（0.25.0 起）：誰跳了預言家、報了什麼查驗；電腦好人據此決定信誰、投誰、毒誰、帶走誰 =====
+// ===== 公開資訊：誰跳了預言家、報了什麼查驗、說自己是什麼身份（0.25.0 起；0.26.0 加身份宣稱）=====
 // 只記公開發言（電腦和真人說的都算），不看任何人的真實身份
-const WW_AI={trust1:.85,follow:.85,poison:.7,knifeSeer:.6,blind:.4,jump:.55,sense:.45};   // 只有一個人跳預言家時相信他的機率／照查殺投票的機率／女巫毒查殺的機率／狼優先刀預言家的機率／沒有線索時還是亂投一票的機率（其餘棄票）／開局有狼悍跳的機率
+const WW_AI={trust1:.95,poison:1,knifeSeer:.6,blind:.35,jump:.3,wagon:.8};   // 只有一個人跳預言家時相信他的機率／女巫毒「高度懷疑」的人的機率／狼優先刀預言家的機率／沒把握時還是投最可疑的人的機率（其餘棄票）／開局有狼悍跳的機率／自己沒把握時跟著今天被點名最多的人投的機率
 const WW_SEER_RE=/我[^，。！？,.!?不沒]{0,6}(?:是|跳)(?:真的?|真正的)?預言家|我的(?:查殺|金水)|我(?:昨晚|首夜|昨天)?(?:查驗?|驗)了?\s*\d/;
+const WW_VIL_RE=/我(?:就|只|真的|其實|也|確實|本來就)?是(?:個|一個|一般|普通的?|純|單純的?|小)?(?:平民|村民)/;
+// 發言裡說自己是什麼身份（「我是女巫」「我其實是獵人」「我是平民」）：誰都可以偽裝，所以這只是「他說的」，不是真的
+function wwClaimsOf(sp){const out=[];for(const m of String(sp).replace(/狼人殺/g,'＿').matchAll(WW_CLAIM_RE))if(!/狼/.test(m[1]))out.push(m[1]);if(WW_VIL_RE.test(sp))out.push('平民');return out;}
 function wwPubNote(st,seat,txt){const P=st.pub=st.pub||{seer:{},rep:{}},R=P.rep[seat]=P.rep[seat]||{kill:[],gold:[]},cl=wwTalkClaims(txt);
   const ok=t=>t>=0&&t<st.n&&t!==seat;cl.kill.forEach(t=>{if(ok(t)&&!R.kill.includes(t))R.kill.push(t);});cl.gold.forEach(t=>{if(ok(t)&&!R.gold.includes(t)&&!R.kill.includes(t))R.gold.push(t);});
-  if(P.seer[seat]==null&&WW_SEER_RE.test(txt))P.seer[seat]=st.day;}
-// 這位好人相信哪個預言家：{trust:相信的人（-1＝都不信）, liars:[認定是假跳的…], kills:[他報的查殺…], golds:[他報的金水…]}
+  if(P.seer[seat]==null&&WW_SEER_RE.test(txt))P.seer[seat]=st.day;
+  const C=P.claim=P.claim||{};wwClaimsOf(txt).forEach(r=>{const a=C[seat]=C[seat]||[];if(!a.includes(r))a.push(r);});}
+// 這位玩家相信哪個預言家：{trust:相信的人（-1＝都不信）, liars:[認定是假跳的…], kills:[他報的查殺…], golds:[他報的金水…]}
 //   預言家本人只信自己（別人跳的都是假的）；查殺我的一定是假的（我知道自己是好人）；夜裡被殺的預言家是真的（狼不刀自己人）；
-//   只有一個人跳：大多會信；兩個人對跳：各信一邊（被發金水的比較信他），信了一邊就認定另一邊是狼
+//   只有一個人跳：大多會信；兩個人對跳：各信一邊（被發金水的比較信他），信了一邊就認定另一邊是狼。選了哪邊記在 st.trust[自己]，別人看不到
 function wwBelief(st,s){const P=st.pub||{seer:{},rep:{}},rep=c=>P.rep[c]||{kill:[],gold:[]},cs=Object.keys(P.seer).map(Number).filter(c=>c!==s);
   if(st.roles[s]==='seer'){const k=Object.keys(st.seerRes).map(Number);return{trust:s,liars:cs,kills:k.filter(i=>st.seerRes[i]),golds:k.filter(i=>!st.seerRes[i])};}
   const liars=[],cand=[];cs.forEach(c=>(rep(c).kill.includes(s)?liars:cand).push(c));
@@ -231,10 +235,73 @@ function wwBelief(st,s){const P=st.pub||{seer:{},rep:{}},rep=c=>P.rep[c]||{kill:
   else if(cand.length>1)c=wwPick(cand.flatMap(x=>rep(x).gold.includes(s)?[x,x]:[x]));
   T[s]={key:cand.join(),c};if(c>=0)cand.forEach(x=>{if(x!==c)liars.push(x);});
   return{trust:c,liars,kills:c>=0?rep(c).kill:[],golds:c>=0?rep(c).gold:[]};}
-// 沒有發言模型（或模型這次寫不出合格的話）時：預言家照樣報查驗、悍跳的狼照樣報假查驗（每天多報一個、前後一致），其他人說「過」
+
+// ===== 每位電腦玩家自己的懷疑（0.26.0 起）=====
+// 【記憶不互通】wwMind 只讀「這個人看得到的東西」：wwView 過濾後的訊息（公開發言、法官公告、只發給他的私訊——查驗結果、守墓人結果、女巫救了誰）、
+//   自己的身份，以及只屬於他自己的 st.gut[自己]（第一印象）、st.trust[自己]（信哪個預言家）。不讀別人的身份、別人的查驗、別人的印象。
+//   （tools/wwtest.js 有一個測試：把他不該知道的人的身份全部洗牌，算出來的懷疑必須一模一樣。）
+// 【懷疑每個人】每個活著的人都有一個懷疑分數 sus：
+//   第一印象（每人各自隨機，有人疑心重、有人疑心輕）
+//   ＋確定的事（自己的查驗、守墓人結果、法官公開的身份：開槍的獵人／狼王、翻牌的白痴、自爆的白狼王、決鬥結果）
+//   ＋相信的預言家報的查殺／金水、對跳的假預言家
+//   ＋身份宣稱（誰都可以偽裝成別的職業，所以只當線索）：有人說他是「我的身份」＝一定在說謊；身份已經被法官公開了還有人說是他＝說謊；兩個人搶同一個神職＝至少一個說謊；前後說了兩種神職＝可疑
+//   ＋行為：點名我（我知道自己是好人）、點名我相信的好人、替我懷疑的人講話、投票投給我相信的好人＝可疑；點名我懷疑的人＝稍微放心；被女巫救的人＝被狼刀過、大概是好人
+//   分數 ≥4 是「高度懷疑」、≥1.5「中度」、其他「低」。投票、毒、開槍、查驗、詛咒都照這個分數。
+const WW_MW={known:20,trust:6,kill:5,gold:3,liar:4,anyKill:1,myRole:6,revealed:5,dupe:1.5,twoGods:2,accMe:1.5,accGood:3,accBad:.8,defBad:1.5,voteGood:2.5,voteBad:.8,saved:3,nightAcc:.8,coVote:1.2};
+const WW_DEF_RE=/不像狼|不是狼|不會是狼|是好人|像好人|沒什麼問題|沒問題|保一手|我保|站.{0,3}這邊|相信|先放著|別急著動/;
+// 發言裡替誰講話（「3號不像狼」「我保5號」「相信7號」）
+function wwDefends(sp){const out=[];for(const c of wwClauses(String(sp))){if(!WW_DEF_RE.test(c)||/查殺|投|出局|歸票/.test(c)||/狼(?![王隊人殺])/.test(c.replace(/不像狼|不是狼|不會是狼/g,'')))continue;
+    for(const m of c.matchAll(/(\d{1,2})\s*號/g))out.push(+m[1]-1);}return out;}
+// 第一印象：每個人對每個人各自隨機，疑心重的人起伏大
+function wwGut(st,s){const G=st.gut=st.gut||{};if(!G[s]){const sd=.3+Math.random()*.9;G[s]=st.roles.map(()=>{let u=0;for(let k=0;k<3;k++)u+=Math.random()-.5;return u*sd*2;});}return G[s];}
+const wwLv=x=>x>=4?'高':x>=1.5?'中':'低';
+function wwMind(st,s){
+  const v=wwView(st,s,0),n=st.n,mine=WW_ROLES[st.roles[s]].n,W=WW_MW,known={},rev={},acc=[],def=[],votes=[],claims={},nightDead=[],saved=[];let vr=0;
+  const sus=wwGut(st,s).slice();
+  for(const m of v.msgs){const t=String(m.txt);let x;
+    if(m.seat>=0){if(m.to!=='all'||m.seat===s)continue;
+      new Set([...wwTalkStated(t),...wwTalkClaims(t).wolf]).forEach(k=>{if(k>=0&&k<n&&k!==m.seat)acc.push([m.seat,k]);});
+      wwDefends(t).forEach(k=>{if(k>=0&&k<n&&k!==m.seat)def.push([m.seat,k]);});
+      wwClaimsOf(t).forEach(r=>{const a=claims[m.seat]=claims[m.seat]||[];if(!a.includes(r))a.push(r);});continue;}
+    if((x=/^查驗結果：(\d+) 號 是(狼人|好人)/.exec(t))||(x=/^守墓人：昨天被投票出局的 (\d+) 號 是(狼人|好人)/.exec(t)))known[x[1]-1]=x[2]==='狼人'?'wolf':'good';
+    else if((x=/^(\d+) 號 是(.+?)，可以選擇開槍/.exec(t))){known[x[1]-1]=x[2]==='狼王'?'wolf':'good';rev[x[2]]=x[1]-1;}
+    else if((x=/^(\d+) 號 翻牌是白痴/.exec(t))){known[x[1]-1]='good';rev['白痴']=x[1]-1;}
+    else if((x=/^💥 (\d+) 號 是白狼王/.exec(t)))known[x[1]-1]='wolf';
+    else if((x=/^⚔️ 騎士 (\d+) 號 和 (\d+) 號 決鬥：\d+ 號 是(狼人|好人)/.exec(t))){known[x[1]-1]='good';rev['騎士']=x[1]-1;known[x[2]-1]=x[3]==='狼人'?'wolf':'good';}
+    else if((x=/^你用解藥救了 (\d+) 號/.exec(t)))saved.push(x[1]-1);
+    else if((x=/^天亮了。昨晚 (.+) 死亡/.exec(t)))for(const y of x[1].matchAll(/(\d+) 號/g))nightDead.push(y[1]-1);
+    else if(/^投票結果：/.test(t)){vr++;for(const y of t.matchAll(/(\d+) 號 \d+ 票（([^）]*)）/g))for(const z of y[2].split('、'))if(/^\d+$/.test(z))votes.push([+z-1,y[1]-1,vr]);}}
+  // 確定的事、預言家、被救過的人
+  for(const k in known)sus[k]+=known[k]==='wolf'?W.known:-W.known;
+  const B=wwBelief(st,s);if(B.trust>=0&&B.trust!==s)sus[B.trust]-=W.trust;
+  B.kills.forEach(k=>sus[k]+=W.kill);B.golds.forEach(k=>sus[k]-=W.gold);B.liars.forEach(k=>sus[k]+=W.liar);
+  if(B.trust<0&&st.pub)for(const c in st.pub.seer)((st.pub.rep[c]||{}).kill||[]).forEach(k=>sus[k]+=W.anyKill);
+  saved.forEach(k=>sus[k]-=W.saved);
+  // 驗證預言家：他報的查殺後來被證實是好人、或金水被證實是狼＝假的；查殺被證實是狼＝真的
+  if(st.pub)for(const c in st.pub.seer){if(+c===s)continue;const R=st.pub.rep[c]||{kill:[],gold:[]};
+    if(R.kill.some(k=>known[k]==='good')||R.gold.some(k=>known[k]==='wolf'))sus[c]+=W.liar*2;else if(R.kill.some(k=>known[k]==='wolf'))sus[c]-=W.trust;}
+  // 身份宣稱（預言家另外由 wwBelief 處理）
+  const by={};for(const c in claims){const gods=claims[c].filter(r=>r!=='平民'&&r!=='預言家');gods.forEach(r=>(by[r]=by[r]||[]).push(+c));if(gods.length>1)sus[c]+=W.twoGods;}
+  for(const r in by){const cs=by[r];
+    cs.forEach(c=>{if(r===mine)sus[c]+=W.myRole;else if(rev[r]!=null&&rev[r]!==c)sus[c]+=W.revealed;else if(cs.length>1)sus[c]+=W.dupe;});
+    if(!st.cfg.roles[Object.keys(WW_ROLES).find(k=>WW_ROLES[k].n===r)])cs.forEach(c=>sus[c]+=W.revealed);}   // 這局根本沒有這個身份
+  // 行為：拿上面的結果當基準，看每個人點名、護航、投票的對象
+  const base=sus.slice(),isGood=k=>k===s?!wwIsWolf(st,s):base[k]<=-2.5,isBad=k=>k!==s&&base[k]>=3;
+  acc.forEach(([a,t])=>{if(t===s)sus[a]+=W.accMe;else if(isGood(t))sus[a]+=W.accGood;else if(isBad(t))sus[a]-=W.accBad;});
+  def.forEach(([d,t])=>{if(isBad(t))sus[d]+=W.defBad;});
+  votes.forEach(([a,t])=>{if(t===s)sus[a]+=W.accMe;else if(isGood(t))sus[a]+=W.voteGood;else if(isBad(t))sus[a]-=W.voteBad;});
+  nightDead.forEach(x=>{acc.forEach(([a,t])=>{if(t===x)sus[a]+=W.nightAcc;});votes.forEach(([a,t])=>{if(t===x)sus[a]+=W.nightAcc;});});   // 白天推過、投過後來夜裡被刀的人（狼不刀自己人）
+  // 跟可疑的人投同一個人（狼人常集中投票）：同一輪和懷疑的人投一樣的，也跟著可疑
+  votes.forEach(([a,t,r])=>{if(a===s||!isBad(a))return;votes.forEach(([b,u,r2])=>{if(r2===r&&u===t&&b!==a&&b!==s)sus[b]+=W.coVote;});});
+  sus[s]=-99;
+  const rank=wwAliveOf(st,i=>i!==s).sort((a,b)=>sus[b]-sus[a]);
+  return{sus,rank,B,lv:k=>wwLv(sus[k])};}
+
+// ===== 偽裝身份與固定句型的發言 =====
+// 沒有發言模型（或模型這次寫不出合格的話）時：預言家照樣報查驗、悍跳的狼照樣報假查驗（每天多報一個、前後一致）
 function wwCanned(st,s){const r=st.roles[s],sg=st.strat&&st.strat[s],last=st.phase==='last',said=(st.pub&&st.pub.rep[s])||{kill:[],gold:[]},first=!(st.pub&&st.pub.seer[s]!=null);
   let res=null,me='我是預言家';
-  if(r==='seer'){if(sg==='seerHide'&&st.day<2&&!last)return null;res=st.seerRes;}
+  if(r==='seer'){if(sg==='seerHide'&&st.day<2&&!last&&!Object.keys((st.pub&&st.pub.seer)||{}).some(c=>+c!==s))return null;res=st.seerRes;}   // 藏身份的預言家：有人假跳就馬上對跳
   else if(sg==='jump'&&wwKiller(st,s)){const F=st.fake=st.fake||{},mine=F[s]=F[s]||{res:{},day:0},mates=wwMates(st,s),c=wwAliveOf(st,i=>i!==s&&!(i in mine.res));
     if(!last&&mine.day!==st.day&&c.length){mine.day=st.day;const rival=c.filter(i=>!mates.includes(i)&&st.pub&&st.pub.seer[i]!=null),ms=c.filter(i=>mates.includes(i)),gs=c.filter(i=>!mates.includes(i));
       if(rival.length)mine.res[rival[0]]=true;                               // 有人對跳：查殺他
@@ -245,43 +312,79 @@ function wwCanned(st,s){const r=st.roles[s],sg=st.strat&&st.strat[s],last=st.pha
   const nw=ks.filter(i=>!(res[i]?said.kill:said.gold).includes(i)),k=ks.find(i=>res[i]&&st.alive[i]);
   if(!first&&!nw.length)return k!=null&&!last?`${k+1}號是我的查殺，今天投${k+1}號。`:null;
   return`${me}，${(first?ks:nw).map(i=>`查驗${i+1}號是${res[i]?'狼人':'好人'}`).join('，')}。`+(k==null?'':last?`大家把${k+1}號投出去。`:`今天投${k+1}號。`);}
+// 開局時替每個人選一個「對外的身份」（st.mask）：誰都可以偽裝成別的職業
+//   平民：大多說自己是平民，少數假裝神職替真神擋刀；神職（預言家以外）：多半藏成平民，有些假裝成另一個神職，有些直接講真的；
+//   狼人：裝平民，或假裝成這局有的神職；悍跳的狼走預言家那套
+function wwMaskInit(st){const gods=WW_GODS.filter(k=>st.cfg.roles[k]&&k!=='seer').map(k=>WW_ROLES[k].n);st.mask={};
+  st.roles.forEach((r,i)=>{const sg=st.strat[i],own=WW_ROLES[r].n,other=gods.filter(g=>g!==own),x=Math.random();
+    if(r==='seer'||sg==='jump')st.mask[i]=null;
+    else if(wwIsWolf(st,i))st.mask[i]=sg==='fakegod'&&gods.length?wwPick(gods):'平民';
+    else if(r==='villager')st.mask[i]=sg==='vilFake'&&gods.length?wwPick(gods):'平民';
+    else st.mask[i]=x<.6?'平民':x<.8&&other.length?wwPick(other):own;});}
+// 固定句型的發言：先報查驗（預言家／悍跳）；被點名時說出自己對外的身份，快被投出的神職改講真話；再照自己的懷疑講誰可疑（分高中低）。狼人照掩護規則講
+function wwSay(st,s){const last=st.phase==='last',r=st.roles[s],killer=wwKiller(st,s),L=[];
+  const P=st.pub||{},said=(P.claim&&P.claim[s])||[],accd=((wwAccuse(st)[s])||[]).length,real=WW_ROLES[r].n,mask=st.mask&&st.mask[s];
+  const sc=wwCanned(st,s);if(sc)L.push(sc);
+  else if(!wwIsWolf(st,s)&&r!=='villager'&&r!=='seer'&&(accd>=2||last)&&!said.includes(real)&&(mask!==real||said.length))L.push(`我其實是${real}，${!last?'今天別投我':st.lastOut===s?'大家投錯人了':'昨晚被刀了'}。`);
+  else if(mask&&!said.length&&(accd>=1||Math.random()<.2)){   // 偽裝的神職已經有別人說過（或法官公開過）就改說平民，不要硬撞
+    const taken=Object.keys((P.claim)||{}).some(c=>+c!==s&&P.claim[c].includes(mask))||st.msgs.some(m=>m.seat<0&&m.to==='all'&&m.txt.includes(`是${mask}，可以選擇開槍`));
+    L.push(`我是${taken?'平民':mask}${accd?'，不是狼':''}。`);}
+  const others=wwAliveOf(st,i=>i!==s);let x=-1,lv='低',y=-1;
+  if(killer){const mates=wwMates(st,s),goods=others.filter(i=>!mates.includes(i)),dg=wwDanger(st,s),A=wwAccuse(st),sg=st.strat[s];
+    if(dg&&dg.tgt>=0&&!mates.includes(dg.tgt))x=dg.tgt;
+    else if(goods.length){const hot=goods.slice().sort((a,b)=>(A[b]||[]).length-(A[a]||[]).length)[0];x=(A[hot]||[]).length?hot:sg==='push'||Math.random()<.5?wwPick(goods):-1;}
+    lv=x<0?'低':sg==='push'?'高':sg==='hook'?'中':wwPick(['中','低']);}
+  else{const M=wwMind(st,s);x=M.rank.length?M.rank[0]:-1;lv=x>=0?M.lv(x):'低';y=M.rank.length>1&&M.sus[M.rank[1]]>=1.5?M.rank[1]:-1;
+    if(!sc&&M.B.trust>=0&&M.B.trust!==s&&st.alive[M.B.trust]&&Math.random()<.4)L.push(`我相信${M.B.trust+1}號的查驗。`);}
+  if(!sc&&x>=0){
+    if(last)L.push(lv==='低'?`我是好人，${x+1}號大家多注意。`:`我是好人，${x+1}號最可疑，大家把他投出去。`);
+    else if(lv==='高')L.push(`我覺得${x+1}號就是狼，今天投${x+1}號。`);
+    else if(lv==='中')L.push(`${x+1}號有點可疑，我先投${x+1}號。`);
+    else L.push(`目前沒什麼頭緒，${x+1}號我會多注意。`);
+    if(y>=0&&!last)L.push(`${y+1}號也有點怪。`);}
+  const p={lines:L.slice(0,3),speech:L.slice(0,3).join(''),vote:-1};if(killer&&!last)wwTalkBack(st,s,p);
+  let txt=p.lines.join('');if(!txt)return'過。';if(txt.length>120)txt=p.lines.slice(0,2).join('');
+  if(st.phase==='speak'){const sd=wwTalkStated(txt).filter(i=>i>=0&&i<st.n&&st.alive[i]&&i!==s),t=sd.length?sd[sd.length-1]:p.vote;if(t>=0)st.intent[s]={day:st.day,t};}
+  return txt;}
+
+// ===== 電腦玩家的行動 =====
+// 會殺人的狼知道誰是隊友（所以知道其他人都是好人）；其他人（含隱狼）一律用 wwMind，只靠自己看得到的東西
 function wwAIAct(st,s,now){
-  const al=wwAliveOf(st),others=al.filter(i=>i!==s),r=st.roles[s],good=others.filter(i=>!wwIsWolf(st,i)),wolf=wwIsWolf(st,s),P=st.pub||{seer:{},rep:{}};
-  // 好人認定的狼：相信的預言家報的查殺，再來是認定假跳的人；safe＝不會去動的人（相信的預言家和他的金水）
-  const B=wolf||st.phase==='speak'||st.phase==='last'?null:wwBelief(st,s),marks=B?[...B.kills,...B.liars].filter(i=>i!==s&&st.alive[i]):[],safe=B?others.filter(i=>i!==B.trust&&!B.golds.includes(i)):others;
+  const al=wwAliveOf(st),others=al.filter(i=>i!==s),r=st.roles[s],killer=wwKiller(st,s),P=st.pub||{seer:{},rep:{}};
+  if(st.phase==='speak'||st.phase==='last')return{type:'endSpeak',say:wwSay(st,s)};
+  const good=killer?others.filter(i=>!wwIsWolf(st,i)):[];
+  const M=killer?null:wwMind(st,s),S=k=>M?M.sus[k]:0,top=M&&M.rank.length?M.rank[0]:-1;
   if(st.phase==='night'){
-    if(wwKiller(st,s)){const hp=wwHumanWolfPick(st);let t=hp!=null?hp:Object.values(st.night.wolf)[0];
+    if(killer){const hp=wwHumanWolfPick(st);let t=hp!=null?hp:Object.values(st.night.wolf)[0];
       if(t==null){const seers=good.filter(i=>P.seer[i]!=null);t=seers.length&&Math.random()<WW_AI.knifeSeer?wwPick(seers):good.length?wwPick(good):-1;}   // 優先刀跳預言家的人
       return{type:'night',t};}
-    if(r==='seer'){const c=others.filter(i=>!(i in st.seerRes)&&!B.liars.includes(i));return{type:'night',t:wwPick(c.length?c:others)};}
-    if(r==='guard'){const c=al.filter(i=>i!==st.guardLast);return{type:'night',t:B.trust>=0&&c.includes(B.trust)&&Math.random()<.7?B.trust:c.length?wwPick(c):-1};}   // 守相信的預言家
-    if(r==='crow')return{type:'night',t:marks.length?marks[0]:others.length?wwPick(others):-1};
+    if(r==='seer'){const c=M.rank.filter(i=>!(i in st.seerRes));return{type:'night',t:c.length?wwPick(c.slice(0,3)):wwPick(others)};}   // 查最可疑的前三名之一
+    if(r==='guard'){const c=al.filter(i=>i!==st.guardLast),tr=M.B.trust;if(!c.length)return{type:'night',t:-1};
+      return{type:'night',t:tr>=0&&tr!==s&&c.includes(tr)&&Math.random()<.7?tr:Math.random()<.5?c.slice().sort((a,b)=>S(a)-S(b))[0]:wwPick(c)};}   // 守相信的預言家，不然守最放心的人
+    if(r==='crow')return{type:'night',t:top>=0&&S(top)>=1?top:others.length?wwPick(others):-1};
     return null;}
   if(st.phase==='witch'){const k=st.night.kill;
-    if(st.witchSave&&k>=0&&!marks.includes(k)&&(st.day===1||Math.random()<.5))return{type:'witch',use:'save'};
-    if(st.witchPoison&&marks.length&&Math.random()<WW_AI.poison)return{type:'witch',use:'poison',t:marks[0]};   // 毒被查殺的人
-    if(st.witchPoison&&st.day>1&&Math.random()<.04&&safe.length)return{type:'witch',use:'poison',t:wwPick(safe)};
+    if(st.witchSave&&k>=0&&S(k)<3&&(st.day===1||Math.random()<.5))return{type:'witch',use:'save'};   // 被刀的是自己懷疑的狼就不救
+    if(st.witchPoison&&top>=0&&((S(top)>=4&&Math.random()<WW_AI.poison)||(S(top)>=2.5&&st.day>1&&Math.random()<.2)))return{type:'witch',use:'poison',t:top};
     return{type:'witch',use:'none'};}
   if(st.phase==='hunter'){
-    if(wolf)return{type:'hunter',t:Math.random()<.75&&good.length?wwPick(good):-1};
-    if(marks.length)return{type:'hunter',t:marks[0]};   // 帶走被查殺的人
-    return{type:'hunter',t:Math.random()<.3&&safe.length?wwPick(safe):-1};}
-  if(st.phase==='speak'||st.phase==='last')return{type:'endSpeak',say:wwCanned(st,s)||'過。'};
-  if(st.phase==='vote'){const c=safe;
+    if(killer)return{type:'hunter',t:Math.random()<.75&&good.length?wwPick(good):-1};
+    return{type:'hunter',t:top>=0&&(S(top)>=2||(S(top)>=1&&Math.random()<.4))?top:-1};}
+  if(st.phase==='vote'){
     // 白天說過要投誰，就投誰
     const it=st.intent&&st.intent[s];let iv=it&&it.day===st.day&&it.t!==s&&st.alive[it.t]?it.t:-1;
-    // 狼人打掩護：不投隊友（倒鉤的狼只有隊友已經救不回來才切割）；隊友被點名、自己沒表態要投誰，就把票集中到別人身上
-    if(wwKiller(st,s)){const dg=wwDanger(st,s);if(iv>=0&&wwMates(st,s).includes(iv)&&wwCut(st,s,dg)!==iv)iv=-1;
-      if(iv<0&&dg&&dg.tgt>=0&&st.alive[dg.tgt])return{type:'vote',t:dg.tgt};}
-    if(iv>=0)return{type:'vote',t:iv};
-    if(wolf){const mk=wwKiller(st,s)?[s,...wwMates(st,s)].flatMap(m=>P.seer[m]!=null&&P.rep[m]?P.rep[m].kill:[]).filter(t=>good.includes(t)):[];   // 跟著悍跳的隊友報的查殺投
+    if(killer){const dg=wwDanger(st,s);if(iv>=0&&wwMates(st,s).includes(iv)&&wwCut(st,s,dg)!==iv)iv=-1;   // 狼人打掩護：不投隊友；隊友被點名就把票集中到別人身上
+      if(iv<0&&dg&&dg.tgt>=0&&st.alive[dg.tgt])return{type:'vote',t:dg.tgt};
+      if(iv>=0)return{type:'vote',t:iv};
+      const mk=[s,...wwMates(st,s)].flatMap(m=>P.seer[m]!=null&&P.rep[m]?P.rep[m].kill:[]).filter(t=>good.includes(t));   // 跟著悍跳的隊友報的查殺投
       return{type:'vote',t:mk.length?mk[mk.length-1]:good.length?wwPick(good):-1};}
-    if(marks.length&&(r==='seer'||Math.random()<WW_AI.follow))return{type:'vote',t:marks[0]};   // 照相信的預言家報的查殺投；沒有查殺就投假跳的
-    // 直覺（模擬真人聽發言抓狼）：每天有一隻狼「露出馬腳」，沒有查殺可以跟的好人有一定機率看出來、投他；狼佔的比例越高越容易被看出來
-    if(!st.sus||st.sus.day!==st.day){const ws=wwAliveOf(st,i=>wwIsWolf(st,i));st.sus={day:st.day,t:ws.length?wwPick(ws):-1};}
-    if(st.sus.t>=0&&st.alive[st.sus.t]&&c.includes(st.sus.t)&&Math.random()<WW_AI.sense*3*wwAliveOf(st,i=>wwIsWolf(st,i)).length/Math.max(1,al.length-1))return{type:'vote',t:st.sus.t};
-    // 沒有線索：多半棄票，少數隨機投一個（不投相信的預言家和他的金水）。0.25.0 起不再偷看還沒開的票跟著投
-    return{type:'vote',t:Math.random()<WW_AI.blind&&c.length?wwPick(c):-1};}
+    if(iv>=0)return{type:'vote',t:iv};
+    if(r==='hiddenWolf'){const a=(wwAccuse(st)[s]||[]).filter(i=>st.alive[i]&&i!==s);if(a.length)return{type:'vote',t:a[0]};}   // 隱狼不知道隊友：誰點名他就投誰
+    if(top>=0&&S(top)>=1.5)return{type:'vote',t:top};
+    // 自己沒把握：跟著今天公開被點名最多的人投（不投自己相信是好人的）
+    const A=wwAccuse(st),hot=others.filter(i=>(A[i]||[]).length&&S(i)>-1).sort((a,b)=>A[b].length-A[a].length||S(b)-S(a))[0];
+    if(hot!=null&&Math.random()<WW_AI.wagon)return{type:'vote',t:hot};
+    return{type:'vote',t:top>=0&&(S(top)>=1||Math.random()<WW_AI.blind)?top:-1};}
   return null;}
 // 哪些電腦玩家現在要行動
 function wwAINeed(st){const ai=i=>st.ai[i],out=[];
@@ -317,7 +420,7 @@ function wwTalkTick(st,now){const s=st.cur,key=st.phase+s+'@'+st.dl;let T=st.tal
   if(T.res===undefined&&now<T.until)return false;
   let p=null,err='逾時';if(T.res!=null){p=wwTalkParse(T.res);err=(p&&wwTalkCover(st,s,p))||wwTalkCheck(st,s,p)||(p&&wwTalkCopy(st,s,p.speech));if(!err)wwTalkBack(st,s,p);}
   if(err&&T.n<2&&T.res!==undefined&&now<T.until){T.res=undefined;wwTalkReq(st,s,T);return false;}
-  st.talk=null;if(err||!p){wwMsg(st,'all',wwCanned(st,s)||'過。',s);}else wwTalkApply(st,s,p);
+  st.talk=null;if(err||!p){wwMsg(st,'all',wwSay(st,s),s);}else wwTalkApply(st,s,p);
 
   if(typeof console!=='undefined'&&err&&T.res!==undefined&&T.res!==null&&st.talkLog)console.log('AI 發言不採用：',err,T.res);
   wwAct(st,s,{type:'endSpeak'},now);return true;}
@@ -348,7 +451,7 @@ function wwTalkInit(st){st.style=st.roles.map(()=>wwPick(WW_STYLE)+'，'+wwPick(
   const ws=st.roles.map((r,i)=>i).filter(i=>wwIsWolf(st,i)&&st.roles[i]!=='hiddenWolf');const hasSeer=st.roles.includes('seer');
   const jumper=hasSeer&&ws.length&&Math.random()<WW_AI.jump?wwPick(ws):-1;
   st.roles.forEach((r,i)=>{if(wwIsWolf(st,i)){st.strat[i]=i===jumper?'jump':r==='hiddenWolf'?wwPick(['vil','vil','fakegod']):wwPick(['vil','vil','vil','fakegod','hook','hook','push','push']);}
-    else if(r==='seer')st.strat[i]=Math.random()<.3?'seerHide':'seerJump';else if(r==='villager'){if(Math.random()<.08)st.strat[i]='vilFake';}else st.strat[i]='godHide';});}
+    else if(r==='seer')st.strat[i]=Math.random()<.3?'seerHide':'seerJump';else if(r==='villager'){if(Math.random()<.08)st.strat[i]='vilFake';}else st.strat[i]='godHide';});wwMaskInit(st);}
 function wwShort(t){return String(t).replace(/ ?(\d+) 票/g,'$1票').replace(/ ?(\d+) 號 ?/g,'$1號').replace(/\s+/g,' ').trim();}
 // 把聊天紀錄壓成短短的事件紀錄
 function wwTalkLog(st,seat,msgs){
@@ -439,7 +542,8 @@ function wwTalkCheck(st,seat,p){
   // 身份宣稱：好人只能說自己的真身份；狼人不能說自己是狼
   for(const m of sp.replace(/狼人殺/g,'＿').matchAll(WW_CLAIM_RE)){const c=m[1];
     if(/狼/.test(c))return wolf?'狼人自曝':'好人說自己是狼';
-    const sg=st.strat&&st.strat[seat];if(!wolf&&c!==WW_ROLES[r].n&&!(sg==='vilFake'&&c!=='預言家'))return'好人假冒身份';
+    const sg=st.strat&&st.strat[seat];if(!wolf&&c==='預言家'&&r!=='seer')return'好人假冒預言家';   // 0.26.0 起誰都可以偽裝成別的職業，只有假跳預言家不行（會亂報查驗）
+    const was=((st.pub&&st.pub.claim&&st.pub.claim[seat])||[]).filter(x=>x!=='平民'&&x!=='預言家');if(c!=='預言家'&&was.length&&!was.includes(c))return'身份前後不一致';
     if(wolf&&c==='預言家'&&sg!=='jump')return'沒分配悍跳卻悍跳';
     }
   const cl=wwTalkClaims(sp),mates=wolf?st.roles.map((x,i)=>i).filter(i=>i!==seat&&wwKiller(st,i)&&wwKiller(st,seat)):[];
@@ -507,4 +611,4 @@ function wwTalkBack(st,seat,p){
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
