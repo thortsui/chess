@@ -13,7 +13,7 @@ let cur=null;
 E.wwSetTalk(async(prompt,st,seat,n)=>{
   const t0=process.hrtime.bigint();const r=net.generate(prompt);const ms=Number(process.hrtime.bigint()-t0)/1e6;S.ms+=ms;S.gen++;if(ms>S.mx)S.mx=ms;
   if(n===1){S.turns++;S.try1++;}else S.try2++;mem();
-  const p=E.wwTalkParse(r.text);const err=E.wwTalkCheck(st,seat,p&&{...p,lines:p.lines.slice()})||(p&&E.wwTalkCopy(st,seat,p.speech))||null;
+  const p=E.wwTalkParse(r.text);const q=p&&{...p,lines:p.lines.slice()};const err=(q&&E.wwTalkCover(st,seat,q))||E.wwTalkCheck(st,seat,q)||(q&&E.wwTalkCopy(st,seat,q.speech))||null;
   if(err)S.why[err]=(S.why[err]||0)+1;else{if(n===1)S.ok1++;else S.ok2++;if(S.samples.length<12&&Math.random()<.02)S.samples.push(`${seat+1}號（${E.WW_ROLES[st.roles[seat]].n}，第${st.day}天${st.phase==='last'?'遺言':''}）：${p.speech}`);}
   return r.text;});
 (async()=>{const t0=Date.now();

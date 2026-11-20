@@ -204,7 +204,11 @@ function wwAIAct(st,s,now){
   if(st.phase==='speak'||st.phase==='last')return{type:'endSpeak',say:'過。'};
   if(st.phase==='vote'){const c=others;
     // 白天說過要投誰，就投誰
-    const it=st.intent&&st.intent[s];if(it&&it.day===st.day&&it.t!==s&&st.alive[it.t])return{type:'vote',t:it.t};
+    const it=st.intent&&st.intent[s];let iv=it&&it.day===st.day&&it.t!==s&&st.alive[it.t]?it.t:-1;
+    // 狼人打掩護：不投隊友（倒鉤的狼只有隊友已經救不回來才切割）；隊友被點名、自己沒表態要投誰，就把票集中到別人身上
+    if(wwKiller(st,s)){const dg=wwDanger(st,s);if(iv>=0&&wwMates(st,s).includes(iv)&&wwCut(st,s,dg)!==iv)iv=-1;
+      if(iv<0&&dg&&dg.tgt>=0&&st.alive[dg.tgt])return{type:'vote',t:dg.tgt};}
+    if(iv>=0)return{type:'vote',t:iv};
     if(wwIsWolf(st,s))return{type:'vote',t:good.length?wwPick(good):-1};
     if(r==='seer'){const k=c.filter(i=>st.seerRes[i]);if(k.length)return{type:'vote',t:k[0]};}
     // 跟著目前票最多的人投，沒有就隨機
@@ -244,7 +248,7 @@ const WW_TALK_MAX=15000;
 function wwTalkTick(st,now){const s=st.cur,key=st.phase+s+'@'+st.dl;let T=st.talk;
   if(!T||T.key!==key){T=st.talk={key,n:0,res:undefined,until:now+WW_TALK_MAX};wwTalkReq(st,s,T);return false;}
   if(T.res===undefined&&now<T.until)return false;
-  let p=null,err='逾時';if(T.res!=null){p=wwTalkParse(T.res);err=wwTalkCheck(st,s,p)||(p&&wwTalkCopy(st,s,p.speech));}
+  let p=null,err='逾時';if(T.res!=null){p=wwTalkParse(T.res);err=(p&&wwTalkCover(st,s,p))||wwTalkCheck(st,s,p)||(p&&wwTalkCopy(st,s,p.speech));if(!err)wwTalkBack(st,s,p);}
   if(err&&T.n<2&&T.res!==undefined&&now<T.until){T.res=undefined;wwTalkReq(st,s,T);return false;}
   st.talk=null;if(err||!p){wwMsg(st,'all','過。',s);}else wwTalkApply(st,s,p);
   if(typeof console!=='undefined'&&err&&T.res!==undefined&&T.res!==null&&st.talkLog)console.log('AI 發言不採用：',err,T.res);
@@ -265,7 +269,7 @@ function wwView(st,seat,now){
 
 // ===== 狼人殺：AI 發言（小型語言模型）的提示、解析與檢查。訓練資料與遊戲共用同一份 =====
 // 提示只用這位玩家看得到的訊息（wwView 過濾後的聊天紀錄）整理，不會洩漏別人的身份
-const WW_STYLE=['冷靜分析','直爽衝動','幽默愛開玩笑','謹慎保守','話少','強勢帶節奏','新手有點緊張','老玩家術語多'];
+const WW_STYLE=['冷靜分析','直爽衝動','幽默愛開玩笑','謹慎保守','話少','強勢帶節奏','老玩家術語多'];   // 0.24.0 拿掉「新手有點緊張」：電腦不能說自己是新手
 const WW_LEN=['短','中','長'];
 const WW_STRAT={jump:'悍跳預言家（報假查驗，之後每天維持同一套說法）',vil:'裝平民',fakegod:'裝好人，被懷疑時謊稱自己是神職（獵人、女巫等）',hook:'倒鉤（附和好人，必要時切割隊友來取信）',push:'衝鋒（帶節奏、反咬懷疑你的人）',
   seerJump:'跳身份報查驗',seerHide:'先藏身份，第2天以後再報查驗',godHide:'藏身份，快被投出才跳',vilFake:'必要時假跳神職保護真神（不能假跳預言家）'};
@@ -319,12 +323,15 @@ function wwTalkTic(line){const out=[];for(const c of line.trim().split(/(?<=[，
     if(/^(但|不過|只是|可是|所以)?(我)?(現在|今天|目前)?(先|暫時|暫且|還)(不說|不講|不爆|不透露|不方便說|壓著|保留)(太多|出來|身份)?$/.test(t))break;
     out.push(c);}
   return out.join('').replace(/^[，、；,;\s]+/,'').replace(/[，、；,;]\s*$/,'。').trim();}
+// 電腦不能說自己是新手（0.24.0 起）：講到「新手／第一次玩／不太會玩」的那一句拿掉，其他照說
+const WW_NEWB=/新手|菜鳥|小白|萌新|第一次玩|頭一次玩|剛(?:學|入局|入門|開始玩|接觸)|不太會玩|不會玩|沒玩過|沒怎麼玩過|還在學/;
+function wwTalkNewb(line){return line.trim().split(/(?<=[，。！？；,.!?;\n])/).filter(c=>!WW_NEWB.test(c)).join('').replace(/^[，、；,;\s]+/,'').replace(/[，、；,;]\s*$/,'。').trim();}
 // 模型輸出：1～3 句發言，最後一行「投:3」或「投:棄」
 function wwTalkParse(txt){
   if(typeof txt!=='string')return null;txt=txt.replace(/<\|im_end\|>[\s\S]*$/,'').replace(/瞭解藥/g,'了解藥').trim();  // 訓練資料轉正體時「用了解藥」被轉成「用瞭解藥」
   const m=/(?:^|\n)\s*投[:：]\s*(\d+|棄)\s*號?\s*$/.exec(txt);if(!m)return null;
   const sp=txt.slice(0,m.index).trim();if(!sp)return null;
-  const lines=wwTalkTic(sp).split(/\n+/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return null;
+  const lines=wwTalkNewb(wwTalkTic(sp)).split(/\n+/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return null;
   return{lines,speech:lines.join(''),vote:m[1]==='棄'?-1:(+m[1]-1)};}
 // 發言裡明說要投誰（「投3號」「歸票5」「出7號」）
 // 分句（逗號、句號都算），用來分辨「我自己說的」和「轉述別人的」
@@ -356,6 +363,7 @@ function wwTalkCheck(st,seat,p){
   if(/[A-Za-z<>{}\[\]\\]|法官說|作為(AI|模型)|系統/.test(sp))return'怪字';
   if(/[×【】]|(?:身份|紀錄|存活|策略|風格|狼隊友|現在)：|\d+\s*票（/.test(sp))return'怪字';   // 把提示的格式照抄出來（從頭訓練的小模型偶爾會）
   if(WW_SIMP.test(sp))return'簡體字';
+  if(WW_NEWB.test(sp))return'說自己是新手';
   for(const m of sp.matchAll(/(\d+)\s*號/g)){const k=+m[1];if(!(k>=1&&k<=st.n))return'號碼超出範圍';}
   // 把自己的號碼講錯（「我8號覺得…」但他其實是 2 號）：小模型偶爾會（0.23.0 新增）
   for(const m of sp.matchAll(/我(?:是\s*(\d+)\s*號|\s*(\d+)\s*號(?=覺得|認為|先|就|純|今天|目前|這邊|也|還|才|個人|站|投|不|暫時|想|看|聽|表態|真的|當|只是|是|身份|明確|建議|直接|聽完|發言))/g))if(+(m[1]||m[2])!==seat+1)return'號碼說錯';
@@ -388,8 +396,46 @@ function wwTalkCheck(st,seat,p){
 function wwTalkCopy(st,seat,sp){const t=sp.replace(/[\s，。！？、,.!?]/g,'');if(t.length<10)return null;
   const others=st.msgs.filter(m=>m.seat>=0&&m.seat!==seat&&m.to==='all'&&m.day>=st.day-1).map(m=>String(m.txt).replace(/[\s，。！？、,.!?]/g,''));
   for(let i=0;i+10<=t.length;i+=2){const piece=t.slice(i,i+10);if(others.some(o=>o.includes(piece)))return'抄別人';}return null;}
+// ===== 狼人互相打掩護（0.24.0 起）：電腦狼不咬、不投還活著的狼隊友；隊友被點名時有人幫他講話，沒表態的狼把票集中到別人身上 =====
+// 只用公開發言判斷（電腦和真人說的都算），不偷看還沒開的票。隱狼不知道隊友是誰，不參與
+const wwMates=(st,s)=>wwKiller(st,s)?wwAliveOf(st,i=>i!==s&&wwKiller(st,i)):[];
+const wwNoRe=k=>new RegExp('(^|\\D)'+(k+1)+'\\s*號');
+// 今天誰被誰點名（發言裡明說要投他、說他是狼、查殺他）：{被點的人:[點他的人…]}
+function wwAccuse(st){const acc={};
+  for(const m of st.msgs){if(m.seat<0||m.to!=='all'||m.day!==st.day)continue;const sp=String(m.txt);
+    new Set([...wwTalkStated(sp),...wwTalkClaims(sp).wolf]).forEach(t=>{if(t>=0&&t<st.n&&t!==m.seat&&st.alive[t]&&!(acc[t]=acc[t]||[]).includes(m.seat))acc[t].push(m.seat);});}
+  return acc;}
+// 這隻狼或他的隊友有沒有被盯上：{m:被點最多次的那隻（可能是自己）, by:[點他的人…], tgt:票該集中到誰身上（場上被點最多的非隊友，沒有就是帶頭點隊友的人）}，沒有回傳 null
+function wwDanger(st,s){const mates=wwMates(st,s);if(!mates.length)return null;const acc=wwAccuse(st),mine=i=>i===s||mates.includes(i);
+  let best=null;for(const m of [s,...mates]){const by=(acc[m]||[]).filter(i=>!mine(i));if(by.length&&(!best||by.length>best.by.length))best={m,by};}
+  if(!best)return null;
+  let tgt=-1,bn=0;for(const k in acc){const t=+k;if(mine(t))continue;const c=acc[t].length;if(c>bn){bn=c;tgt=t;}}
+  if(tgt<0){const y=best.by.find(i=>st.alive[i]);tgt=y==null?-1:y;}
+  return{m:best.m,by:best.by,tgt};}
+// 倒鉤的狼：隊友已經被兩個以上的人盯上（救不回來）才可以切割他。回傳可以切割的隊友，沒有回傳 -1
+const wwCut=(st,s,dg)=>st.strat&&st.strat[s]==='hook'&&dg&&dg.by.length>=2?dg.m:-1;
+const WW_POS=/不像狼|不是狼|不會是狼|是好人|像好人|金水|沒什麼問題|沒問題|沒毛病|相信|我保|保他|保一手|站邊|跟著|認他|信他|[不別]要?(?:急著)?(?:投|出|歸票)|不能(?:投|出)/g;
+const WW_NEG=/狼|假|悍跳|咬|踩|投|出|歸票|心虛|刻意|洗白|可疑|懷疑|問題|滑|亂|騙|崩|怪|節奏|不對|裝|急|漏洞|查殺|盯|小心|髒|黑|划水|甩鍋|不信|解釋|自證|兇|蹭|硬|不通|經不起|憑啥|憑什麼|太好了吧|藏著|膩|下水|藉口|牽強|有洞/;
+// 模型寫的發言先過這一關：提到隊友又在講他壞話的句子整句拿掉，票投隊友就改成不表態（投票時再照掩護規則投）。拿到沒話可說就回傳錯誤（重寫）
+function wwTalkCover(st,seat,p){
+  if(!p||!wwKiller(st,seat))return null;const cut=wwCut(st,seat,wwDanger(st,seat)),keep=wwMates(st,seat).filter(i=>i!==cut);if(!keep.length)return null;
+  const hit=t=>keep.some(k=>wwNoRe(k).test(t))&&WW_NEG.test(t.replace(WW_POS,''));
+  const lines=p.lines.map(l=>l.split(/(?<=[。！？!?])/).filter(c=>!hit(c)).join('').trim()).filter(Boolean);
+  if(!lines.length)return'狼人打隊友';
+  p.lines=lines;p.speech=lines.join('');if(keep.includes(p.vote))p.vote=-1;return null;}
+// 幫隊友講話：隊友今天被點名、自己的發言還沒提到他，就補一句替他說話的（同一個隊友一天只有一隻狼出來保，免得太明顯）
+const WW_BACK=[(x,y)=>`${x}號的發言我聽下來沒什麼問題，${y}號咬得太急了。`,(x,y)=>`我覺得${x}號不像狼，${y}號反而比較可疑。`,(x,y)=>`${y}號一直踩${x}號，理由我聽不太下去。`,
+  (x,y)=>`${x}號那邊我先保一手，今天別急著動他。`,(x,y)=>`大家別被${y}號帶著走，${x}號目前看起來是好人。`,(x,y)=>`${x}號真有問題不會這樣聊，我比較想聽${y}號再解釋。`,
+  (x,y)=>`${y}號點${x}號那段太牽強，我站${x}號這邊。`,(x,y)=>`${x}號我覺得可以先放著，${y}號的邏輯才有洞。`];
+function wwTalkBack(st,seat,p){
+  if(st.phase!=='speak'||!wwKiller(st,seat))return;const dg=wwDanger(st,seat);if(!dg||dg.m===seat||wwCut(st,seat,dg)===dg.m)return;
+  st.cover=st.cover||{};const key=st.day+':'+dg.m;if(st.cover[key]!=null||wwNoRe(dg.m).test(p.speech)||p.lines.length>=3||Math.random()<.2)return;
+  const y=dg.by.find(i=>st.alive[i]);if(y==null)return;const used=st.cover.used=st.cover.used||[],left=WW_BACK.map((f,i)=>i).filter(i=>!used.includes(i));if(!left.length)return;   // 同一局每種說法只用一次
+  const bi=wwPick(left),line=WW_BACK[bi](dg.m+1,y+1);if(p.speech.length+line.length>120)return;
+  used.push(bi);st.cover[key]=seat;p.lines.push(line);p.speech+=line;
+  if(p.vote<0&&dg.tgt>=0&&st.alive[dg.tgt]&&!wwTalkClaims(p.speech).wolf.length&&!wwTalkStated(p.speech).length)p.vote=dg.tgt;}
 // 記下電腦說的話，投票時照著投
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkCopy,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};

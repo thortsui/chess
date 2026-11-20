@@ -87,6 +87,25 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  // 一半投 W[0]、一半投 vs[0]，烏鴉讓 vs[0] 多一票
  const al=[...Array(7).keys()];al.forEach((s,i)=>E.wwAct(st,s,{type:'vote',t:i<3?W[0]:i<6?vs[0]:-1},300));ok(!st.alive[vs[0]],'crow +1 decides');}
 
+// 狼人打掩護、不能說自己是新手（0.24.0）
+{ok(!E.WW_STYLE.some(x=>/新手/.test(x)),'風格不能有新手');
+ ok(E.wwTalkParse('我新手第一次玩，今天先看7號怎麼自證。\n投:棄').speech==='今天先看7號怎麼自證。','新手那句拿掉');
+ ok(E.wwTalkParse('我是新手啦。\n投:棄')===null,'只剩新手就沒話說');
+ const cfg=E.wwCfgFix({n:9,roles:{wolf:3,seer:1,witch:1,hunter:1}});const st=E.wwNew(cfg,[false].concat(Array(8).fill(true)),0);
+ const W=st.roles.map((r,i)=>r==='wolf'?i:-1).filter(i=>i>=0),G=st.roles.map((r,i)=>r!=='wolf'?i:-1).filter(i=>i>=0);const no=i=>(i+1)+'號';
+ W.forEach(w=>st.strat[w]='vil');st.night.acted={};st.phase='speak';st.day=1;st.cur=G[0];
+ let p=E.wwTalkParse(`${no(W[1])}這發言太假了，明顯是狼。我覺得${no(G[1])}比較怪。\n投:${W[1]+1}`);
+ ok(E.wwTalkCover(st,W[0],p)===null&&!p.speech.includes(no(W[1]))&&p.vote===-1,'咬隊友的句子拿掉、不投隊友 '+p.speech+p.vote);
+ p=E.wwTalkParse(`今天投${no(W[1])}。\n投:${W[1]+1}`);ok(E.wwTalkCover(st,W[0],p)==='狼人打隊友','整段都在打隊友就重寫');
+ p=E.wwTalkParse(`我覺得${no(W[1])}不像狼。\n投:棄`);ok(E.wwTalkCover(st,W[0],p)===null&&p.speech.includes(no(W[1])),'幫隊友說話留著');
+ p=E.wwTalkParse(`${no(W[1])}這發言太假了，明顯是狼。\n投:${W[1]+1}`);ok(E.wwTalkCover(st,G[2],p)===null&&p.vote===W[1],'好人不受影響');
+ // 好人點名狼隊友 → 沒表態的狼把票集中到別人身上、有一隻狼出來保
+ st.msgs.push({id:++st.mid,to:'all',seat:G[0],txt:`我覺得${no(W[1])}是狼，今天投${no(W[1])}。`,day:1});
+ const dg=E.wwDanger(st,W[0]);ok(dg&&dg.m===W[1]&&dg.tgt===G[0],'隊友被盯上 '+JSON.stringify(dg));ok(E.wwDanger(st,G[1])===null,'好人沒有隊友');
+ let n=0;for(let k=0;k<40;k++){delete st.cover;p=E.wwTalkParse('這局水很深。\n投:棄');E.wwTalkBack(st,W[0],p);if(p.lines.length===2){n++;ok(p.speech.includes(no(W[1]))&&p.vote===G[0]&&!E.wwTalkCheck(st,W[0],{...p}),'保隊友的話要合格 '+p.speech);}}
+ ok(n>20,'會出來保隊友 '+n);do{delete st.cover;p=E.wwTalkParse('這局水很深。\n投:棄');E.wwTalkBack(st,W[0],p);}while(p.lines.length<2);p=E.wwTalkParse('這局水很深。\n投:棄');E.wwTalkBack(st,W[2],p);ok(p.lines.length===1,'同一個隊友一天只有一隻狼保');
+ st.phase='vote';st.votes={};st.dl=1e12;let t=1e6;while(st.phase==='vote'&&t<2e6){t+=300;E.wwTick(st,t);if(st.phase==='vote')W.forEach(w=>{if(w in st.votes)ok(st.votes[w]===G[0],'狼的票集中到點名的人 '+st.votes[w]);});}
+ }
 // 隨機身份組合的全電腦對局（含騎士、白狼王由測試隨機觸發）
 {let done=0,tries=0;const keys=['wolfKing','whiteWolf','hiddenWolf','seer','witch','hunter','guard','idiot','knight','gravekeeper','crow','bear'];
  while(done<400&&tries<5000){tries++;const n=6+Math.floor(Math.random()*7),roles={wolf:1+Math.floor(Math.random()*2)};keys.forEach(k=>{if(Math.random()<.45)roles[k]=1;});
