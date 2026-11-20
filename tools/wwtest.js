@@ -211,8 +211,10 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
 {const st=E.wwNew(E.wwCfgFor(10),Array(10).fill(false),0);const R=r=>st.roles.indexOf(r),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0);st.phase='speak';
  const chk=(s,txt)=>E.wwTalkCheck(st,s,E.wwTalkParse(txt+'\n投:棄'));
  ok(!chk(V[0],'我是女巫，昨晚沒用藥。'),'平民可以假裝女巫');ok(!chk(R('hunter'),'我是平民。'),'獵人可以藏成平民');ok(!chk(R('witch'),'我是守衛。'),'女巫可以假裝守衛');
- ok(chk(V[0],'我是預言家。')==='好人假冒預言家','好人不能假跳預言家');
- st.pub={seer:{},rep:{},claim:{[V[1]]:['獵人']}};ok(chk(V[1],'我是守衛。')==='身份前後不一致','前後不一致');ok(!chk(V[1],'我是獵人。'),'維持同一個');
+ ok(!chk(V[0],'我是預言家，查驗'+(V[2]+1)+'號是好人。'),'好人可以冒充預言家報假查驗（0.27.2）');ok(chk(V[0],'我是狼人。')==='好人說自己是狼','好人不說自己是狼');
+ {const W0=st.roles.indexOf('wolf');ok(!chk(W0,'我是預言家，查驗'+(V[2]+1)+'號是狼人。'),'沒分配悍跳的狼也可以跳預言家');ok(chk(W0,'我是狼人。')==='狼人自曝','狼人不自曝');}
+ st.seerRes={};st.seerRes[V[2]]=false;ok(chk(R('seer'),'我是預言家，查驗'+(V[2]+1)+'號是狼人。')==='預言家報假查殺','真預言家報的查驗要是真的');
+ st.pub={seer:{},rep:{},claim:{[V[1]]:['獵人']}};ok(!chk(V[1],'我是守衛。'),'前後說法不一也可以（說謊正常）');
  ok(E.wwClaimsOf('我其實是獵人，3號是狼').join()==='獵人'&&E.wwClaimsOf('我只是個平民').join()==='平民','身份宣稱解析');
  ok(E.wwDefends('3號不像狼，5號是狼').join()==='2','護航解析 '+E.wwDefends('3號不像狼，5號是狼'));}
 // 懷疑分高低：有人說他是我的身份＝高度懷疑；點名我＝中度

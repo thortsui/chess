@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.27.1">v0.27.1</span>
+  <span class="ver" aria-label="版本 0.27.2">v0.27.2</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -5167,20 +5167,17 @@ function wwTalkCheck(st,seat,p){
   // 身份宣稱：好人只能說自己的真身份；狼人不能說自己是狼
   for(const m of sp.replace(/狼人殺/g,'＿').matchAll(WW_CLAIM_RE)){const c=m[1];
     if(/狼/.test(c))return wolf?'狼人自曝':'好人說自己是狼';
-    const sg=st.strat&&st.strat[seat];if(!wolf&&c==='預言家'&&r!=='seer')return'好人假冒預言家';   // 0.26.0 起誰都可以偽裝成別的職業，只有假跳預言家不行（會亂報查驗）
-    const was=((st.pub&&st.pub.claim&&st.pub.claim[seat])||[]).filter(x=>x!=='平民'&&x!=='預言家');if(c!=='預言家'&&was.length&&!was.includes(c))return'身份前後不一致';
-    if(wolf&&c==='預言家'&&sg!=='jump')return'沒分配悍跳卻悍跳';
+    // 0.27.2 起誰都可以冒充任何職業（包括預言家），前後說法不一也可以——說謊是正常的，他自己知道真身份就好。只擋說自己是狼（等於自曝，好人說了也沒意義）
     }
   const cl=wwTalkClaims(sp),mates=wolf&&wwKnower(st,seat)?st.roles.map((x,i)=>i).filter(i=>i!==seat&&wwKiller(st,i)):[];
   // 狼人可以說謊、可以罵「狼隊在帶節奏」，但不能講出「我們狼」「我隊友」「我們昨晚刀」這種只有狼才知道的話
   if(wolf){if(/我們?(?:的)?狼?隊友|狼隊友|我們(?:這隊)?狼|我們(?:昨晚|晚上|今晚)?(?:殺|刀)|我(?:昨晚|晚上)?刀了/.test(sp))return'狼人洩漏';
     if(cl.wolf.some(i=>mates.includes(i)&&!cl.kill.includes(i)))return'狼人說隊友是狼';}
   else if(/狼隊友|我的狼隊友/.test(sp))return'好人說隊友';
-  // 預言家報的查驗要是真的
+  // 真預言家報的查驗要是真的（小模型報錯多半是記錯、不是策略，報錯會誤導整個好人陣營）；其他人冒充預言家報假查驗可以（0.27.2 起）
   // 查驗只會知道好人或狼人，不會知道是什麼職業：「查驗 3 號是女巫」「驗了5號，他是獵人」這種講出具體職業的不行（不管是真預言家還是悍跳的狼）
   if(/(?:查驗?|驗)了?\s*\d+\s*號?[，,]?\s*(?:結果|他|身份)?\s*(?:是|為)\s*(?:一個|個)?(?:預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|平民|村民|狼王|白狼王|隱狼|神職?)/.test(sp))return'查驗報出職業';
   if(r==='seer'){if(cl.kill.some(i=>i!==seat&&st.seerRes[i]!==true))return'預言家報假查殺';if(cl.gold.some(i=>i!==seat&&st.seerRes[i]!==false))return'預言家報假金水';}
-  else if(!wolf&&/(?:我|昨晚)(?:查驗?|驗)了?\s*\d+\s*號|我的(?:查殺|金水)/.test(sp))return'非預言家報查驗';
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
   // 投票：要投活著的其他人；發言說要投誰就投誰
   let vote=p.vote;

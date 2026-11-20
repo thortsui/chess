@@ -11,7 +11,7 @@ const rows=fs.readFileSync(process.argv[2],'utf8').split('\n').filter(Boolean).m
 const stu=process.argv[3]&&process.argv[3]!=='-'?fs.readFileSync(process.argv[3],'utf8').split('\n').filter(Boolean).map(JSON.parse):null;
 const sents=process.argv[4]?new Set(fs.readFileSync(process.argv[4],'utf8').split('\n')):null;
 const LIM=+(process.env.WW_N||0);
-const LEAK=new Set(['狼人自曝','狼人洩漏','狼人說隊友是狼','狼人查殺隊友','好人說隊友','好人說自己是狼','預言家報假查殺','預言家報假金水','非預言家報查驗','好人假冒身份','沒分配悍跳卻悍跳']);
+const LEAK=new Set(['狼人自曝','狼人洩漏','狼人說隊友是狼','狼人查殺隊友','好人說隊友','好人說自己是狼','預言家報假查殺','預言家報假金水']   // 0.27.2 起冒充任何職業、非預言家報查驗都算正常說謊，不算說錯話);
 const GOD=['seer','witch','hunter','guard','idiot','knight','gravekeeper','crow','bear'];
 const RN={seer:'預言家',witch:'女巫',hunter:'獵人',guard:'守衛',idiot:'白痴',knight:'騎士',gravekeeper:'守墓人',crow:'烏鴉',bear:'熊'};
 const C={n:0,fmt:0,pass:0,leak:0,why:{},vote:0,voteN:0,wolf:0,wolfExpose:0,jumpN:0,jumpDid:0,wolfSeer:0,god1:0,god1Claim:0,seer1:0,seer1Claim:0,len:0,tic:0,simp:0,copy:0,sN:0,sDup:0,abst:0,ms:0,msN:0,slow:0};
