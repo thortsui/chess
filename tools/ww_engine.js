@@ -518,11 +518,17 @@ function wwTalkReorder(p){const ls=String(p).replace(/\r/g,'').split('\n'),k=ls.
   // 長局裡會忘了自己和別人跳過的身份）；全部壓完還太長，才從最舊的開始丟。只看公開的內容，大家壓的一樣；一次處理一整天，開頭不常變（快取才用得上）
   const len=a=>a.reduce((x,l)=>x+l.length+1,0),CL=new RegExp(WW_CLAIM_RE.source);
   const pin=l=>/^\d+號：/.test(l)&&(CL.test(l.replace(/狼人殺/g,'＿'))||WW_VIL_RE.test(l)||/查驗|查殺|金水/.test(l));
+  const mine=wwMineLines(pub,((head.find(l=>/^我是\d+號/.test(l))||'').match(/^我是(\d+)號/)||[])[1]);   // 壓縮前先取出自己說過的話
   const days=[];for(const l of pub){if(!days.length||l.startsWith('【第'))days.push([]);days[days.length-1].push(l);}
   for(let d=0;d<days.length-1&&len(days.flat())>900;d++)days[d]=days[d].filter(l=>l.startsWith('【第')||pin(l));
   let flat=days.flat();while(len(flat)>900&&flat.length>4)flat.shift();
   pub.length=0;pub.push(...flat);
-  return[ls[0],wwRuleLine(ls[0]),'紀錄：',...pub,head.find(l=>l.startsWith('存活：'))||'存活：',...head.filter(l=>!l.startsWith('存活：')),...prv.slice(-8),ls[ls.length-1]].join('\n');}
+  return[ls[0],wwRuleLine(ls[0]),'紀錄：',...pub,head.find(l=>l.startsWith('存活：'))||'存活：',...head.filter(l=>!l.startsWith('存活：')),...mine,...prv.slice(-8),ls[ls.length-1]].join('\n');}
+// 自己說過的話（0.27.4 起，優先於別人的）：放在「自己的部分」裡（不會被丟、每次重算），最近 4 段，舊的只留重點、總長最多 200 字。
+// 公開紀錄太長被壓掉時，別人的話可能不見，自己的話一定還在
+function wwMineLines(all,me){if(!me)return[];const own=all.filter(l=>l.startsWith(me+'號：'));
+  const out=own.map((l,i)=>i>=own.length-2?l:wwKeyLine(l)).filter(Boolean).slice(-4);
+  while(out.reduce((x,l)=>x+l.length+1,0)>200&&out.length>1)out.shift();return out;}
 function wwTalkPrompt(st,seat){return wwTalkReorder(wwTalkPromptV1(st,seat,true));}
 // 口頭禪：小模型很愛說「我手上有點資訊／東西，但先不說」，一出現就從那裡截斷，後面的都不說（0.22.4 起；截斷後沒話可說就重寫）
 function wwTalkTic(line){const out=[];for(const c of line.trim().split(/(?<=[，。！？；,.!?;\n])/)){const t=c.replace(/[\s，。！？；,.!?;]/g,'');
@@ -648,4 +654,4 @@ function wwTalkBack(st,seat,p){
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
