@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.27.2">v0.27.2</span>
+  <span class="ver" aria-label="版本 0.27.3">v0.27.3</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -4634,7 +4634,7 @@ function wwCfgErr(cfg){
   if(w*2>=cfg.n)return'狼人陣營太多了（要少於一半）';if(cfg.n-w<2)return'好人至少要 2 位';return null;}
 function wwMsg(st,to,txt,seat){st.msgs.push({id:++st.mid,to,seat:seat==null?-1:seat,txt:String(txt),day:st.day});
   if(seat>=0&&to==='all'&&(st.phase==='speak'||st.phase==='last'))wwPubNote(st,seat,String(txt));
-  if(st.msgs.length>400)st.msgs.splice(0,st.msgs.length-400);}
+  if(st.msgs.length>3000)st.msgs.splice(0,st.msgs.length-3000);}   // 0.27.3 起整局都留著（原本只留 400 則，長局前面的發言會被忘掉）
 const wwSide=(st,s)=>WW_ROLES[st.roles[s]].side;
 const wwIsWolf=(st,s)=>wwSide(st,s)==='wolf';
 // 會參與殺人的狼（隱狼要等其他狼都出局）
@@ -4861,7 +4861,7 @@ function wwDefends(sp){const out=[];for(const c of wwClauses(String(sp))){if(!WW
 function wwGut(st,s){const G=st.gut=st.gut||{};if(!G[s]){const sd=.3+Math.random()*.9;G[s]=st.roles.map(()=>{let u=0;for(let k=0;k<3;k++)u+=Math.random()-.5;return u*sd*2;});}return G[s];}
 const wwLv=x=>x>=4?'高':x>=1.5?'中':'低';
 function wwMind(st,s){
-  const v=wwView(st,s,0),n=st.n,mine=WW_ROLES[st.roles[s]].n,W=WW_MW,known={},rev={},acc=[],def=[],votes=[],claims={},nightDead=[],saved=[];let vr=0;
+  const v={msgs:wwSeen(st,s)},n=st.n,mine=WW_ROLES[st.roles[s]].n,W=WW_MW,known={},rev={},acc=[],def=[],votes=[],claims={},nightDead=[],saved=[];let vr=0;
   const sus=wwGut(st,s).slice();
   for(const m of v.msgs){const t=String(m.txt);let x;
     if(m.seat>=0){if(m.to!=='all'||m.seat===s)continue;
@@ -5044,7 +5044,9 @@ function wwView(st,seat,now){
     acted:ph==='night'?!!st.night.acted[seat]:ph==='vote'?(seat in st.votes):false,myVote:ph==='vote'&&seat in st.votes?st.votes[seat]:null,
     voted:ph==='vote'?Object.keys(st.votes).map(Number):null,canVote:ph==='vote'&&wwVoters(st).includes(seat),
     wolfPicks:killer&&ph==='night'?st.night.wolf:null,idiotUp:st.idiotUp.slice(),over:st.over,roles:end?st.roles.slice():null,ai:st.ai.slice(),
-    msgs:st.msgs.filter(m=>m.to==='all'||m.to===seat||(m.to==='wolf'&&(killer||end))).slice(-160)};}
+    msgs:wwSeen(st,seat).slice(-160)};}   // 畫面只送最近 160 則；電腦的記憶（wwMind、wwTalkPrompt）用 wwSeen 拿整局
+// 這個人整局看得到的所有訊息（公開的、只給他的、狼隊頻道〔會殺人的狼才有〕）——電腦的記憶只從這裡來
+function wwSeen(st,seat){const killer=wwKiller(st,seat),end=!!st.over;return st.msgs.filter(m=>m.to==='all'||m.to===seat||(m.to==='wolf'&&(killer||end)));}
 
 // ===== 狼人殺：AI 發言（小型語言模型）的提示、解析與檢查。訓練資料與遊戲共用同一份 =====
 // 提示只用這位玩家看得到的訊息（wwView 過濾後的聊天紀錄）整理，不會洩漏別人的身份
@@ -5080,7 +5082,12 @@ function wwTalkLog(st,seat,msgs){
     else s=wwShort(t).replace(/^查驗結果：/,'查驗：').replace(/。$/,'');
     out.push({day:m.day,s});}
   // 太久以前的發言只留事件
-  return out.filter(e=>!e.sp||e.day>=st.day-1).map(e=>e.s);}
+  // 前一天和今天的發言整句留著；更早的發言只留重點（0.27.3 起，原本整句丟掉）：說自己是什麼身份、報查驗／查殺／金水、說要投誰、說誰是狼、替誰講話。
+  // 自己說過的和別人說過的都一樣處理，所以他記得自己跳過什麼、報過什麼、推過誰，也記得別人的；沒有重點的閒聊才丟
+  return out.map(e=>!e.sp||e.day>=st.day-1?e.s:wwKeyLine(e.s)).filter(Boolean);}
+function wwKeyLine(line){const m=/^((?:（狼隊）)?\d+號：)(.*)$/.exec(line);if(!m)return line;
+  const CL=new RegExp(WW_CLAIM_RE.source),keep=wwClauses(m[2]).filter(c=>CL.test(c.replace(/狼人殺/g,"＿"))||WW_VIL_RE.test(c)||/查驗?|驗了|查殺|金水/.test(c)||wwTalkStated(c).length||wwTalkClaims(c).wolf.length||wwDefends(c).length);
+  return keep.length?m[1]+keep.join('，').slice(0,60)+'。':null;}
 // 舊順序（0.22～0.26 的格式，身份在最前面）：訓練資料就是這個格式，wwTalkReorder 把它轉成新順序
 function wwTalkPromptV1(st,seat,noTrim){
   const v=wwView(st,seat,0),r=st.roles[seat],R=WW_ROLES[r],last=st.phase==='last',L=[];
@@ -5093,7 +5100,7 @@ function wwTalkPromptV1(st,seat,noTrim){
   const sty=(st.style&&st.style[seat])||'冷靜分析，中';L.push(`風格：${sty}`+(st.strat&&st.strat[seat]?`；策略：${WW_STRAT[st.strat[seat]]}`:''));
   L.push('存活：'+wwAliveOf(st).map(i=>i+1).join('、'));
   L.push('紀錄：');
-  const log=wwTalkLog(st,seat,v.msgs);let body=log.join('\n');
+  const log=wwTalkLog(st,seat,wwSeen(st,seat));let body=log.join('\n');
   while(!noTrim&&body.length>900&&log.length>4){log.shift();body=log.join('\n');}
   L.push(body);
   L.push(last?`現在：我出局了，發表遺言。`:`現在：第${st.day}天，輪到我發言。`);
@@ -5108,9 +5115,14 @@ function wwRuleLine(cfgLine){const ks=[];for(const m of String(cfgLine).matchAll
 const WW_PRIV=/^(?:（狼隊）|查驗：|守墓人：|你|今晚你|時間到，今晚你)/;   // 紀錄裡只有自己看得到的那幾種
 function wwTalkReorder(p){const ls=String(p).replace(/\r/g,'').split('\n'),k=ls.indexOf('紀錄：');if(k<1||ls.some(l=>l.startsWith('規則：')))return String(p);
   const head=ls.slice(1,k),pub=[],prv=[];ls.slice(k+1,-1).forEach(l=>{if(l)(WW_PRIV.test(l)?prv:pub).push(l);});
-  // 公開紀錄太長從最舊的丟（只看公開的長度，大家丟的一樣）。一次丟到下一個「【第N夜】」為止，開頭才不會每多一句就變一次（快取才用得上）
-  const len=a=>a.reduce((x,l)=>x+l.length+1,0);
-  while(len(pub)>900&&pub.length>4){pub.shift();while(pub.length>4&&!pub[0].startsWith('【第'))pub.shift();}
+  // 公開紀錄太長（超過 900 字）：從最舊的一天開始，整天只留「誰說自己是什麼身份、誰報了什麼查驗」那幾句（0.27.3 起；原本整天丟掉，
+  // 長局裡會忘了自己和別人跳過的身份）；全部壓完還太長，才從最舊的開始丟。只看公開的內容，大家壓的一樣；一次處理一整天，開頭不常變（快取才用得上）
+  const len=a=>a.reduce((x,l)=>x+l.length+1,0),CL=new RegExp(WW_CLAIM_RE.source);
+  const pin=l=>/^\d+號：/.test(l)&&(CL.test(l.replace(/狼人殺/g,'＿'))||WW_VIL_RE.test(l)||/查驗|查殺|金水/.test(l));
+  const days=[];for(const l of pub){if(!days.length||l.startsWith('【第'))days.push([]);days[days.length-1].push(l);}
+  for(let d=0;d<days.length-1&&len(days.flat())>900;d++)days[d]=days[d].filter(l=>l.startsWith('【第')||pin(l));
+  let flat=days.flat();while(len(flat)>900&&flat.length>4)flat.shift();
+  pub.length=0;pub.push(...flat);
   return[ls[0],wwRuleLine(ls[0]),'紀錄：',...pub,head.find(l=>l.startsWith('存活：'))||'存活：',...head.filter(l=>!l.startsWith('存活：')),...prv.slice(-8),ls[ls.length-1]].join('\n');}
 function wwTalkPrompt(st,seat){return wwTalkReorder(wwTalkPromptV1(st,seat,true));}
 // 口頭禪：小模型很愛說「我手上有點資訊／東西，但先不說」，一出現就從那裡截斷，後面的都不說（0.22.4 起；截斷後沒話可說就重寫）

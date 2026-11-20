@@ -177,6 +177,14 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  ok(E.wwTalkCover(st,hw,p)===null&&!p.speech.includes((W[0]+1)+'號這')&&p.vote===-1,'隱狼也不咬隊友 '+p.speech);
  st.phase='vote';st.votes={};st.dl=1e12;st.cur=-1;for(let k=0;k<200;k++){E.wwTick(st,1e6+k*300);if(hw in st.votes)break;}
  ok(hw in st.votes&&!W.includes(st.votes[hw])&&st.votes[hw]!==hw,'隱狼不投隊友 '+st.votes[hw]);}
+// 記得自己和別人說過什麼（0.27.3）：第 1 天說的身份、查驗，到第 3 天以後的提示裡還在；兩天前沒有重點的閒聊會被濃縮掉
+{let tot=0,lost=0;
+ for(let g=0;g<30;g++){const n=6+g%7,st=E.wwNew(E.wwCfgFor(n),Array(n).fill(true),0);let t=0,k=0;
+  while(!st.over&&k++<30000){t+=300;E.wwTick(st,t);
+   if(st.phase==='speak'&&st.day>=3&&k%7===0){const p=E.wwTalkPrompt(st,st.cur);
+     for(const c in (st.pub.claim||{})){tot++;if(!new RegExp('(^|\\n)'+(+c+1)+'號：[^\\n]*我(?:其實|才|就)?是').test(p))lost++;}}}}
+ ok(tot>300&&!lost,`第 3 天以後還記得說過的身份：${tot-lost}/${tot}`);
+ ok(E.wwKeyLine('10號：目前沒什麼頭緒，8號我會多注意。')===null&&E.wwKeyLine('3號：我是預言家，查驗2號是狼人，大家相信我。')==='3號：我是預言家，查驗2號是狼人。','舊發言只留重點');}
 // 記憶從源頭隔開（0.27.1）：給模型的提示只由「這個人看得到的東西」組成。把他不知道的人的身份全部洗牌、把他看不到的訊息全部刪掉，提示必須一字不差；
 // 而且提示的前半段（到「存活：」之前，模型會沿用快取的那段）只有公開內容，同一時間每個人都一樣
 {let checked=0,diff=0,pubDiff=0;
