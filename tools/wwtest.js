@@ -11,7 +11,7 @@ for(let g=0;g<600;g++){const n=6+g%7,cfg=E.wwCfgFor(n);if(g%3===0)cfg.win='all';
   if(!st.over){fail++;console.log('no end',n,st.phase,st.day);break;}
   wins[st.over.win]++;days+=st.day;maxSteps=Math.max(maxSteps,steps);
   const w=st.roles.filter((r,i)=>r==='wolf'&&st.alive[i]).length;if(st.over.win==='good'&&w){fail++;console.log('good win with wolves');}
-  if(st.over.win==='wolf'&&!w){fail++;console.log('wolf win without wolves');}
+  if(st.over.win==='wolf'&&!w&&!st.over.both){fail++;console.log('wolf win without wolves');}
   const v=E.wwView(st,0,t);if(!v.roles){fail++;console.log('no reveal');}}
 console.log('600 局',JSON.stringify(wins),'平均天數',(days/600).toFixed(1),'最長步數',maxSteps);
 // 規則細節
@@ -106,16 +106,65 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  ok(n>20,'會出來保隊友 '+n);do{delete st.cover;p=E.wwTalkParse('這局水很深。\n投:棄');E.wwTalkBack(st,W[0],p);}while(p.lines.length<2);p=E.wwTalkParse('這局水很深。\n投:棄');E.wwTalkBack(st,W[2],p);ok(p.lines.length===1,'同一個隊友一天只有一隻狼保');
  st.phase='vote';st.votes={};st.dl=1e12;let t=1e6;while(st.phase==='vote'&&t<2e6){t+=300;E.wwTick(st,t);if(st.phase==='vote')W.forEach(w=>{if(w in st.votes)ok(st.votes[w]===G[0],'狼的票集中到點名的人 '+st.votes[w]);});}
  }
+// 勝負結算的時機（0.25.0 重寫）
+{const mk=(roles,n)=>{const st=E.wwNew(E.wwCfgFix({n:n||6,roles,win:'side'}),Array(n||6).fill(false),0);return{st,R:r=>st.roles.indexOf(r),V:st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0)};};
+ // 獵人是最後一個神職、夜裡被刀：先遺言、開槍，開完才判
+ {const {st,R}=mk({wolf:1,hunter:1});E.wwAct(st,R('wolf'),{type:'night',t:R('hunter')},100);
+  ok(!st.over&&st.phase==='last'&&st.cur===R('hunter'),'最後一神被刀：還沒結束，先遺言 '+st.phase);E.wwAct(st,R('hunter'),{type:'endSpeak'},200);ok(!st.over&&st.phase==='hunter','再開槍 '+st.phase);
+  E.wwAct(st,R('hunter'),{type:'hunter',t:R('wolf')},300);ok(st.over&&st.over.win==='good'&&st.over.both,'獵人帶走最後一隻狼：好人贏 '+JSON.stringify(st.over));}
+ {const {st,R}=mk({wolf:1,hunter:1});E.wwAct(st,R('wolf'),{type:'night',t:R('hunter')},100);E.wwAct(st,R('hunter'),{type:'endSpeak'},200);
+  E.wwAct(st,R('hunter'),{type:'hunter',t:-1},300);ok(st.over&&st.over.win==='wolf'&&st.over.why==='神職全部出局','獵人不開槍：狼人贏 '+JSON.stringify(st.over));}
+ {const {st,R,V}=mk({wolf:1,hunter:1});E.wwAct(st,R('wolf'),{type:'night',t:R('hunter')},100);E.wwAct(st,R('hunter'),{type:'endSpeak'},200);
+  E.wwAct(st,R('hunter'),{type:'hunter',t:V[0]},300);ok(st.over&&st.over.win==='wolf','獵人打錯人：狼人贏');}
+ {const {st,R}=mk({wolf:1,hunter:1});E.wwAct(st,R('wolf'),{type:'night',t:R('hunter')},100);E.wwTick(st,1e6);ok(!st.over&&st.phase==='hunter','遺言時間到 → 開槍 '+st.phase);
+  E.wwTick(st,2e6);ok(st.over&&st.over.win==='wolf','開槍時間到沒開：狼人贏');}
+ // 同一晚：狼刀最後一個平民、女巫毒最後一隻狼 → 狼刀在先，狼人贏
+ {const {st,R,V}=mk({wolf:1,witch:1,seer:1});st.alive[V[1]]=st.alive[V[2]]=false;E.wwAct(st,R('wolf'),{type:'night',t:V[0]},100);E.wwAct(st,R('seer'),{type:'night',t:V[0]},100);
+  ok(st.phase==='witch','女巫 '+st.phase);E.wwAct(st,R('witch'),{type:'witch',use:'poison',t:R('wolf')},200);
+  ok(st.over&&st.over.win==='wolf'&&st.over.both&&/狼刀在先/.test(st.over.why),'狼刀在先 '+JSON.stringify(st.over));}
+ // 同一晚：狼刀沒有造成屠邊、女巫毒死最後一隻狼 → 好人贏
+ {const {st,R,V}=mk({wolf:1,witch:1,seer:1});E.wwAct(st,R('wolf'),{type:'night',t:V[0]},100);E.wwAct(st,R('seer'),{type:'night',t:V[0]},100);E.wwAct(st,R('witch'),{type:'witch',use:'poison',t:R('wolf')},200);
+  ok(st.over&&st.over.win==='good'&&!st.over.both,'毒死最後一隻狼 '+JSON.stringify(st.over));}
+ // 狼王是最後一隻狼、被投出局：先遺言、開槍；帶走最後一個平民＝狼人贏，不開槍＝好人贏
+ for(const shoot of [true,false]){const {st,R,V}=mk({wolfKing:1,seer:1});V.slice(1).forEach(v=>st.alive[v]=false);const wk=R('wolfKing');
+  E.wwAct(st,wk,{type:'night',t:-1},100);E.wwAct(st,R('seer'),{type:'night',t:wk},100);for(let i=0;i<6&&st.phase==='speak';i++)E.wwAct(st,st.cur,{type:'endSpeak'},200);
+  ok(st.phase==='vote','投票 '+st.phase);[wk,R('seer'),V[0]].forEach(s=>E.wwAct(st,s,{type:'vote',t:wk},300));
+  ok(!st.over&&st.phase==='last'&&st.cur===wk,'最後一隻狼是狼王：先遺言 '+st.phase);E.wwAct(st,wk,{type:'endSpeak'},400);ok(st.phase==='hunter','狼王開槍 '+st.phase);
+  E.wwAct(st,wk,{type:'hunter',t:shoot?V[0]:-1},500);ok(st.over&&st.over.win===(shoot?'wolf':'good')&&!!st.over.both===shoot,'狼王最後一槍 '+shoot+JSON.stringify(st.over));}
+ // 白狼王是最後一隻狼，自爆帶走最後一個平民 → 狼人贏
+ {const {st,R,V}=mk({whiteWolf:1,seer:1});V.slice(1).forEach(v=>st.alive[v]=false);E.wwAct(st,R('whiteWolf'),{type:'night',t:-1},100);E.wwAct(st,R('seer'),{type:'night',t:V[0]},100);
+  ok(st.phase==='speak','發言 '+st.phase);E.wwAct(st,R('whiteWolf'),{type:'boom',t:V[0]},200);ok(st.over&&st.over.win==='wolf'&&st.over.both,'自爆同歸於盡 '+JSON.stringify(st.over));}
+}
+// 比人數（0.25.0 起的預設）：狼人數追平或超過好人數才算狼贏，平民或神職全滅不算
+{ok(E.wwCfgFor(9).win==='num'&&E.wwCfgFix({n:9,roles:{wolf:3},win:'side'}).win==='side','預設比人數');
+ const st=E.wwNew(E.wwCfgFor(9),Array(9).fill(false),0);const W=st.roles.map((r,i)=>r==='wolf'?i:-1).filter(i=>i>=0),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0),R=r=>st.roles.indexOf(r);
+ ok(E.wwJudge(st)===null,'開局 3 狼 6 好人：繼續');V.forEach(v=>st.alive[v]=false);const j=E.wwJudge(st);ok(j&&j.win==='wolf','3 狼 3 好人＝追平，狼人贏 '+JSON.stringify(j));}
+{const st=E.wwNew(E.wwCfgFor(9),Array(9).fill(false),0);const W=st.roles.map((r,i)=>r==='wolf'?i:-1).filter(i=>i>=0),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0);
+ st.alive[V[0]]=st.alive[V[1]]=false;st.alive[W[0]]=false;ok(E.wwJudge(st)===null,'2 狼 4 好人：繼續');
+ st.alive[V[2]]=false;ok(E.wwJudge(st)===null,'平民全滅、2 狼 3 神：比人數下還沒結束');
+ st.alive[st.roles.indexOf('seer')]=false;const j=E.wwJudge(st);ok(j&&j.win==='wolf'&&/追平/.test(j.why),'2 狼 2 好人：狼人贏 '+JSON.stringify(j));
+ W.forEach(w=>st.alive[w]=false);ok(E.wwJudge(st).win==='good','狼全滅：好人贏');}
+// 電腦好人的判斷：預言家沒有發言模型也會報查驗；被查殺的人知道對方是假的；夜裡被殺的預言家大家都信
+{const st=E.wwNew(E.wwCfgFor(9),Array(9).fill(true),0);const R=r=>st.roles.indexOf(r),W=st.roles.map((r,i)=>r==='wolf'?i:-1).filter(i=>i>=0),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0),se=R('seer');
+ st.strat[se]='seerJump';st.seerRes[W[0]]=true;st.phase='speak';st.cur=se;const line=E.wwCanned(st,se);
+ ok(/我是預言家/.test(line)&&line.includes(`查驗${W[0]+1}號是狼人`)&&line.includes(`投${W[0]+1}號`),'預言家報查驗 '+line);
+ ok(E.wwCanned(st,V[0])===null,'平民沒有模型就說過');
+ ok(!E.wwAct(st,se,{type:'say',txt:line},0),'預言家發言');
+ ok(st.pub.seer[se]!=null&&st.pub.rep[se].kill.includes(W[0]),'公開資訊記到查殺 '+JSON.stringify(st.pub));
+ st.nd=[se];const B=E.wwBelief(st,V[0]);ok(B.trust===se&&B.kills.includes(W[0]),'夜裡被殺的預言家可信 '+JSON.stringify(B));
+ // 狼悍跳查殺平民：那位平民認定他是假的
+ st.cur=W[1];ok(!E.wwAct(st,W[1],{type:'say',txt:`我才是預言家，查驗${V[1]+1}號是狼人，今天投${V[1]+1}號。`},0),'狼悍跳發言');
+ ok(E.wwBelief(st,V[1]).liars.includes(W[1]),'被查殺的好人知道對方是假預言家');ok(E.wwBelief(st,se).liars.includes(W[1]),'真預言家知道對跳的是假的');}
 // 隨機身份組合的全電腦對局（含騎士、白狼王由測試隨機觸發）
 {let done=0,tries=0;const keys=['wolfKing','whiteWolf','hiddenWolf','seer','witch','hunter','guard','idiot','knight','gravekeeper','crow','bear'];
  while(done<400&&tries<5000){tries++;const n=6+Math.floor(Math.random()*7),roles={wolf:1+Math.floor(Math.random()*2)};keys.forEach(k=>{if(Math.random()<.45)roles[k]=1;});
-  const cfg=E.wwCfgFix({n,roles,win:Math.random()<.5?'all':'side'});if(E.wwCfgErr(cfg))continue;done++;
+  const cfg=E.wwCfgFix({n,roles,win:['num','side','all'][done%3]});if(E.wwCfgErr(cfg))continue;done++;
   const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,steps=0;
   while(!st.over&&steps<30000){t+=300;
     if(st.phase==='speak'&&Math.random()<.01){const k=st.roles.indexOf('knight'),w=st.roles.indexOf('whiteWolf'),al=st.alive.map((a,i)=>a?i:-1).filter(i=>i>=0);
       if(k>=0&&st.alive[k]&&Math.random()<.5)E.wwAct(st,k,{type:'duel',t:al[Math.floor(Math.random()*al.length)]},t);else if(w>=0&&st.alive[w])E.wwAct(st,w,{type:'boom',t:al[Math.floor(Math.random()*al.length)]},t);}
     E.wwTick(st,t);steps++;if(['speak','last','hunter'].includes(st.phase)&&!st.ai[st.cur]){fail++;break;}}
   if(!st.over){fail++;console.log('random no end',JSON.stringify(cfg),st.phase);break;}
-  const w=st.roles.filter((r,i)=>E.WW_ROLES[r].side==='wolf'&&st.alive[i]).length;if((st.over.win==='good')!==(w===0)){fail++;console.log('bad win',st.over,w);}}
+  const w=st.roles.filter((r,i)=>E.WW_ROLES[r].side==='wolf'&&st.alive[i]).length;if(st.over.win==='good'?w!==0:(w===0&&!st.over.both)){fail++;console.log('bad win',st.over,w);}}
  console.log('隨機身份',done,'局');}
 console.log(fail?'失敗 '+fail:'全部通過');

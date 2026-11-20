@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.24.0">v0.24.0</span>
+  <span class="ver" aria-label="版本 0.25.0">v0.25.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -4624,7 +4624,7 @@ const WW_PRESET={6:{wolf:2,seer:1,witch:1},7:{wolf:2,seer:1,witch:1,hunter:1},8:
   10:{wolf:3,seer:1,witch:1,hunter:1,guard:1},11:{wolf:4,seer:1,witch:1,hunter:1,guard:1},12:{wolf:4,seer:1,witch:1,hunter:1,idiot:1}};
 const WW_T={night:45000,witch:25000,hunter:20000,vote:30000};
 const wwNo=s=>(s+1)+' 號';
-function wwCfgFix(c){const r={};WW_KEYS.forEach(k=>r[k]=Math.max(0,c&&c.roles?(c.roles[k]|0):0));return{n:c.n,roles:r,win:c.win==='all'?'all':'side',speak:[30,60,90,120].includes(c.speak)?c.speak:60};}
+function wwCfgFix(c){const r={};WW_KEYS.forEach(k=>r[k]=Math.max(0,c&&c.roles?(c.roles[k]|0):0));return{n:c.n,roles:r,win:c.win==='all'||c.win==='side'?c.win:'num',speak:[30,60,90,120].includes(c.speak)?c.speak:60};}
 function wwCfgFor(n){return wwCfgFix({n,roles:WW_PRESET[n]||{wolf:2,seer:1,witch:1}});}
 function wwVil(cfg){return cfg.n-WW_KEYS.reduce((a,k)=>a+(cfg.roles[k]|0),0);}
 function wwWolfN(cfg){return WW_WOLVES.reduce((a,k)=>a+(cfg.roles[k]|0),0);}
@@ -4633,6 +4633,7 @@ function wwCfgErr(cfg){
   const w=wwWolfN(cfg),killers=w-(cfg.roles.hiddenWolf|0);if(killers<1)return'至少要 1 隻會殺人的狼（狼人、狼王或白狼王）';if(wwVil(cfg)<0)return'身份比人數還多';
   if(w*2>=cfg.n)return'狼人陣營太多了（要少於一半）';if(cfg.n-w<2)return'好人至少要 2 位';return null;}
 function wwMsg(st,to,txt,seat){st.msgs.push({id:++st.mid,to,seat:seat==null?-1:seat,txt:String(txt),day:st.day});
+  if(seat>=0&&to==='all'&&(st.phase==='speak'||st.phase==='last'))wwPubNote(st,seat,String(txt));
   if(st.msgs.length>400)st.msgs.splice(0,st.msgs.length-400);}
 const wwSide=(st,s)=>WW_ROLES[st.roles[s]].side;
 const wwIsWolf=(st,s)=>wwSide(st,s)==='wolf';
@@ -4644,13 +4645,15 @@ function wwNew(cfg,ai,now){
   cfg=wwCfgFix(cfg);const deck=[];WW_KEYS.forEach(k=>{for(let i=0;i<(cfg.roles[k]|0);i++)deck.push(k);});while(deck.length<cfg.n)deck.push('villager');
   for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
   const st={g:'ww',n:cfg.n,cfg,roles:deck,alive:Array(cfg.n).fill(true),ai:ai.slice(),day:1,phase:'',dl:0,
-    witchSave:true,witchPoison:true,guardLast:-1,seerRes:{},idiotUp:[],knightUsed:false,crowMark:-1,lastOut:-1,msgs:[],mid:0,over:null,seq:0,aiAt:{},q:[],cur:-1,order:[],si:0,votes:{},night:null};
+    witchSave:true,witchPoison:true,guardLast:-1,seerRes:{},idiotUp:[],knightUsed:false,crowMark:-1,lastOut:-1,msgs:[],mid:0,over:null,seq:0,aiAt:{},q:[],cur:-1,order:[],si:0,votes:{},night:null,pend:-1,blow:null,nd:[],pub:{seer:{},rep:{}}};
   wwMsg(st,'all',`遊戲開始，共 ${cfg.n} 人：`+wwCfgText(cfg)+'。');
   st.roles.forEach((r,i)=>{wwMsg(st,i,`你是 ${wwNo(i)}，身份是「${WW_ROLES[r].n}」：${WW_ROLES[r].tip}。`);});
   const ks=wwAliveOf(st,i=>wwKiller(st,i));wwMsg(st,'wolf',`狼隊友：${ks.map(i=>wwNo(i)+(st.roles[i]!=='wolf'?`（${WW_ROLES[st.roles[i]].n}）`:'')).join('、')}。晚上可以在這裡和隊友討論。`);
   wwTalkInit(st);wwNight(st,now);return st;}
 function wwCfgText(cfg){const p=WW_KEYS.filter(k=>cfg.roles[k]).map(k=>`${WW_ROLES[k].n}×${cfg.roles[k]}`);const v=wwVil(cfg);if(v)p.push(`平民×${v}`);
-  return p.join('、')+`（${cfg.win==='all'?'屠城':'屠邊'}）`;}
+  return p.join('、')+`（${WW_WIN[cfg.win]||WW_WIN.num}）`;}
+// 勝利條件：num＝比人數（狼人數追平或超過好人數，狼人贏；0.25.0 起的預設）、side＝屠邊、all＝屠城
+const WW_WIN={num:'比人數',side:'屠邊',all:'屠城'};
 function wwPhase(st,ph,now,ms){st.phase=ph;st.dl=now+(ms||0);st.aiAt={};st.seq++;}
 function wwNight(st,now){
   if(st.phase)st.day++;
@@ -4677,6 +4680,8 @@ function wwDawn(st,now){
   const n=st.night,deaths=[];const k=n.kill;
   if(k>=0){const g=n.guard===k,s=n.saved===k;if(g===s)deaths.push(k);}   // 同守同救也會死
   if(n.poison>=0&&!deaths.includes(n.poison))deaths.push(n.poison);
+  // 結算順序：狼刀在先、毒在後。被刀和被毒的都死了：被毒的人先記在 st.pend（判勝負時暫時當他還在），狼刀這一步判完才算他
+  st.blow=null;st.pend=deaths.length===2?n.poison:-1;st.nd=(st.nd||[]).concat(deaths);
   deaths.sort((a,b)=>a-b);deaths.forEach(d=>st.alive[d]=false);st.guardLast=n.guard===undefined?-1:n.guard;
   wwMsg(st,'all',deaths.length?`天亮了。昨晚 ${deaths.map(wwNo).join('、')} 死亡。`:'天亮了。昨晚是平安夜，沒有人死亡。');
   st.crowMark=n.crow>=0&&st.alive[n.crow]?n.crow:-1;
@@ -4710,19 +4715,36 @@ function wwTally(st,now){
   if(!rows.length||(rows.length>1&&cnt(rows[0])===cnt(rows[1]))){wwMsg(st,'all',rows.length?'平票，這輪沒有人出局。':'沒有人出局。');wwNight(st,now);return;}
   const out=rows[0];
   if(st.roles[out]==='idiot'&&!st.idiotUp.includes(out)){st.idiotUp.push(out);wwMsg(st,'all',`${wwNo(out)} 翻牌是白痴，不會出局，但之後不能投票。`);wwNight(st,now);return;}
-  st.alive[out]=false;st.lastOut=out;wwMsg(st,'all',`${wwNo(out)} 被投票出局。`);
-  if(wwCheck(st,now))return;
-  st.q.push({ph:'last',s:out});if(wwShooter(st,out))st.q.push({ph:'hunter',s:out});wwNext(st,now);}
+  st.alive[out]=false;st.lastOut=out;st.blow=null;wwMsg(st,'all',`${wwNo(out)} 被投票出局。`);
+  st.q.push({ph:'last',s:out});if(wwShooter(st,out))st.q.push({ph:'hunter',s:out});
+  if(wwCheck(st,now))return;wwNext(st,now);}
+// ===== 勝負判定（0.25.0 重寫）=====
+// 【怎麼判】wwJudge：
+//   好人贏＝狼人陣營（含隱狼）全部出局。
+//   狼人贏＝比人數（預設）：還活著的狼人數追平或超過還活著的好人數（平民＋神職）；
+//          屠邊：這局有神職而神職全滅，或有平民而平民全滅；屠城：好人全滅。
+//   同一步裡兩邊同時達成（只有開槍、自爆才做得到，例如狼王是最後一隻狼、倒下時開槍帶走最後一個平民）：最後出手的那一方贏（st.blow）。
+// 【什麼時候判】wwCheck：每一步死亡（天亮的狼刀、毒、投票出局、決鬥、自爆、開槍）都要等它引發的開槍全部開完才判——
+//   還有人等著開槍就先不判（回傳 false），開完槍、放棄開槍或時間到都會再判一次。所以獵人就算是最後一個神職，也能先開槍再分勝負。
+//   夜裡狼刀在先、毒在後：同一晚被刀和被毒的都死了，先只算狼刀（被毒的人 st.pend 暫時當成還在場），狼刀這一步沒分出勝負才把毒算進去。
+function wwJudge(st){
+  const c={wolf:0,god:0,vil:0},all={wolf:0,god:0,vil:0};st.roles.forEach((r,i)=>{const sd=WW_ROLES[r].side;all[sd]++;if(st.alive[i]||i===st.pend)c[sd]++;});
+  const good=c.god+c.vil,wolfWhy=!good?'好人全部出局':st.cfg.win==='all'?null:st.cfg.win==='side'?(all.god&&!c.god?'神職全部出局':all.vil&&!c.vil?'平民全部出局':null)
+    :c.wolf>=good?`狼人數追平好人（狼 ${c.wolf}：好人 ${good}）`:null;
+  if(!c.wolf&&wolfWhy)return st.blow==='wolf'?{win:'wolf',both:true,why:wolfWhy+'；狼人也全部出局，但最後出手的是狼人陣營'}
+    :{win:'good',both:true,why:'狼人陣營全部出局；'+wolfWhy.replace('全部','也全部')+'，但最後出手的是好人陣營'};
+  if(!c.wolf)return{win:'good',why:'狼人陣營全部出局'};
+  return wolfWhy?{win:'wolf',why:wolfWhy}:null;}
 function wwCheck(st,now){
-  const al=wwAliveOf(st),w=al.filter(i=>wwIsWolf(st,i)).length,g=al.filter(i=>wwSide(st,i)==='god').length,v=al.filter(i=>wwSide(st,i)==='vil').length;
-  const G=st.roles.filter(r=>WW_ROLES[r].side==='god').length,V=st.roles.filter(r=>r==='villager').length;
-  let win=null;if(!w)win='good';
-  else if(st.cfg.win==='all'){if(!g&&!v)win='wolf';}
-  else if((G&&!g)||(V&&!v)||(!g&&!v))win='wolf';
-  if(!win)return false;
-  st.over={win,why:win==='good'?'狼人陣營全部出局':(st.cfg.win==='all'||(!g&&!v)?'好人全部出局':(G&&!g?'神職全部出局':'平民全部出局'))};
+  if(st.over)return true;
+  if(st.q.some(it=>it.ph==='hunter'))return false;   // 還有人要開槍：開完再判
+  let r=wwJudge(st);
+  if(st.pend>=0){const p=st.pend;st.pend=-1;   // 狼刀這一步判完，再把毒算進去
+    if(!r)r=wwJudge(st);else if(r.win==='wolf'&&!wwAliveOf(st,i=>wwIsWolf(st,i)).length)r={win:'wolf',both:true,why:r.why+`；${wwNo(p)} 是最後一隻狼、同一晚被毒死，但狼刀在先`};}
+  if(!r)return false;
+  st.over={win:r.win,why:r.why};if(r.both)st.over.both=true;
   wwPhase(st,'over',now,0);
-  wwMsg(st,'all',`遊戲結束：${win==='good'?'好人陣營':'狼人陣營'}獲勝（${st.over.why}）。身份：`+st.roles.map((r,i)=>`${i+1} 號${WW_ROLES[r].n}`).join('、')+'。');
+  wwMsg(st,'all',`遊戲結束：${r.win==='good'?'好人陣營':'狼人陣營'}獲勝（${r.why}）。身份：`+st.roles.map((x,i)=>`${i+1} 號${WW_ROLES[x].n}`).join('、')+'。');
   return true;}
 // 白天打斷發言（騎士決鬥、白狼王自爆）之後：處理開槍，再直接入夜
 function wwDayBreak(st,now,dead){st.q=[];dead.forEach(d=>{if(wwShooter(st,d))st.q.push({ph:'hunter',s:d});});
@@ -4756,17 +4778,17 @@ function wwAct(st,seat,a,now){
     wwDawn(st,now);return null;}
   if(a.type==='hunter'){if(st.phase!=='hunter'||st.cur!==seat)return'現在不能開槍';const t=a.t;
     if(t===-1){wwMsg(st,'all',`${wwNo(seat)} 選擇不開槍。`);}
-    else{if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位活著的玩家';st.alive[t]=false;wwMsg(st,'all',`${WW_ROLES[r].n} ${wwNo(seat)} 開槍帶走了 ${wwNo(t)}。`);
-      if(wwCheck(st,now))return null;if(wwShooter(st,t))st.q.unshift({ph:'hunter',s:t});}
-    wwNext(st,now);return null;}
+    else{if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位活著的玩家';st.alive[t]=false;st.blow=wwIsWolf(st,seat)?'wolf':'good';wwMsg(st,'all',`${WW_ROLES[r].n} ${wwNo(seat)} 開槍帶走了 ${wwNo(t)}。`);
+      if(wwShooter(st,t))st.q.unshift({ph:'hunter',s:t});}   // 被帶走的也是獵人／狼王：他也能開槍，全部開完才判勝負
+    if(!wwCheck(st,now))wwNext(st,now);return null;}
   if(a.type==='duel'){if(st.phase!=='speak')return'只能在白天發言階段決鬥';if(r!=='knight'||!st.alive[seat])return'只有騎士能決鬥';if(st.knightUsed)return'決鬥已經用過了';
-    const t=a.t;if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位其他活著的玩家';st.knightUsed=true;
+    const t=a.t;if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位其他活著的玩家';st.knightUsed=true;st.blow=null;
     if(wwIsWolf(st,t)){st.alive[t]=false;wwMsg(st,'all',`⚔️ 騎士 ${wwNo(seat)} 和 ${wwNo(t)} 決鬥：${wwNo(t)} 是狼人，出局！今天直接進入黑夜。`);wwDayBreak(st,now,[t]);return null;}
     st.alive[seat]=false;wwMsg(st,'all',`⚔️ 騎士 ${wwNo(seat)} 和 ${wwNo(t)} 決鬥：${wwNo(t)} 是好人，騎士以死謝罪。`);
     if(wwCheck(st,now))return null;if(st.cur===seat)wwEndSpeak(st,now);else st.seq++;return null;}
   if(a.type==='boom'){if(st.phase!=='speak')return'只能在白天發言階段自爆';if(r!=='whiteWolf'||!st.alive[seat])return'只有白狼王能自爆';
     const t=a.t;if(!(ok(t)&&st.alive[t]&&t!==seat))return'請選一位其他活著的玩家';
-    st.alive[seat]=false;st.alive[t]=false;wwMsg(st,'all',`💥 ${wwNo(seat)} 是白狼王，自爆並帶走了 ${wwNo(t)}！今天直接進入黑夜。`);wwDayBreak(st,now,[t]);return null;}
+    st.alive[seat]=false;st.alive[t]=false;st.blow='wolf';wwMsg(st,'all',`💥 ${wwNo(seat)} 是白狼王，自爆並帶走了 ${wwNo(t)}！今天直接進入黑夜。`);wwDayBreak(st,now,[t]);return null;}
   if(a.type==='endSpeak'){if((st.phase!=='speak'&&st.phase!=='last')||st.cur!==seat)return'還沒輪到你發言';wwEndSpeak(st,now);return null;}
   if(a.type==='vote'){if(st.phase!=='vote')return'現在不是投票時間';if(!wwVoters(st).includes(seat))return st.alive[seat]?'白痴翻牌後不能投票':'你已經出局';
     const t=a.t;if(t!==-1&&!(ok(t)&&st.alive[t]))return'請投給活著的玩家';st.votes[seat]=t;st.seq++;
@@ -4782,40 +4804,85 @@ function wwTimeout(st,now){
   const ph=st.phase;
   if(ph==='night'){wwToWitch(st,now);return true;}
   if(ph==='witch'){wwMsg(st,wwSeatOf(st,'witch'),'時間到，今晚你沒有用藥。');wwDawn(st,now);return true;}
-  if(ph==='hunter'){wwMsg(st,'all',`${wwNo(st.cur)} 時間到，沒有開槍。`);wwNext(st,now);return true;}
+  if(ph==='hunter'){wwMsg(st,'all',`${wwNo(st.cur)} 時間到，沒有開槍。`);if(!wwCheck(st,now))wwNext(st,now);return true;}
+
   if(ph==='speak'||ph==='last'){wwMsg(st,'all',`${wwNo(st.cur)} 發言時間到。`);wwEndSpeak(st,now);return true;}
   if(ph==='vote'){wwTally(st,now);return true;}
   return false;}
 // 電腦玩家
 const wwPick=a=>a[Math.floor(Math.random()*a.length)];
 function wwHumanWolfPick(st){const hum=wwAliveOf(st,i=>wwKiller(st,i)&&!st.ai[i]);for(const i of hum)if(st.night.wolf[i]!=null)return st.night.wolf[i];return null;}
+// ===== 公開資訊與電腦好人的判斷（0.25.0 起）：誰跳了預言家、報了什麼查驗；電腦好人據此決定信誰、投誰、毒誰、帶走誰 =====
+// 只記公開發言（電腦和真人說的都算），不看任何人的真實身份
+const WW_AI={trust1:.85,follow:.85,poison:.7,knifeSeer:.6,blind:.4,jump:.55,sense:.45};   // 只有一個人跳預言家時相信他的機率／照查殺投票的機率／女巫毒查殺的機率／狼優先刀預言家的機率／沒有線索時還是亂投一票的機率（其餘棄票）／開局有狼悍跳的機率
+const WW_SEER_RE=/我[^，。！？,.!?不沒]{0,6}(?:是|跳)(?:真的?|真正的)?預言家|我的(?:查殺|金水)|我(?:昨晚|首夜|昨天)?(?:查驗?|驗)了?\s*\d/;
+function wwPubNote(st,seat,txt){const P=st.pub=st.pub||{seer:{},rep:{}},R=P.rep[seat]=P.rep[seat]||{kill:[],gold:[]},cl=wwTalkClaims(txt);
+  const ok=t=>t>=0&&t<st.n&&t!==seat;cl.kill.forEach(t=>{if(ok(t)&&!R.kill.includes(t))R.kill.push(t);});cl.gold.forEach(t=>{if(ok(t)&&!R.gold.includes(t)&&!R.kill.includes(t))R.gold.push(t);});
+  if(P.seer[seat]==null&&WW_SEER_RE.test(txt))P.seer[seat]=st.day;}
+// 這位好人相信哪個預言家：{trust:相信的人（-1＝都不信）, liars:[認定是假跳的…], kills:[他報的查殺…], golds:[他報的金水…]}
+//   預言家本人只信自己（別人跳的都是假的）；查殺我的一定是假的（我知道自己是好人）；夜裡被殺的預言家是真的（狼不刀自己人）；
+//   只有一個人跳：大多會信；兩個人對跳：各信一邊（被發金水的比較信他），信了一邊就認定另一邊是狼
+function wwBelief(st,s){const P=st.pub||{seer:{},rep:{}},rep=c=>P.rep[c]||{kill:[],gold:[]},cs=Object.keys(P.seer).map(Number).filter(c=>c!==s);
+  if(st.roles[s]==='seer'){const k=Object.keys(st.seerRes).map(Number);return{trust:s,liars:cs,kills:k.filter(i=>st.seerRes[i]),golds:k.filter(i=>!st.seerRes[i])};}
+  const liars=[],cand=[];cs.forEach(c=>(rep(c).kill.includes(s)?liars:cand).push(c));
+  const T=st.trust=st.trust||{},nd=cand.filter(x=>(st.nd||[]).includes(x));let c=-1;
+  if(nd.length)c=nd[0];
+  else if(T[s]&&T[s].key===cand.join())c=T[s].c;   // 跳的人沒變就維持原本的判斷；有新的人跳出來就重新選邊
+  else if(cand.length===1)c=Math.random()<WW_AI.trust1?cand[0]:-1;
+  else if(cand.length>1)c=wwPick(cand.flatMap(x=>rep(x).gold.includes(s)?[x,x]:[x]));
+  T[s]={key:cand.join(),c};if(c>=0)cand.forEach(x=>{if(x!==c)liars.push(x);});
+  return{trust:c,liars,kills:c>=0?rep(c).kill:[],golds:c>=0?rep(c).gold:[]};}
+// 沒有發言模型（或模型這次寫不出合格的話）時：預言家照樣報查驗、悍跳的狼照樣報假查驗（每天多報一個、前後一致），其他人說「過」
+function wwCanned(st,s){const r=st.roles[s],sg=st.strat&&st.strat[s],last=st.phase==='last',said=(st.pub&&st.pub.rep[s])||{kill:[],gold:[]},first=!(st.pub&&st.pub.seer[s]!=null);
+  let res=null,me='我是預言家';
+  if(r==='seer'){if(sg==='seerHide'&&st.day<2&&!last)return null;res=st.seerRes;}
+  else if(sg==='jump'&&wwKiller(st,s)){const F=st.fake=st.fake||{},mine=F[s]=F[s]||{res:{},day:0},mates=wwMates(st,s),c=wwAliveOf(st,i=>i!==s&&!(i in mine.res));
+    if(!last&&mine.day!==st.day&&c.length){mine.day=st.day;const rival=c.filter(i=>!mates.includes(i)&&st.pub&&st.pub.seer[i]!=null),ms=c.filter(i=>mates.includes(i)),gs=c.filter(i=>!mates.includes(i));
+      if(rival.length)mine.res[rival[0]]=true;                               // 有人對跳：查殺他
+      else if(ms.length&&Math.random()<.35)mine.res[wwPick(ms)]=false;       // 發金水給隊友
+      else if(gs.length)mine.res[wwPick(gs)]=Math.random()<.6;}
+    res=mine.res;me='我才是預言家';}
+  if(!res)return null;const ks=Object.keys(res).map(Number);if(!ks.length)return null;
+  const nw=ks.filter(i=>!(res[i]?said.kill:said.gold).includes(i)),k=ks.find(i=>res[i]&&st.alive[i]);
+  if(!first&&!nw.length)return k!=null&&!last?`${k+1}號是我的查殺，今天投${k+1}號。`:null;
+  return`${me}，${(first?ks:nw).map(i=>`查驗${i+1}號是${res[i]?'狼人':'好人'}`).join('，')}。`+(k==null?'':last?`大家把${k+1}號投出去。`:`今天投${k+1}號。`);}
 function wwAIAct(st,s,now){
-  const al=wwAliveOf(st),others=al.filter(i=>i!==s),r=st.roles[s],good=others.filter(i=>!wwIsWolf(st,i));
+  const al=wwAliveOf(st),others=al.filter(i=>i!==s),r=st.roles[s],good=others.filter(i=>!wwIsWolf(st,i)),wolf=wwIsWolf(st,s),P=st.pub||{seer:{},rep:{}};
+  // 好人認定的狼：相信的預言家報的查殺，再來是認定假跳的人；safe＝不會去動的人（相信的預言家和他的金水）
+  const B=wolf||st.phase==='speak'||st.phase==='last'?null:wwBelief(st,s),marks=B?[...B.kills,...B.liars].filter(i=>i!==s&&st.alive[i]):[],safe=B?others.filter(i=>i!==B.trust&&!B.golds.includes(i)):others;
   if(st.phase==='night'){
-    if(wwKiller(st,s)){const hp=wwHumanWolfPick(st);const t=hp!=null?hp:(Object.values(st.night.wolf)[0]??(good.length?wwPick(good):-1));return{type:'night',t};}
-    if(r==='seer'){const c=others.filter(i=>!(i in st.seerRes));return{type:'night',t:wwPick(c.length?c:others)};}
-    if(r==='guard'){const c=al.filter(i=>i!==st.guardLast);return{type:'night',t:c.length?wwPick(c):-1};}
-    if(r==='crow')return{type:'night',t:others.length?wwPick(others):-1};
+    if(wwKiller(st,s)){const hp=wwHumanWolfPick(st);let t=hp!=null?hp:Object.values(st.night.wolf)[0];
+      if(t==null){const seers=good.filter(i=>P.seer[i]!=null);t=seers.length&&Math.random()<WW_AI.knifeSeer?wwPick(seers):good.length?wwPick(good):-1;}   // 優先刀跳預言家的人
+      return{type:'night',t};}
+    if(r==='seer'){const c=others.filter(i=>!(i in st.seerRes)&&!B.liars.includes(i));return{type:'night',t:wwPick(c.length?c:others)};}
+    if(r==='guard'){const c=al.filter(i=>i!==st.guardLast);return{type:'night',t:B.trust>=0&&c.includes(B.trust)&&Math.random()<.7?B.trust:c.length?wwPick(c):-1};}   // 守相信的預言家
+    if(r==='crow')return{type:'night',t:marks.length?marks[0]:others.length?wwPick(others):-1};
     return null;}
   if(st.phase==='witch'){const k=st.night.kill;
-    if(st.witchSave&&k>=0&&(st.day===1||Math.random()<.5))return{type:'witch',use:'save'};
-    if(st.witchPoison&&st.day>1&&Math.random()<.12&&others.length)return{type:'witch',use:'poison',t:wwPick(others)};
+    if(st.witchSave&&k>=0&&!marks.includes(k)&&(st.day===1||Math.random()<.5))return{type:'witch',use:'save'};
+    if(st.witchPoison&&marks.length&&Math.random()<WW_AI.poison)return{type:'witch',use:'poison',t:marks[0]};   // 毒被查殺的人
+    if(st.witchPoison&&st.day>1&&Math.random()<.04&&safe.length)return{type:'witch',use:'poison',t:wwPick(safe)};
     return{type:'witch',use:'none'};}
-  if(st.phase==='hunter'){const c=wwIsWolf(st,s)?good:others;return{type:'hunter',t:Math.random()<.75&&c.length?wwPick(c):-1};}
-  if(st.phase==='speak'||st.phase==='last')return{type:'endSpeak',say:'過。'};
-  if(st.phase==='vote'){const c=others;
+  if(st.phase==='hunter'){
+    if(wolf)return{type:'hunter',t:Math.random()<.75&&good.length?wwPick(good):-1};
+    if(marks.length)return{type:'hunter',t:marks[0]};   // 帶走被查殺的人
+    return{type:'hunter',t:Math.random()<.3&&safe.length?wwPick(safe):-1};}
+  if(st.phase==='speak'||st.phase==='last')return{type:'endSpeak',say:wwCanned(st,s)||'過。'};
+  if(st.phase==='vote'){const c=safe;
     // 白天說過要投誰，就投誰
     const it=st.intent&&st.intent[s];let iv=it&&it.day===st.day&&it.t!==s&&st.alive[it.t]?it.t:-1;
     // 狼人打掩護：不投隊友（倒鉤的狼只有隊友已經救不回來才切割）；隊友被點名、自己沒表態要投誰，就把票集中到別人身上
     if(wwKiller(st,s)){const dg=wwDanger(st,s);if(iv>=0&&wwMates(st,s).includes(iv)&&wwCut(st,s,dg)!==iv)iv=-1;
       if(iv<0&&dg&&dg.tgt>=0&&st.alive[dg.tgt])return{type:'vote',t:dg.tgt};}
     if(iv>=0)return{type:'vote',t:iv};
-    if(wwIsWolf(st,s))return{type:'vote',t:good.length?wwPick(good):-1};
-    if(r==='seer'){const k=c.filter(i=>st.seerRes[i]);if(k.length)return{type:'vote',t:k[0]};}
-    // 跟著目前票最多的人投，沒有就隨機
-    const tally={};Object.values(st.votes).forEach(t=>{if(t>=0&&t!==s)tally[t]=(tally[t]||0)+1;});const top=Object.keys(tally).sort((a,b)=>tally[b]-tally[a])[0];
-    if(top!=null&&Math.random()<.55)return{type:'vote',t:+top};
-    return{type:'vote',t:Math.random()<.15||!c.length?-1:wwPick(c)};}
+    if(wolf){const mk=wwKiller(st,s)?[s,...wwMates(st,s)].flatMap(m=>P.seer[m]!=null&&P.rep[m]?P.rep[m].kill:[]).filter(t=>good.includes(t)):[];   // 跟著悍跳的隊友報的查殺投
+      return{type:'vote',t:mk.length?mk[mk.length-1]:good.length?wwPick(good):-1};}
+    if(marks.length&&(r==='seer'||Math.random()<WW_AI.follow))return{type:'vote',t:marks[0]};   // 照相信的預言家報的查殺投；沒有查殺就投假跳的
+    // 直覺（模擬真人聽發言抓狼）：每天有一隻狼「露出馬腳」，沒有查殺可以跟的好人有一定機率看出來、投他；狼佔的比例越高越容易被看出來
+    if(!st.sus||st.sus.day!==st.day){const ws=wwAliveOf(st,i=>wwIsWolf(st,i));st.sus={day:st.day,t:ws.length?wwPick(ws):-1};}
+    if(st.sus.t>=0&&st.alive[st.sus.t]&&c.includes(st.sus.t)&&Math.random()<WW_AI.sense*3*wwAliveOf(st,i=>wwIsWolf(st,i)).length/Math.max(1,al.length-1))return{type:'vote',t:st.sus.t};
+    // 沒有線索：多半棄票，少數隨機投一個（不投相信的預言家和他的金水）。0.25.0 起不再偷看還沒開的票跟著投
+    return{type:'vote',t:Math.random()<WW_AI.blind&&c.length?wwPick(c):-1};}
   return null;}
 // 哪些電腦玩家現在要行動
 function wwAINeed(st){const ai=i=>st.ai[i],out=[];
@@ -4851,7 +4918,8 @@ function wwTalkTick(st,now){const s=st.cur,key=st.phase+s+'@'+st.dl;let T=st.tal
   if(T.res===undefined&&now<T.until)return false;
   let p=null,err='逾時';if(T.res!=null){p=wwTalkParse(T.res);err=(p&&wwTalkCover(st,s,p))||wwTalkCheck(st,s,p)||(p&&wwTalkCopy(st,s,p.speech));if(!err)wwTalkBack(st,s,p);}
   if(err&&T.n<2&&T.res!==undefined&&now<T.until){T.res=undefined;wwTalkReq(st,s,T);return false;}
-  st.talk=null;if(err||!p){wwMsg(st,'all','過。',s);}else wwTalkApply(st,s,p);
+  st.talk=null;if(err||!p){wwMsg(st,'all',wwCanned(st,s)||'過。',s);}else wwTalkApply(st,s,p);
+
   if(typeof console!=='undefined'&&err&&T.res!==undefined&&T.res!==null&&st.talkLog)console.log('AI 發言不採用：',err,T.res);
   wwAct(st,s,{type:'endSpeak'},now);return true;}
 function wwTalkReq(st,s,T){T.n++;const prompt=wwTalkPrompt(st,s);
@@ -4879,7 +4947,7 @@ function wwSetTalk(f){WW_TALK=f||null;}
 // 開局時替每個人分配說話風格；狼人另外分配策略（最多一隻狼悍跳）
 function wwTalkInit(st){st.style=st.roles.map(()=>wwPick(WW_STYLE)+'，'+wwPick(WW_LEN));st.strat={};st.intent={};
   const ws=st.roles.map((r,i)=>i).filter(i=>wwIsWolf(st,i)&&st.roles[i]!=='hiddenWolf');const hasSeer=st.roles.includes('seer');
-  const jumper=hasSeer&&ws.length&&Math.random()<.55?wwPick(ws):-1;
+  const jumper=hasSeer&&ws.length&&Math.random()<WW_AI.jump?wwPick(ws):-1;
   st.roles.forEach((r,i)=>{if(wwIsWolf(st,i)){st.strat[i]=i===jumper?'jump':r==='hiddenWolf'?wwPick(['vil','vil','fakegod']):wwPick(['vil','vil','vil','fakegod','hook','hook','push','push']);}
     else if(r==='seer')st.strat[i]=Math.random()<.3?'seerHide':'seerJump';else if(r==='villager'){if(Math.random()<.08)st.strat[i]='vilFake';}else st.strat[i]='godHide';});}
 function wwShort(t){return String(t).replace(/ ?(\d+) 票/g,'$1票').replace(/ ?(\d+) 號 ?/g,'$1號').replace(/\s+/g,' ').trim();}
@@ -4904,7 +4972,8 @@ function wwTalkLog(st,seat,msgs){
   return out.filter(e=>!e.sp||e.day>=st.day-1).map(e=>e.s);}
 function wwTalkPrompt(st,seat){
   const v=wwView(st,seat,0),r=st.roles[seat],R=WW_ROLES[r],last=st.phase==='last',L=[];
-  L.push(`狼人殺${st.n}人：${wwCfgText(st.cfg)}`);
+  L.push(`狼人殺${st.n}人：${wwCfgText(st.cfg).replace('（比人數）','（屠城）')}`);   // 發言模型訓練時只看過屠邊／屠城，「比人數」用最接近的屠城代替
+
   L.push(`我是${seat+1}號，身份：${R.n}（${R.side==='wolf'?'狼人陣營':'好人陣營'}）`);
   if(v.killer){const mates=v.wolves.filter(i=>i!==seat);L.push(mates.length?`狼隊友：${mates.map(i=>i+1+'號'+(st.roles[i]!=='wolf'?'('+WW_ROLES[st.roles[i]].n+')':'')+(st.alive[i]?'':'(出局)')).join('、')}`:'狼隊友：都出局了');}
   else if(r==='hiddenWolf')L.push('隱狼：不知道狼隊友是誰，查驗會是好人');
@@ -5137,14 +5206,14 @@ function wtRenderSet(){const b=$('wtBtn');if(!b)return;b.setAttribute('aria-pres
 function wtToggle(){WT.on=!WT.on;try{localStorage.setItem('xq-wwtalk',WT.on?'1':'0');}catch(e){}if(WT.on){WT.slow=false;WT.err='';wtStart();}else wtStop();wtRenderSet();wwHint();}
 // 狼人殺大廳的一行提示（還沒開啟或沒下載時，附一個直接到設定的按鈕）
 function wwHintHTML(){if(!WT.have&&WT.avail===false)return'';if(WT.crashed&&!WT.on)return`<p class="wwai">⚠️ ${WT.err||'AI 發言已自動關閉'}</p>`;if(WT.on&&(WT.dl||(WT.starting&&!WT.ready)))return'<p class="wwai">🗣️ AI 發言模型'+(WT.dl?'下載中…':'準備中…')+'</p>';if(WT.on&&WT.have)return WT.ready?'<p class="wwai">🗣️ AI 發言已開啟</p>':WT.loading?'<p class="wwai">🗣️ AI 發言模型載入中…</p>':'';
-  return`<p class="wwai">電腦玩家現在只會說「過」。<button data-act="setOpen">到設定開啟 AI 發言</button></p>`;}
+  return`<p class="wwai">電腦玩家現在除了預言家報查驗，其他人只會說「過」。<button data-act="setOpen">到設定開啟 AI 發言</button></p>`;}
 function wwHint(){if(!$('ww').hidden&&!$('wwLobby').hidden&&WW.phase==='lobby')wwRenderLobby();}
 // 房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料；連線沿用撲克牌的 pkNet（另一個房間種類 'ww'）
 const WW={role:null,phase:null,st:null,view:null,me:0,seats:[],net:null,code:null,cfg:null,tick:null,clock:null,sel:null,mode:null,lobby:null,recvAt:0,lastMid:0,stick:true};
-try{const c=JSON.parse(localStorage.getItem('xq-wwcfg')||'null');if(c&&c.roles){const f=wwCfgFix(c);if(!wwCfgErr(f))WW.cfg=f;}}catch(e){}
+try{const c=JSON.parse(localStorage.getItem('xq-wwcfg')||'null');if(c&&c.roles){if(c.v!==2)c.win='num';const f=wwCfgFix(c);if(!wwCfgErr(f))WW.cfg=f;}}catch(e){}   // 0.25.0 以前存的設定：勝利條件改成新的預設「比人數」
 if(!WW.cfg)WW.cfg=wwCfgFor(9);
-const WW_RULE='遊戲自動當法官，房主可以從 14 種身份裡挑（狼人、狼王、白狼王、隱狼、預言家、女巫、獵人、守衛、白痴、騎士、守墓人、烏鴉、熊、平民）。天黑後狼人選人殺、預言家查驗、守衛守護，接著女巫決定用不用藥（大家都行動完就直接進行）；天亮公布死者後，依編號輪流打字發言（可以「過」），再一起投票，票最多的人出局（平票沒人出局）。狼人全部出局好人贏；屠邊時神職或平民其中一邊全部出局狼人贏，屠城要好人全部出局。人數不夠由電腦補位；在設定開啟「狼人殺 AI 發言」後，電腦會用手機裡的小模型發言（沒開就說「過」）。';
-function wwSaveCfg(){try{localStorage.setItem('xq-wwcfg',JSON.stringify(WW.cfg));}catch(e){}}
+const WW_RULE='遊戲自動當法官，房主可以從 14 種身份裡挑（狼人、狼王、白狼王、隱狼、預言家、女巫、獵人、守衛、白痴、騎士、守墓人、烏鴉、熊、平民）。天黑後狼人選人殺、預言家查驗、守衛守護，接著女巫決定用不用藥（大家都行動完就直接進行）；天亮公布死者後，依編號輪流打字發言（可以「過」），再一起投票，票最多的人出局（平票沒人出局）。狼人全部出局好人贏；狼人數追平或超過好人數（平民＋神職）狼人贏（也可以改成屠邊：神職或平民其中一邊全部出局；或屠城：好人全部出局）。人數不夠由電腦補位；在設定開啟「狼人殺 AI 發言」後，電腦會用手機裡的小模型發言（沒開就說「過」）。';
+function wwSaveCfg(){try{localStorage.setItem('xq-wwcfg',JSON.stringify({...WW.cfg,v:2}));}catch(e){}}
 function wwShow(){mode='menu';$('menu').hidden=true;$('app').hidden=true;$('pk').hidden=true;$('ww').hidden=false;}
 function wwStop(){clearInterval(WW.tick);WW.tick=null;clearInterval(WW.clock);WW.clock=null;}
 function wwExit(){wwStop();if(WW.net){try{WW.net.close();}catch(e){}WW.net=null;}WW.role=null;WW.phase=null;WW.st=null;WW.view=null;$('ww').hidden=true;showMenu('');}
@@ -5169,7 +5238,7 @@ function wwCfgHTML(edit){const c=WW.cfg,err=wwCfgErr(c);
    +`<h4>狼人陣營</h4>`+WW_WOLVES.map(row).join('')
    +`<h4>神職</h4>`+WW_GODS.map(row).join('')
    +`<h4>平民</h4><div class="wwrow on"><span class="wwic">${WW_ROLES.villager.ic}</span><span class="wwrn">平民<small>其餘座位自動補滿</small></span><b>${wwVil(c)}</b></div>`
-   +`<h4>規則</h4><div class="wwrow on"><span class="wwic">🏁</span><span class="wwrn">勝利條件<small>屠邊：神職或平民一邊全滅狼就贏；屠城：好人全滅</small></span>${edit?`<select data-act="wwWinSel" aria-label="勝利條件"><option value="side"${c.win!=='all'?' selected':''}>屠邊</option><option value="all"${c.win==='all'?' selected':''}>屠城</option></select>`:`<b>${c.win==='all'?'屠城':'屠邊'}</b>`}</div>`
+   +`<h4>規則</h4><div class="wwrow on"><span class="wwic">🏁</span><span class="wwrn">勝利條件<small>比人數：狼人數追平或超過好人（平民＋神職）狼才贏；屠邊：神職或平民一邊全滅；屠城：好人全滅</small></span>${edit?`<select data-act="wwWinSel" aria-label="勝利條件">${Object.keys(WW_WIN).map(k=>`<option value="${k}"${c.win===k?' selected':''}>${WW_WIN[k]}</option>`).join('')}</select>`:`<b>${WW_WIN[c.win]||WW_WIN.num}</b>`}</div>`
    +`<div class="wwrow on"><span class="wwic">⏱️</span><span class="wwrn">每人發言</span>${edit?`<select data-act="wwSpeakSel" aria-label="每人發言時間">${[30,60,90,120].map(x=>`<option value="${x}"${c.speak===x?' selected':''}>${x} 秒</option>`).join('')}</select>`:`<b>${c.speak} 秒</b>`}</div>`
    +(edit?`<button class="wwlink" data-act="wwPreset">恢復 ${c.n} 人的預設身份</button>`:'')
    +(err?`<p class="wwerr">${err}</p>`:'')+`</div>`;}
@@ -5356,7 +5425,7 @@ function wwClick(b){
   return false;}
 document.addEventListener('change',e=>{const el=e.target;if(!el||el.tagName!=='SELECT'||!el.dataset.act||!el.dataset.act.startsWith('ww'))return;
   if(WW.role!=='host'&&WW.role!=='solo')return;const v=el.value,a=el.dataset.act;
-  if(a==='wwNSel')wwSetCount(+v);else if(a==='wwRoleSel')wwRoleSet(el.dataset.k,+v);else if(a==='wwWinSel'){WW.cfg.win=v==='all'?'all':'side';wwCfgChanged();}else if(a==='wwSpeakSel'){WW.cfg.speak=+v;wwCfgChanged();}});
+  if(a==='wwNSel')wwSetCount(+v);else if(a==='wwRoleSel')wwRoleSet(el.dataset.k,+v);else if(a==='wwWinSel'){WW.cfg.win=WW_WIN[v]?v:'num';wwCfgChanged();}else if(a==='wwSpeakSel'){WW.cfg.speak=+v;wwCfgChanged();}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='wwIn'&&!e.isComposing){e.preventDefault();wwSend();}});
 document.addEventListener('scroll',e=>{if(e.target&&e.target.id==='wwLog'){const l=e.target;WW.stick=l.scrollHeight-l.scrollTop-l.clientHeight<40;}},true);
 

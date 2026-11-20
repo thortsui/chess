@@ -19,7 +19,7 @@ E.wwSetTalk(async(prompt,st,seat,n)=>{
 (async()=>{const t0=Date.now();
   for(let g=0;g<N;g++){const n=6+Math.floor(Math.random()*7);let cfg=E.wwCfgFor(n);
     if(g%3===1){const r={...cfg.roles};for(const k of ['wolfKing','hiddenWolf','guard','idiot','knight','gravekeeper','crow','bear'])if(Math.random()<.25){if(k==='wolfKing'||k==='hiddenWolf'){if(r.wolf>1){r.wolf--;r[k]=1;}}else r[k]=1;}
-      const c2=E.wwCfgFix({n,roles:r,win:g%2?'all':'side',speak:60});if(E.wwVil(c2)>=1&&!E.wwCfgErr(c2))cfg=c2;}
+      const c2=E.wwCfgFix({n,roles:r,win:['num','side','all'][g%3],speak:60});if(E.wwVil(c2)>=1&&!E.wwCfgErr(c2))cfg=c2;}
     const st=E.wwNew(cfg,Array(cfg.n).fill(true),0);let t=0,steps=0;const votes=[];
     while(!st.over&&steps<30000){t+=300;steps++;const ph=st.phase;
       // 投票階段：記下每個人實際投的票，和他發言時說要投的對象比
