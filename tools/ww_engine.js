@@ -336,6 +336,7 @@ function wwSay(st,s){const last=st.phase==='last',r=st.roles[s],killer=wwKiller(
     if(dg&&dg.tgt>=0&&!mates.includes(dg.tgt))x=dg.tgt;
     else if(goods.length){const hot=goods.slice().sort((a,b)=>(A[b]||[]).length-(A[a]||[]).length)[0];x=(A[hot]||[]).length?hot:sg==='push'||Math.random()<.5?wwPick(goods):-1;}
     lv=x<0?'低':sg==='push'?'高':sg==='hook'?'中':wwPick(['中','低']);}
+  else if(r==='hiddenWolf'){x=wwHiddenTgt(st,s);lv=x<0?'低':wwPick(['中','中','高']);}   // 隱狼知道自己是狼：咬看起來像好人的，不咬可能是隊友的
   else{const M=wwMind(st,s);x=M.rank.length?M.rank[0]:-1;lv=x>=0?M.lv(x):'低';y=M.rank.length>1&&M.sus[M.rank[1]]>=1.5?M.rank[1]:-1;
     if(!sc&&M.B.trust>=0&&M.B.trust!==s&&st.alive[M.B.trust]&&Math.random()<.4)L.push(`我相信${M.B.trust+1}號的查驗。`);}
   if(!sc&&x>=0){
@@ -349,6 +350,13 @@ function wwSay(st,s){const last=st.phase==='last',r=st.roles[s],killer=wwKiller(
   if(st.phase==='speak'){const sd=wwTalkStated(txt).filter(i=>i>=0&&i<st.n&&st.alive[i]&&i!==s),t=sd.length?sd[sd.length-1]:p.vote;if(t>=0)st.intent[s]={day:st.day,t};}
   return txt;}
 
+// 隱狼（還不會殺人時）要投、要咬的人：他知道自己是狼人陣營，但不知道隊友是誰。
+// 用自己的 wwMind 反過來看：自己判斷「像狼」的（分數 ≥1.5）可能是隊友，不動他；剩下的人裡，先咬點名自己的人，再來一半機率咬大家相信的預言家，再來跟著今天被點名最多的人，最後挑最像好人的
+function wwHiddenTgt(st,s){const M=wwMind(st,s),c=M.rank.filter(i=>M.sus[i]<1.5);if(!c.length)return-1;
+  const A=wwAccuse(st),me=(A[s]||[]).filter(i=>c.includes(i));if(me.length)return me[0];
+  if(M.B.trust>=0&&M.B.trust!==s&&c.includes(M.B.trust)&&Math.random()<.5)return M.B.trust;
+  const hot=c.filter(i=>(A[i]||[]).length).sort((a,b)=>A[b].length-A[a].length)[0];if(hot!=null)return hot;
+  return c[c.length-1];}
 // ===== 電腦玩家的行動 =====
 // 會殺人的狼知道誰是隊友（所以知道其他人都是好人）；其他人（含隱狼）一律用 wwMind，只靠自己看得到的東西
 function wwAIAct(st,s,now){
@@ -381,7 +389,7 @@ function wwAIAct(st,s,now){
       const mk=[s,...wwMates(st,s)].flatMap(m=>P.seer[m]!=null&&P.rep[m]?P.rep[m].kill:[]).filter(t=>good.includes(t));   // 跟著悍跳的隊友報的查殺投
       return{type:'vote',t:mk.length?mk[mk.length-1]:good.length?wwPick(good):-1};}
     if(iv>=0)return{type:'vote',t:iv};
-    if(r==='hiddenWolf'){const a=(wwAccuse(st)[s]||[]).filter(i=>st.alive[i]&&i!==s);if(a.length)return{type:'vote',t:a[0]};}   // 隱狼不知道隊友：誰點名他就投誰
+    if(r==='hiddenWolf')return{type:'vote',t:wwHiddenTgt(st,s)};
     if(top>=0&&S(top)>=1.5)return{type:'vote',t:top};
     // 自己沒把握：跟著今天公開被點名最多的人投（不投自己相信是好人的）
     const A=wwAccuse(st),hot=others.filter(i=>(A[i]||[]).length&&S(i)>-1).sort((a,b)=>A[b].length-A[a].length||S(b)-S(a))[0];
@@ -560,6 +568,8 @@ function wwTalkCheck(st,seat,p){
     if(cl.wolf.some(i=>mates.includes(i)&&!cl.kill.includes(i)))return'狼人說隊友是狼';}
   else if(/狼隊友|我的狼隊友/.test(sp))return'好人說隊友';
   // 預言家報的查驗要是真的
+  // 查驗只會知道好人或狼人，不會知道是什麼職業：「查驗 3 號是女巫」「驗了5號，他是獵人」這種講出具體職業的不行（不管是真預言家還是悍跳的狼）
+  if(/(?:查驗?|驗)了?\s*\d+\s*號?[，,]?\s*(?:結果|他|身份)?\s*(?:是|為)\s*(?:一個|個)?(?:預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|平民|村民|狼王|白狼王|隱狼|神職?)/.test(sp))return'查驗報出職業';
   if(r==='seer'){if(cl.kill.some(i=>i!==seat&&st.seerRes[i]!==true))return'預言家報假查殺';if(cl.gold.some(i=>i!==seat&&st.seerRes[i]!==false))return'預言家報假金水';}
   else if(!wolf&&/(?:我|昨晚)(?:查驗?|驗)了?\s*\d+\s*號|我的(?:查殺|金水)/.test(sp))return'非預言家報查驗';
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
@@ -619,4 +629,4 @@ function wwTalkBack(st,seat,p){
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwHiddenTgt,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};

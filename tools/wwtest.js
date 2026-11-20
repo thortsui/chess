@@ -162,6 +162,14 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  st.alive.forEach((a,i)=>{if(i!==hw&&i!==se)st.alive[i]=false;});E.wwTick(st,1e9);E.wwTick(st,2e9);
  ok(st.over&&st.over.win==='wolf','隱狼算狼人陣營 '+JSON.stringify(st.over));ok(st.msgs.some(m=>m.to==='all'&&m.txt.includes(`${hw+1} 號隱狼（狼人陣營，預言家查不出來）`)),'結束時標明隱狼');
  ok(st.msgs.some(m=>m.to===se&&/是隱狼：/.test(m.txt)),'提醒查過隱狼的預言家');}
+// 查驗只知道好人／狼人，不知道職業；隱狼知道自己是狼，不咬自己懷疑是狼（可能是隊友）的人
+{const st=E.wwNew(E.wwCfgFix({n:9,roles:{wolf:2,hiddenWolf:1,seer:1,witch:1,hunter:1},win:'num'}),Array(9).fill(true),0);const R=r=>st.roles.indexOf(r),se=R('seer'),hw=R('hiddenWolf'),W=st.roles.map((r,i)=>r==='wolf'?i:-1).filter(i=>i>=0);st.phase='speak';
+ const chk=(s,txt)=>E.wwTalkCheck(st,s,E.wwTalkParse(txt+'\n投:棄'));st.seerRes[R('witch')]=false;
+ ok(chk(se,`我是預言家，查驗${R('witch')+1}號是女巫。`)==='查驗報出職業','預言家不能報職業');ok(!chk(se,`我是預言家，查驗${R('witch')+1}號是好人。`),'報好人可以');
+ ok(chk(se,`我是預言家，驗了${R('witch')+1}號，他是神。`)==='查驗報出職業','報神職也不行');
+ ok(E.wwView(st,hw,0).msgs.some(m=>m.to===hw&&/身份是「隱狼」：狼人陣營/.test(m.txt)),'隱狼知道自己是狼人陣營');
+ st.gut={};st.roles.forEach((r,i)=>st.gut[i]=st.roles.map((x,j)=>W.includes(j)?3:0));   // 隱狼覺得兩隻狼很可疑
+ for(let k=0;k<30;k++){const t=E.wwHiddenTgt(st,hw);ok(t<0||!W.includes(t),'隱狼不投自己懷疑是狼的人 '+t);}}
 // 記憶不互通（0.26.0）：每位電腦的懷疑只能用他自己看得到的東西。把他不該知道的人的身份洗牌，算出來的懷疑要一模一樣
 {let checked=0,diff=0;
  for(let g=0;g<40;g++){const n=7+g%6,cfg=E.wwCfgFix({n,roles:{wolf:2+(n>9),seer:1,witch:1,hunter:1,guard:n>9?1:0,gravekeeper:g%2,knight:g%3===0?1:0}});const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,k=0;
