@@ -3,7 +3,7 @@
 //   沒給模型輸出（或寫 -）：評估保留對局裡原本的回答（out 欄位：老師資料，或 0.8B 模型第一次生成的回答）；
 //   有給：每行 {i,text}，i 是保留對局的第幾行（train/ww/gen_student.py 或 train/ww/mini/gen.js 的輸出）。只評估有輸出的那幾筆。
 //   有給 sents.txt（train/ww/mini/prep.js 的輸出）：多算「和訓練集重複率」。
-// 指標：格式正確率、檢查通過率（wwTalkCheck＋抄別人，和遊戲裡一樣）、資訊洩漏率、投票和發言一致率、狼人自曝率、簡體字率、
+// 指標：格式正確率、檢查通過率（wwTalkCheck＋抄別人，和遊戲裡一樣）、說錯話率（自曝、報錯查驗、冒充；他本來就只知道自己的資訊，這是把自己的秘密說溜或亂報，不是知道別人的秘密）、投票和發言一致率、狼人自曝率、簡體字率、
 //       口頭禪殘留率（會被 wwTalkTic 截斷的比例）、抄別人、狼人悍跳比例、神職首日跳身份比例、和訓練集重複率
 const fs=require('fs'),path=require('path');
 const E=require(path.join(__dirname,'../../tools/ww_engine.js'));
@@ -43,7 +43,7 @@ for(const {r,text,ms} of list){if(!r||!r.st)continue;C.n++;if(ms!=null){C.ms+=ms
   if(sents)for(const s of p.lines.join('\n').split(/(?<=[。！？\n])/)){const t=strip(s);if(t.length>=8){C.sN++;if(sents.has(t))C.sDup++;}}}
 const pc=(a,b)=>b?(100*a/b).toFixed(1)+'%':'—';
 console.log(`樣本 ${C.n}，平均發言 ${(C.len/Math.max(1,C.fmt)).toFixed(0)} 字，不重複的發言 ${pc(uniq.size,C.fmt)}，投棄票 ${pc(C.abst,C.fmt)}`);
-console.log(`格式正確率 ${pc(C.fmt,C.n)}；檢查通過率 ${pc(C.pass,C.n)}；資訊洩漏率 ${pc(C.leak,C.n)}；簡體字率 ${pc(C.simp,C.n)}；口頭禪殘留率 ${pc(C.tic,C.n)}；抄別人 ${pc(C.copy,C.n)}`);
+console.log(`格式正確率 ${pc(C.fmt,C.n)}；檢查通過率 ${pc(C.pass,C.n)}；說錯話率 ${pc(C.leak,C.n)}；簡體字率 ${pc(C.simp,C.n)}；口頭禪殘留率 ${pc(C.tic,C.n)}；抄別人 ${pc(C.copy,C.n)}`);
 console.log(`投票和發言一致率 ${pc(C.vote,C.voteN)}（${C.voteN} 筆有明說投誰／誰是狼）`);
 console.log(`狼人自曝率 ${pc(C.wolfExpose,C.wolf)}（狼人 ${C.wolf} 筆）；狼人自稱預言家 ${pc(C.wolfSeer,C.wolf)}；被分配悍跳的狼第1天真的悍跳 ${pc(C.jumpDid,C.jumpN)}（${C.jumpN} 筆）`);
 console.log(`神職（預言家以外）第1天跳身份 ${pc(C.god1Claim,C.god1)}；預言家第1天跳身份 ${pc(C.seer1Claim,C.seer1)}（${C.seer1} 筆）`);

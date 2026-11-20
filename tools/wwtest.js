@@ -177,6 +177,23 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  ok(E.wwTalkCover(st,hw,p)===null&&!p.speech.includes((W[0]+1)+'號這')&&p.vote===-1,'隱狼也不咬隊友 '+p.speech);
  st.phase='vote';st.votes={};st.dl=1e12;st.cur=-1;for(let k=0;k<200;k++){E.wwTick(st,1e6+k*300);if(hw in st.votes)break;}
  ok(hw in st.votes&&!W.includes(st.votes[hw])&&st.votes[hw]!==hw,'隱狼不投隊友 '+st.votes[hw]);}
+// 記憶從源頭隔開（0.27.1）：給模型的提示只由「這個人看得到的東西」組成。把他不知道的人的身份全部洗牌、把他看不到的訊息全部刪掉，提示必須一字不差；
+// 而且提示的前半段（到「存活：」之前，模型會沿用快取的那段）只有公開內容，同一時間每個人都一樣
+{let checked=0,diff=0,pubDiff=0;
+ for(let g=0;g<30;g++){const n=7+g%6,cfg=E.wwCfgFix({n,roles:{wolf:2+(n>9),hiddenWolf:g%3===0?1:0,seer:1,witch:1,hunter:1,guard:n>9?1:0,gravekeeper:g%2,crow:g%4===1?1:0}});const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,k=0;
+  while(!st.over&&k++<30000){t+=300;E.wwTick(st,t);if(k%41||st.over)continue;
+    const pubs=new Set();
+    for(let s=0;s<n;s++){if(!st.alive[s])continue;const p=E.wwTalkPrompt(st,s);pubs.add(p.slice(0,p.indexOf('\n存活：')));
+      const v=E.wwView(st,s,t),known=new Set([s,...(v.wolves||[])]);   // 他確定知道身份的：自己、知道的狼隊友
+      const c=JSON.parse(JSON.stringify(st)),free=c.roles.map((r,i)=>i).filter(i=>!known.has(i)),pool=free.map(i=>c.roles[i]);
+      for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+      free.forEach((i,j)=>c.roles[i]=pool[j]);
+      if(!free.some(i=>E.WW_ROLES[c.roles[i]].side==='wolf'&&st.roles[i]!=='hiddenWolf'&&c.roles[i]!=='hiddenWolf'&&E.WW_ROLES[st.roles[i]].side!=='wolf')){   // 洗牌後「誰是會殺人的狼」不能變，否則他看得到的狼隊頻道會不同
+        c.msgs=c.msgs.filter(m=>m.to==='all'||m.to===s||(m.to==='wolf'&&v.killer));   // 他看不到的訊息全部刪掉
+        if(st.roles[s]!=='seer')c.seerRes={};
+        checked++;if(E.wwTalkPrompt(c,s)!==p){diff++;if(diff<3)console.log('提示用到別人的資訊',s,st.roles[s]);}}}
+    if(pubs.size>1)pubDiff++;}}
+ ok(checked>300&&!diff,`提示從源頭隔開：檢查 ${checked} 次、不一樣 ${diff} 次`);ok(!pubDiff,`快取那段只有公開內容、每個人都一樣（不一樣 ${pubDiff} 次）`);}
 // 記憶不互通（0.26.0）：每位電腦的懷疑只能用他自己看得到的東西。把他不該知道的人的身份洗牌，算出來的懷疑要一模一樣
 {let checked=0,diff=0;
  for(let g=0;g<40;g++){const n=7+g%6,cfg=E.wwCfgFix({n,roles:{wolf:2+(n>9),seer:1,witch:1,hunter:1,guard:n>9?1:0,gravekeeper:g%2,knight:g%3===0?1:0}});const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,k=0;
