@@ -168,8 +168,15 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  ok(chk(se,`我是預言家，查驗${R('witch')+1}號是女巫。`)==='查驗報出職業','預言家不能報職業');ok(!chk(se,`我是預言家，查驗${R('witch')+1}號是好人。`),'報好人可以');
  ok(chk(se,`我是預言家，驗了${R('witch')+1}號，他是神。`)==='查驗報出職業','報神職也不行');
  ok(E.wwView(st,hw,0).msgs.some(m=>m.to===hw&&/身份是「隱狼」：狼人陣營/.test(m.txt)),'隱狼知道自己是狼人陣營');
- st.gut={};st.roles.forEach((r,i)=>st.gut[i]=st.roles.map((x,j)=>W.includes(j)?3:0));   // 隱狼覺得兩隻狼很可疑
- for(let k=0;k<30;k++){const t=E.wwHiddenTgt(st,hw);ok(t<0||!W.includes(t),'隱狼不投自己懷疑是狼的人 '+t);}}
+ // 隱狼知道狼隊友（0.26.4），隊友不知道他；隱狼看不到狼隊頻道
+ const vh=E.wwView(st,hw,0);ok(!vh.killer&&W.every(w=>vh.wolves.includes(w))&&vh.msgs.every(m=>m.to!=='wolf'),'隱狼看得到隊友、看不到狼隊頻道');
+ ok(vh.msgs.some(m=>m.to===hw&&/^你的狼隊友：/.test(m.txt)),'隱狼收到隊友名單');ok(W.every(w=>!E.wwView(st,w,0).wolves.includes(hw)),'隊友不知道隱狼');
+ ok(/狼隊友：/.test(E.wwTalkPrompt(st,hw)),'隱狼的提示有狼隊友');
+ const p=E.wwTalkParse(`${W[0]+1}號這發言太假了，明顯是狼。我覺得${R('witch')+1}號比較怪。
+投:${W[0]+1}`);st.phase='speak';
+ ok(E.wwTalkCover(st,hw,p)===null&&!p.speech.includes((W[0]+1)+'號這')&&p.vote===-1,'隱狼也不咬隊友 '+p.speech);
+ st.phase='vote';st.votes={};st.dl=1e12;st.cur=-1;for(let k=0;k<200;k++){E.wwTick(st,1e6+k*300);if(hw in st.votes)break;}
+ ok(hw in st.votes&&!W.includes(st.votes[hw])&&st.votes[hw]!==hw,'隱狼不投隊友 '+st.votes[hw]);}
 // 記憶不互通（0.26.0）：每位電腦的懷疑只能用他自己看得到的東西。把他不該知道的人的身份洗牌，算出來的懷疑要一模一樣
 {let checked=0,diff=0;
  for(let g=0;g<40;g++){const n=7+g%6,cfg=E.wwCfgFix({n,roles:{wolf:2+(n>9),seer:1,witch:1,hunter:1,guard:n>9?1:0,gravekeeper:g%2,knight:g%3===0?1:0}});const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,k=0;
