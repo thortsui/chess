@@ -28,6 +28,17 @@ class Tok{
   // 提示太長時從最舊的紀錄開始丟（開頭的身份資訊與最後一行「現在：…」一定留著）
   prompt(p,budget){const ls=String(p).replace(/\r/g,'').split('\n');const k=ls.indexOf('紀錄：');
     if(k<0||ls.length<k+2){const a=this.encode(ls.join('\n'));return a.length>budget?a.slice(a.length-budget):a;}
+    // 新順序（0.27.0 起）：公開的（設定、規則、公開紀錄、存活）在前，「我是N號，身份…」以後是自己的。太長時從最舊的公開紀錄開始丟，自己的部分一定留著
+    const j=ls.findIndex((l,i)=>i>k&&/^(?:我是\d+號，身份|存活：)/.test(l));   // 「存活：」在公開紀錄之後、自己的部分之前，不會被丟
+    if(j>k){let me='',can='',ex='';for(const l of ls){let m;if((m=/^我是(\d+)號/.exec(l)))me=m[1];else if((m=/^存活：(.*)$/.exec(l)))can=m[1];else if(/^(我的查驗|狼隊友)：/.test(l))ex+='，'+l;}
+      can=can.split('、').filter(x=>x!==me).join('、');
+      const head=this.encode(ls.slice(0,k+1).join('\n')+'\n'),tail=this.encode(ls.slice(j).join('\n')+(me?'\n我'+me+'號'+ex+'，可投：'+can:''));
+      const log=ls.slice(k+1,j).map(l=>this.encode(l+'\n'));let tot=head.length+tail.length;for(const l of log)tot+=l.length;
+      // 一次丟到下一個「【第N夜／天】」為止（開頭不常變，前綴快取才用得上）
+      const day=a=>this.decode(a).startsWith('【第');
+      while(tot>budget&&log.length){tot-=log.shift().length;while(log.length&&!day(log[0]))tot-=log.shift().length;}
+      let out=head;for(const l of log)out=out.concat(l);out=out.concat(tail);
+      return out.length>budget?out.slice(out.length-budget):out;}
     // 最後再提醒一次「我是幾號、可以投誰」：小模型記不住離得很遠的開頭，放在回答前面，號碼就不容易講錯
     //（預言家的查驗、狼隊友也一起重複，少報錯查驗、少把隊友說成狼）
     let me='',can='',ex='';for(const l of ls.slice(0,k)){let m;if((m=/^我是(\d+)號/.exec(l)))me=m[1];else if((m=/^存活：(.*)$/.exec(l)))can=m[1].split('、').filter(x=>x!==me).join('、');
@@ -71,7 +82,7 @@ class Net{
     for(let l=0;l<L;l++)this.lay.push({g1:off['b'+l+'.n1'],qkv:off['b'+l+'.qkv'],proj:off['b'+l+'.proj'],g2:off['b'+l+'.n2'],fc1:off['b'+l+'.fc1'],fc2:off['b'+l+'.fc2']});
     this.pos=0;this.bytes=n*4;}
   norm(x,y,g,d){const F=this.F;let s=0;for(let i=0;i<d;i++)s+=F[x+i]*F[x+i];const r=1/Math.sqrt(s/d+1e-6);for(let i=0;i<d;i++)F[y+i]=F[x+i]*r*F[g+i];}
-  reset(){this.pos=0;}
+  reset(){this.pos=0;this.seq=null;}
   // 吃一個 token（位置 this.pos），want＝要不要算下一個 token 的 logits（回傳 Float32Array 的 view）
   step(tok,want){const F=this.F,c=this.cfg,d=c.d,nh=c.nh,hd=this.hd,ctx=c.ctx,pos=this.pos,X=this.X,H=this.H,Q=this.QKV,ATT=this.ATT,O=this.O,U=this.U,T1=this.T1;
     if(pos>=ctx)throw new Error('超過長度上限');
@@ -106,12 +117,17 @@ class Net{
     let r=(o.rng?o.rng():Math.random())*acc;for(let i=0;i<k;i++){r-=cand[i][0];if(r<=0)return cand[i][1];}
     return cand[0][1];}
   // 提示 → 發言文字。opt：max（最多幾個 token，預設 96）、temp 0.8、topp 0.9、rep 1.08、rng、free（true＝不擋不合法的號碼，評估用）
+  // 前綴快取（0.27.0 起）：記住上一次算過的 token 序列（this.seq）。這次的提示開頭和它一模一樣的那幾個 token，KV 快取直接沿用，從第一個不一樣的位置開始重算。
+  // 每個位置的 KV 只由「它和它前面的 token」決定，所以只要 token 完全相同，沿用和重算的結果一模一樣——不會把上一個人的私人資訊帶進來（那一段一定不一樣，會重算）。
+  // opt.noCache：整段重算（測試用）
   generate(prompt,opt){const o=Object.assign({max:96,temp:0.8,topp:0.9,rep:1.08},opt||{});const c=this.cfg;
-    const ids=this.tok.prompt(prompt,c.ctx-2-o.max);if(!o.ban&&!o.free)o.ban=this.tok.ban(prompt);
-    this.reset();this.step(BOS,false);for(const t of ids)this.step(t,false);
-    let lg=this.step(SEP,true);const out=[];
-    for(let i=0;i<o.max;i++){const t=this.sample(lg,out,o);if(t===EOS)break;out.push(t);if(this.pos>=c.ctx)break;lg=this.step(t,true);}
-    return{text:this.tok.decode(out),n:out.length,pn:ids.length+2};}
+    const ids=[BOS,...this.tok.prompt(prompt,c.ctx-2-o.max),SEP];if(!o.ban&&!o.free)o.ban=this.tok.ban(prompt);
+    const S=o.noCache?[]:(this.seq||[]),m=Math.min(S.length,ids.length-1);let k=0;while(k<m&&S[k]===ids[k])k++;
+    this.pos=k;let lg=null;for(let i=k;i<ids.length;i++)lg=this.step(ids[i],i===ids.length-1);
+    const seq=ids.slice(),out=[];
+    for(let i=0;i<o.max;i++){const t=this.sample(lg,out,o);if(t===EOS)break;out.push(t);if(this.pos>=c.ctx)break;lg=this.step(t,true);seq.push(t);}
+    this.seq=seq;
+    return{text:this.tok.decode(out),n:out.length,pn:ids.length,hit:k};}
 }
 const API={Tok,Net,PAD,BOS,SEP,EOS,UNK,NSPEC};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.WWMini=API;

@@ -8,6 +8,7 @@
 //   3. 高頻句型降採樣：去掉標點後的 8 字片語，出現在超過 WW_HOT（預設 2.5%）樣本裡的，把含有它的樣本隨機丟到剩 2.5% 左右（報查驗的句子不降）。
 //   3b. 座位輪轉擴增：每筆再多做 WW_AUG（預設 1）份「所有號碼一起輪轉」的版本（見 rotate）。
 //   4. 依對局切保留集（0.8B 資料 2%、老師資料 5%），保留集留下「第一次生成」的全部回答（含不合格的），評估時和迷你模型並列比較。
+//   4b. 0.27.0 起提示改成「公開的在前、私人的在後」（tools/ww_engine.js 的 wwTalkReorder）：資料裡存的是舊順序，座位輪轉做完再轉成新順序。
 //   5. 斷詞（ai/ww/mini.js 的 Tok）：<bos> 提示（最多 BUDGET 個 token，太長丟最舊的紀錄） <sep> 回答 <eos>，寫成 uint16。
 const fs=require('fs'),path=require('path'),readline=require('readline'),crypto=require('crypto');
 const E=require(path.join(__dirname,'../../../tools/ww_engine.js'));
@@ -51,16 +52,17 @@ function rotate(d,k){const n=d.st.n,f=x=>x>=1&&x<=n?((x-1+k)%n)+1:x,g=i=>(i+k)%n
 async function load(file,teacher){const rl=readline.createInterface({input:fs.createReadStream(file,'utf8'),crlfDelay:Infinity});
   for await(const l of rl){if(!l)continue;let d;try{d=JSON.parse(l);}catch(e){continue;}if(!d.st)continue;stat.read++;
     const h=h100(d.gid),isHeld=h<(teacher?5:2);
-    if(isHeld){if(teacher){if(!d.err)heldT.push(d);}else if(d.try===1)held.push(d);continue;}
+    if(isHeld){const d3={...d,prompt:E.wwTalkReorder(d.prompt)};if(teacher){if(!d.err)heldT.push(d3);}else if(d.try===1)held.push(d3);continue;}
     if(d.err){stat.bad++;continue;}
     const c=canon(d);if(!c){stat.bad++;continue;}
     if(c.cut){stat.tic++;if(strip(c.speech).length<10){stat.ticDrop++;continue;}}
     const key=d.prompt+'\u0001'+c.out;if(seen.has(key)){stat.dup++;continue;}seen.add(key);
     const k=(spCount.get(c.speech)||0)+1;   // 註：輪轉後的版本號碼不同，另外算spCount.set(c.speech,k);if(k>CAP){stat.cap++;continue;}
-    rows.push({prompt:d.prompt,out:c.out,sp:strip(c.speech),w:teacher?2:1});
+    const R=E.wwTalkReorder;
+    rows.push({prompt:R(d.prompt),out:c.out,sp:strip(c.speech),w:teacher?2:1});
     for(let a=0;a<AUG;a++){const k=1+Math.floor(rnd(key+a)*(d.st.n-1)),d2=rotate({...d,out:c.out},k);if(!d2){stat.augSkip++;continue;}
       const c2=canon(d2);if(!c2||c2.cut){stat.augBad++;continue;}stat.aug++;
-      rows.push({prompt:d2.prompt,out:c2.out,sp:strip(c2.speech),w:1});}}}
+      rows.push({prompt:R(d2.prompt),out:c2.out,sp:strip(c2.speech),w:1});}}}
 (async()=>{
   for(const s of SRC){const t=s.startsWith('T:');await load(t?s.slice(2):s,t);console.log('讀完',s,'目前',rows.length);}
   seen.clear();spCount.clear();

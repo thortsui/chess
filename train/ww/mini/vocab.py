@@ -13,7 +13,7 @@ for f in srcs:
         if d.get('err') is not None: continue
         # 提示最後會多一行「我N號，可投：…」（ai/ww/mini.js 的 Tok.prompt 加的），詞表也要看過這種句型
         me = d.get('seat', 0) + 1; can = [str(i + 1) for i, a in enumerate(d['st']['alive']) if a and i + 1 != me] if 'st' in d else []
-        ex = ''.join('，' + l for l in d['prompt'].split('紀錄：')[0].split('\n') if l.startswith(('我的查驗：', '狼隊友：')))
+        ex = ''.join('，' + l for l in d['prompt'].split('\n') if l.startswith(('我的查驗：', '狼隊友：')))   # 0.27.0 起這兩行在紀錄後面
         texts.append(d['prompt'] + '\n我%d號%s，可投：%s\n' % (me, ex, '、'.join(can)) + d['out'])
 random.shuffle(texts); texts = texts[:60000]            # 幾萬筆就夠學詞表
 print('樣本', len(texts), flush=True)
