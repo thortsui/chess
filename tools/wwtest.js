@@ -155,6 +155,13 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  // 狼悍跳查殺平民：那位平民認定他是假的
  st.cur=W[1];ok(!E.wwAct(st,W[1],{type:'say',txt:`我才是預言家，查驗${V[1]+1}號是狼人，今天投${V[1]+1}號。`},0),'狼悍跳發言');
  ok(E.wwBelief(st,V[1]).liars.includes(W[1]),'被查殺的好人知道對方是假預言家');ok(E.wwBelief(st,se).liars.includes(W[1]),'真預言家知道對跳的是假的');}
+// 隱狼：預言家查驗一律是好人（其他狼都出局、隱狼開始殺人之後也一樣）；結束時標明並提醒查過他的預言家
+{const st=E.wwNew(E.wwCfgFix({n:8,roles:{wolf:1,hiddenWolf:1,seer:1,witch:1},win:'num'}),Array(8).fill(false),0);const R=r=>st.roles.indexOf(r),hw=R('hiddenWolf'),w=R('wolf'),se=R('seer');
+ E.wwAct(st,se,{type:'night',t:hw},100);ok(st.seerRes[hw]===false&&st.msgs.some(m=>m.to===se&&m.txt===`查驗結果：${hw+1} 號 是好人。`),'隱狼查驗是好人');
+ st.alive[w]=false;ok(E.wwView(st,hw,0).killer,'隊友出局後隱狼變成會殺人');delete st.seerRes[hw];st.night.acted={};E.wwAct(st,se,{type:'night',t:hw},200);ok(st.seerRes[hw]===false,'會殺人之後查驗仍是好人');
+ st.alive.forEach((a,i)=>{if(i!==hw&&i!==se)st.alive[i]=false;});E.wwTick(st,1e9);E.wwTick(st,2e9);
+ ok(st.over&&st.over.win==='wolf','隱狼算狼人陣營 '+JSON.stringify(st.over));ok(st.msgs.some(m=>m.to==='all'&&m.txt.includes(`${hw+1} 號隱狼（狼人陣營，預言家查不出來）`)),'結束時標明隱狼');
+ ok(st.msgs.some(m=>m.to===se&&/是隱狼：/.test(m.txt)),'提醒查過隱狼的預言家');}
 // 記憶不互通（0.26.0）：每位電腦的懷疑只能用他自己看得到的東西。把他不該知道的人的身份洗牌，算出來的懷疑要一模一樣
 {let checked=0,diff=0;
  for(let g=0;g<40;g++){const n=7+g%6,cfg=E.wwCfgFix({n,roles:{wolf:2+(n>9),seer:1,witch:1,hunter:1,guard:n>9?1:0,gravekeeper:g%2,knight:g%3===0?1:0}});const st=E.wwNew(cfg,Array(n).fill(true),0);let t=0,k=0;

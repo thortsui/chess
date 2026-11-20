@@ -143,7 +143,9 @@ function wwCheck(st,now){
   if(!r)return false;
   st.over={win:r.win,why:r.why};if(r.both)st.over.both=true;
   wwPhase(st,'over',now,0);
-  wwMsg(st,'all',`遊戲結束：${r.win==='good'?'好人陣營':'狼人陣營'}獲勝（${r.why}）。身份：`+st.roles.map((x,i)=>`${i+1} 號${WW_ROLES[x].n}`).join('、')+'。');
+  wwMsg(st,'all',`遊戲結束：${r.win==='good'?'好人陣營':'狼人陣營'}獲勝（${r.why}）。身份：`+st.roles.map((x,i)=>`${i+1} 號${WW_ROLES[x].n}${x==='hiddenWolf'?'（狼人陣營，預言家查不出來）':''}`).join('、')+'。');
+  // 預言家查過隱狼（看到的是好人）：私下提醒他這是隱狼的特性，不是查錯
+  const se=wwSeatOf(st,'seer');if(se>=0)st.roles.forEach((x,i)=>{if(x==='hiddenWolf'&&st.seerRes[i]===false)wwMsg(st,se,`你查驗過的 ${wwNo(i)} 是隱狼：隱狼屬於狼人陣營，但預言家查驗一律顯示好人。`);});
   return true;}
 // 白天打斷發言（騎士決鬥、白狼王自爆）之後：處理開槍，再直接入夜
 function wwDayBreak(st,now,dead){st.q=[];dead.forEach(d=>{if(wwShooter(st,d))st.q.push({ph:'hunter',s:d});});
