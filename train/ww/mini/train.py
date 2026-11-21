@@ -15,7 +15,10 @@ ids = np.fromfile(f'{src}/train.u16', dtype=np.uint16); idx = np.fromfile(f'{src
 N = len(idx) - 1; lens = np.diff(idx)
 print(f'樣本 {N}，token {len(ids)}，平均長度 {lens.mean():.0f}，最長 {lens.max()}，詞表 {V}', flush=True)
 T_ids = torch.from_numpy(ids.astype(np.int64))
-dev = 'cuda'; model = Mini(V, D, L, CTX, DROP).to(dev)
+dev = os.environ.get('WW_DEV', 'cuda'); model = Mini(V, D, L, CTX, DROP).to(dev)
+if os.environ.get('WW_THREADS'): torch.set_num_threads(int(os.environ['WW_THREADS']))
+# WW_INIT=<ckpt.pt>：從現有模型接著訓練（自我對弈微調用，train/ww/mini/selfplay.js）；寬、層數要和原模型一樣
+if os.environ.get('WW_INIT'): model.load_state_dict(torch.load(os.environ['WW_INIT'], map_location=dev)['sd']); print('從', os.environ['WW_INIT'], '接著訓練', flush=True)
 print('參數量', sum(p.numel() for p in model.parameters()), flush=True)
 isdec = lambda n, p: p.dim() == 2 and 'emb' not in n and 'pos' not in n
 dec = [p for n, p in model.named_parameters() if isdec(n, p)]; nod = [p for n, p in model.named_parameters() if not isdec(n, p)]
@@ -30,7 +33,7 @@ def batches():
             while k < len(c) and k - j < BS and (k - j + 1) * lens[c[k]] <= TOKB: k += 1
             bs.append(c[j:k]); j = k
     random.shuffle(bs); return bs
-per = len(batches()); steps = math.ceil(per * EPOCHS); warm = max(1, min(2000, steps // 20))
+per = len(batches()); steps = math.ceil(per * EPOCHS); warm = max(1, min(2000, steps // 20)) if not os.environ.get('WW_INIT') else max(1, steps // 50)
 print(f'每輪約 {per} 步，共 {steps} 步', flush=True)
 sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1, (s + 1) / warm) * (0.02 + 0.98 * 0.5 * (1 + math.cos(math.pi * min(1, s / steps)))))
 def make(b):
@@ -42,7 +45,7 @@ while step < steps:
     for b in batches():
         if step >= steps: break
         x = make(b)
-        with torch.autocast('cuda', dtype=torch.bfloat16):
+        with torch.autocast('cuda' if dev.startswith('cuda') else 'cpu', dtype=torch.bfloat16, enabled=dev.startswith('cuda')):   # CPU 上 bf16 慢 60 倍，用 fp32
             logits = model(x[:, :-1])
         tgt = x[:, 1:]; l = F.cross_entropy(logits.float().reshape(-1, V), tgt.reshape(-1), reduction='none', ignore_index=0).view(tgt.shape)
         after = (x[:, :-1] == SEP).cumsum(1) > 0            # <sep> 之後（回答）的位置

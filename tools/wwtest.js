@@ -225,6 +225,15 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  st.pub={seer:{},rep:{},claim:{[V[1]]:['獵人']}};ok(!chk(V[1],'我是守衛。'),'前後說法不一也可以（說謊正常）');
  ok(E.wwClaimsOf('我其實是獵人，3號是狼').join()==='獵人'&&E.wwClaimsOf('我只是個平民').join()==='平民','身份宣稱解析');
  ok(E.wwDefends('3號不像狼，5號是狼').join()==='2','護航解析 '+E.wwDefends('3號不像狼，5號是狼'));}
+// 記憶錯亂（0.28.0）：講錯昨晚、把出局的人當活人、自稱兩種身份、改口成另一個假身份要擋；改口成真身份可以
+{const st=E.wwNew(E.wwCfgFor(10),Array(10).fill(false),0);const R=r=>st.roles.indexOf(r),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0),h=R('hunter'),d=R('witch');
+ st.phase='speak';st.day=2;st.alive[d]=false;st.msgs.push({seat:-1,to:'all',day:2,txt:`天亮了。昨晚 ${d+1}號 死亡。`});
+ const chk=(s,txt)=>E.wwTalkCheck(st,s,E.wwTalkParse(txt+'\n投:棄'));
+ ok(chk(V[0],'昨晚平安夜，資訊太少。')==='記錯昨晚','有人死了不能說平安夜');ok(!chk(V[0],'首夜平安夜，昨晚'+(d+1)+'號倒了。'),'講第一晚平安夜可以');
+ ok(chk(V[0],(V[1]+1)+'號昨晚被刀了。')==='記錯昨晚','講錯昨晚死的人');ok(chk(V[0],'今天投'+(d+1)+'號。')==='把出局的人當活人','不能要投已經出局的人');
+ ok(chk(V[0],'我是獵人，我是預言家。')==='自稱兩種身份','同一段自稱兩種身份');
+ st.msgs.push({seat:h,to:'all',day:1,txt:'我是平民，先聽聽。'},{seat:V[0],to:'all',day:1,txt:'我是女巫。'});
+ ok(!chk(h,'我其實是獵人，今天聽我的。'),'藏身份後改口成真身份可以');ok(chk(V[0],'我是守衛。')==='身份前後不一','改口成另一個假身份要擋');ok(!chk(V[0],'我是女巫，昨晚沒救人。'),'同一個假身份可以一直講');}
 // 懷疑分高低：有人說他是我的身份＝高度懷疑；點名我＝中度
 {const st=E.wwNew(E.wwCfgFor(9),Array(9).fill(true),0);const R=r=>st.roles.indexOf(r),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0),h=R('hunter');
  st.gut={};st.roles.forEach((r,i)=>st.gut[i]=Array(9).fill(0));st.phase='speak';st.day=1;

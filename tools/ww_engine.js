@@ -596,6 +596,7 @@ function wwTalkCheck(st,seat,p){
   if(/(?:查驗?|驗)了?\s*\d+\s*號?[，,]?\s*(?:結果|他|身份)?\s*(?:是|為)\s*(?:一個|個)?(?:預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|平民|村民|狼王|白狼王|隱狼|神職?)/.test(sp))return'查驗報出職業';
   if(r==='seer'){if(cl.kill.some(i=>i!==seat&&st.seerRes[i]!==true))return'預言家報假查殺';if(cl.gold.some(i=>i!==seat&&st.seerRes[i]!==false))return'預言家報假金水';}
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
+  const mem=wwTalkMemErr(st,seat,sp);if(mem)return mem;
   // 投票：要投活著的其他人；發言說要投誰就投誰
   let vote=p.vote;
   if(vote>=0&&(vote>=st.n||!st.alive[vote]||vote===seat)){if(last||!new RegExp('(^|\\D)'+(vote+1)+'\\s*號').test(sp))vote=-1;else return'投票對象不對';}   // 投了不能投的人：發言裡沒提到他就當棄票（0.23.0 起），有提到才算不合格
@@ -606,6 +607,19 @@ function wwTalkCheck(st,seat,p){
     if(!sd.length&&cw.length&&vote>=0&&!cw.includes(vote))return'說誰是狼卻投別人';
     }
   p.vote=vote;return null;}
+// 記憶錯亂（0.28.0 起擋）：小模型會講錯「昨晚誰死」、把已出局的人當活人（要投他、要出他）、同一段話自稱兩種職業、
+// 或前後自稱不同職業。說謊是正常的，所以改口成自己的「真身份」可以（藏身份後起跳），改成另一個假身份才算記錯
+function wwTalkMemErr(st,seat,sp){
+  const dawn=st.msgs.slice().reverse().find(m=>m.seat<0&&m.day===st.day&&/^天亮了/.test(m.txt));
+  if(dawn){const dead=[...String(dawn.txt).matchAll(/(\d+)\s*號/g)].map(a=>+a[1]-1);
+    if(dead.length&&/平安夜|昨晚沒(?:有)?人?(?:死|出局|倒)/.test(sp.replace(/(?:首夜|第一晚|第1晚|第一夜|第1夜|前晚|前一晚|昨天|上一?晚|第\d夜|那晚|那天)(?:是|是個|也是)?平安夜/g,'')))return'記錯昨晚';
+    for(const a of sp.matchAll(/(\d+)\s*號\s*昨晚(?:被刀|倒牌|死|出局)|昨晚(?:死的?是|被刀的是|倒的是)\s*(\d+)\s*號/g))if(!dead.includes(+(a[1]||a[2])-1))return'記錯昨晚';}
+  for(const a of sp.matchAll(/(?:投|歸票|票給|今天出|先出|要出|直接出)\s*(\d+)\s*號/g)){const v=+a[1]-1;if(v>=0&&v<st.n&&!st.alive[v]&&v!==seat)return'把出局的人當活人';}
+  const now=[...new Set(wwClaimsOf(sp).filter(c=>!/狼/.test(c)))];if(now.length>1)return'自稱兩種身份';
+  if(now.length){const real=WW_ROLES[st.roles[seat]].n,before=new Set();
+    for(const m of st.msgs)if(m.seat===seat&&m.to==='all')wwClaimsOf(m.txt).forEach(c=>before.add(c));
+    if(before.size&&!before.has(now[0])&&now[0]!==real)return'身份前後不一';}
+  return null;}
 // 抄別人：和今天別人說過的話有一段 10 個字以上一模一樣（小模型容易照抄前面的人）
 function wwTalkCopy(st,seat,sp){const t=sp.replace(/[\s，。！？、,.!?]/g,'');if(t.length<10)return null;
   const others=st.msgs.filter(m=>m.seat>=0&&m.seat!==seat&&m.to==='all'&&m.day>=st.day-1).map(m=>String(m.txt).replace(/[\s，。！？、,.!?]/g,''));
@@ -654,4 +668,4 @@ function wwTalkBack(st,seat,p){
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkMemErr,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
