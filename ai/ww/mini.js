@@ -2,7 +2,7 @@
 // 同一個檔案三種用法：
 //   1. Web Worker：new Worker('ai/ww/mini.js')
 //        {cmd:'load',meta,buf[,noWasm]} → {type:'ready',ms,simd} 或 {type:'error',msg}   （meta＝model.json 的內容，buf＝model.bin 的 ArrayBuffer）
-//        {cmd:'gen',id,prompt}          → {type:'gen',id,text,ms,n,pn}                    （prompt＝wwTalkPrompt 的輸出）
+//        {cmd:'gen',id,prompt,opt}      → {type:'gen',id,text,lp,ms,n,pn}（opt.minLp：平均 log 機率低於它＝胡言亂語，回空字串，遊戲會重寫）                    （prompt＝wwTalkPrompt 的輸出）
 //   2. Node：const M=require('./ai/ww/mini.js')；new M.Net(meta,buf).generate(prompt)
 //   3. 訓練工具（train/ww/mini/*.js）共用這裡的斷詞（Tok），所以 Python 那邊不用另外寫一份。
 // 模型：<bos> 提示 <sep> 發言＋「投:N」 <eos>。權重在檔案裡是 int8（每列一個縮放值），載入時還原成 Float32。
@@ -125,9 +125,13 @@ class Net{
     const S=o.noCache?[]:(this.seq||[]),m=Math.min(S.length,ids.length-1);let k=0;while(k<m&&S[k]===ids[k])k++;
     this.pos=k;let lg=null;for(let i=k;i<ids.length;i++)lg=this.step(ids[i],i===ids.length-1);
     const seq=ids.slice(),out=[];
-    for(let i=0;i<o.max;i++){const t=this.sample(lg,out,o);if(t===EOS)break;out.push(t);if(this.pos>=c.ctx)break;lg=this.step(t,true);seq.push(t);}
+    // lp：每個生成的 token 在模型原本（溫度 1、沒有懲罰）的機率下的平均 log 機率。越低＝越不像模型平常會講的話（胡言亂語多半很低），0.28.0 起拿來擋亂講
+    let lp=0;
+    for(let i=0;i<o.max;i++){const raw=lg.slice();const t=this.sample(lg,out,o);
+      let mx=-1e30;for(let j=0;j<raw.length;j++)if(raw[j]>mx)mx=raw[j];let z=0;for(let j=0;j<raw.length;j++)z+=Math.exp(raw[j]-mx);lp+=raw[t]-mx-Math.log(z);
+      if(t===EOS)break;out.push(t);if(this.pos>=c.ctx)break;lg=this.step(t,true);seq.push(t);}
     this.seq=seq;
-    return{text:this.tok.decode(out),n:out.length,pn:ids.length,hit:k};}
+    return{text:this.tok.decode(out),n:out.length,pn:ids.length,hit:k,lp:lp/Math.max(1,out.length+1)};}
 }
 const API={Tok,Net,PAD,BOS,SEP,EOS,UNK,NSPEC};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.WWMini=API;
@@ -139,6 +143,6 @@ if(typeof WorkerGlobalScope!=='undefined'&&typeof self!=='undefined'&&self insta
         postMessage({type:'ready',ms:performance.now()-t0,simd:net.simd,mb:net.bytes/1048576});}
       catch(e){net=null;postMessage({type:'error',msg:String(e&&e.message||e)});}return;}
     if(m.cmd==='gen'){const t0=performance.now();
-      try{if(!net)throw new Error('模型還沒載入');const r=net.generate(m.prompt,m.opt);postMessage({type:'gen',id:m.id,text:r.text,n:r.n,pn:r.pn,ms:performance.now()-t0});}
+      try{if(!net)throw new Error('模型還沒載入');const r=net.generate(m.prompt,m.opt);const bad=m.opt&&m.opt.minLp!=null&&r.lp<m.opt.minLp;postMessage({type:'gen',id:m.id,text:bad?'':r.text,lp:r.lp,n:r.n,pn:r.pn,ms:performance.now()-t0});}
       catch(e){postMessage({type:'gen',id:m.id,text:null,err:String(e&&e.message||e),ms:performance.now()-t0});}}};}
 })(typeof self!=='undefined'?self:this);

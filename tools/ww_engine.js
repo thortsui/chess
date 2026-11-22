@@ -427,10 +427,10 @@ function wwTalkTick(st,now){const s=st.cur,key=st.phase+s+'@'+st.dl;let T=st.tal
 
   if(typeof console!=='undefined'&&err&&T.res!==undefined&&T.res!==null&&st.talkLog)console.log('AI 發言不採用：',err,T.res);
   wwAct(st,s,{type:'endSpeak'},now);return true;}
-// 取樣溫度（0.27.0 起）：每位電腦開局各自分到 1.1～1.4 之間的溫度（原本大家都是 0.8），講的內容比較多變、不容易每個人都講同一套；
+// 取樣溫度（0.27.0 起；0.28.0 改成 0.8～1.0，見 WW_SAMPLE）：每位電腦開局各自分到 1.1～1.4 之間的溫度（原本大家都是 0.8），講的內容比較多變、不容易每個人都講同一套；
 // 檢查不過要重寫時降 0.3（最低 0.8）求穩。實測 1.3 單次合格率 94.6%（0.8 是 88.1%）、6 字片語只出現一次的比例 94% → 87%；1.6 開始出現亂碼，所以上限 1.4
-const WW_SAMPLE={lo:1.1,hi:1.4,retry:.3,min:.8,topp:.95};
-function wwTalkOpt(st,s,n){const t=(st.temp&&st.temp[s])||WW_SAMPLE.lo;return{temp:n>1?Math.max(WW_SAMPLE.min,t-WW_SAMPLE.retry):t,topp:WW_SAMPLE.topp};}
+const WW_SAMPLE={lo:.8,hi:1,retry:.2,min:.7,topp:.95,minLp:-3.5};   // 0.28.0 起從 1.1～1.4 降到 0.8～1.0：高溫時一成的發言是胡言亂語（平均 log 機率 < -3.8），0.8 時幾乎沒有；minLp 再擋掉剩下的
+function wwTalkOpt(st,s,n){const t=(st.temp&&st.temp[s])||WW_SAMPLE.lo;return{temp:n>1?Math.max(WW_SAMPLE.min,t-WW_SAMPLE.retry):t,topp:WW_SAMPLE.topp,minLp:WW_SAMPLE.minLp};}
 function wwTalkReq(st,s,T){T.n++;const prompt=wwTalkPrompt(st,s),opt=wwTalkOpt(st,s,T.n);
   T.p=Promise.resolve().then(()=>WW_TALK(prompt,st,s,T.n,opt)).then(x=>{T.res=typeof x==='string'?x:null;},()=>{T.res=null;});}
 // 每個人看得到的資料
@@ -597,6 +597,7 @@ function wwTalkCheck(st,seat,p){
   if(r==='seer'){if(cl.kill.some(i=>i!==seat&&st.seerRes[i]!==true))return'預言家報假查殺';if(cl.gold.some(i=>i!==seat&&st.seerRes[i]!==false))return'預言家報假金水';}
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
   const mem=wwTalkMemErr(st,seat,sp);if(mem)return mem;
+  if(WW_GROUND.on&&st.gut){const g=wwTalkGround(st,seat,p,cl);if(g)return g;}
   // 投票：要投活著的其他人；發言說要投誰就投誰
   let vote=p.vote;
   if(vote>=0&&(vote>=st.n||!st.alive[vote]||vote===seat)){if(last||!new RegExp('(^|\\D)'+(vote+1)+'\\s*號').test(sp))vote=-1;else return'投票對象不對';}   // 投了不能投的人：發言裡沒提到他就當棄票（0.23.0 起），有提到才算不合格
@@ -619,6 +620,18 @@ function wwTalkMemErr(st,seat,sp){
   if(now.length){const real=WW_ROLES[st.roles[seat]].n,before=new Set();
     for(const m of st.msgs)if(m.seat===seat&&m.to==='all')wwClaimsOf(m.txt).forEach(c=>before.add(c));
     if(before.size&&!before.has(now[0])&&now[0]!==real)return'身份前後不一';}
+  return null;}
+// 發言要有根據（0.28.0 起）：好人電腦白天說的「誰是狼、要投誰、替誰講話、給誰金水」要和他自己的判斷（wwMind，只用他看得到的資訊）對得上。
+// 原因：投票是照發言投的，小模型隨口點名的人常常沒有任何理由，好人陣營就被自己人帶歪（實測模型發言時好人只贏 14%，規則發言時約 45%）。
+// 狼人不受限（他本來就在說謊帶節奏）。對不上就重寫，再不行改用規則發言（wwSay，有講理由）。
+const WW_GROUND={on:true,top:2,lvl:1.5};
+function wwTalkGround(st,seat,p,cl){if(wwIsWolf(st,seat)||st.phase==='last')return null;
+  const M=wwMind(st,seat),S=i=>M.sus[i]||0,top=M.rank.slice(0,WW_GROUND.top).filter(i=>S(i)>0);
+  const ok=t=>S(t)>=WW_GROUND.lvl||top.includes(t);
+  const tg=new Set([...wwTalkStated(p.speech),...cl.wolf]);if(p.vote>=0)tg.add(p.vote);
+  for(const t of tg)if(t>=0&&t<st.n&&t!==seat&&st.alive[t]&&!ok(t))return'沒有根據';
+  for(const d of wwDefends(p.speech))if(d>=0&&d<st.n&&S(d)>=4)return'沒有根據';
+  if(st.roles[seat]!=='seer')for(const g of cl.gold)if(g>=0&&g<st.n&&S(g)>=WW_GROUND.lvl)return'沒有根據';
   return null;}
 // 抄別人：和今天別人說過的話有一段 10 個字以上一模一樣（小模型容易照抄前面的人）
 function wwTalkCopy(st,seat,sp){const t=sp.replace(/[\s，。！？、,.!?]/g,'');if(t.length<10)return null;
@@ -668,4 +681,4 @@ function wwTalkBack(st,seat,p){
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkMemErr,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkMemErr,wwTalkGround,WW_GROUND,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};

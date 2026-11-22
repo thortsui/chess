@@ -11,7 +11,8 @@ let rss=0;const mem=()=>{const r=process.memoryUsage().rss;if(r>rss)rss=r;};
 const S={turns:0,try1:0,try2:0,ok1:0,ok2:0,why:{},ms:0,mx:0,gen:0,lines:0,pass:0,bad:0,stated:0,follow:0,samples:[]};
 let cur=null;
 E.wwSetTalk(async(prompt,st,seat,n,opt)=>{
-  const t0=process.hrtime.bigint();const r=net.generate(prompt,opt);const ms=Number(process.hrtime.bigint()-t0)/1e6;S.ms+=ms;S.gen++;if(ms>S.mx)S.mx=ms;
+  const t0=process.hrtime.bigint();const r=net.generate(prompt,opt);if(opt&&opt.minLp!=null&&r.lp<opt.minLp)r.text='';   // 和遊戲的 worker 一樣擋胡言亂語
+  const ms=Number(process.hrtime.bigint()-t0)/1e6;S.ms+=ms;S.gen++;if(ms>S.mx)S.mx=ms;
   if(n===1){S.turns++;S.try1++;}else S.try2++;mem();
   const p=E.wwTalkParse(r.text);const q=p&&{...p,lines:p.lines.slice()};const err=(q&&E.wwTalkCover(st,seat,q))||E.wwTalkCheck(st,seat,q)||(q&&E.wwTalkCopy(st,seat,q.speech))||null;
   if(err)S.why[err]=(S.why[err]||0)+1;else{if(n===1)S.ok1++;else S.ok2++;if(S.samples.length<12&&Math.random()<.02)S.samples.push(`${seat+1}號（${E.WW_ROLES[st.roles[seat]].n}，第${st.day}天${st.phase==='last'?'遺言':''}）：${p.speech}`);}
@@ -32,11 +33,11 @@ E.wwSetTalk(async(prompt,st,seat,n,opt)=>{
       if(/[A-Za-z<>{}\[\]\\]/.test(m.txt)||m.txt.length>120){S.bad++;console.log('不該出現的發言：',m.txt);}}}
   const pc=(a,b)=>b?(100*a/b).toFixed(1)+'%':'—';
   console.log(`${N} 局，${net.simd?'WASM SIMD':'純 JS'}，共 ${((Date.now()-t0)/1000).toFixed(0)} 秒`);
-  console.log(`輪到電腦發言／遺言 ${S.turns} 次：第一次就合格 ${pc(S.ok1,S.turns)}，重寫後合格 ${pc(S.ok2,S.turns)}，說「過。」 ${pc(S.turns-S.ok1-S.ok2,S.turns)}`);
+  console.log(`輪到電腦發言／遺言 ${S.turns} 次：第一次就合格 ${pc(S.ok1,S.turns)}，重寫後合格 ${pc(S.ok2,S.turns)}，改用規則發言 ${pc(S.turns-S.ok1-S.ok2,S.turns)}`);
   console.log(`畫面上實際出現：發言 ${S.lines} 則、「過。」 ${S.pass} 則；有講話的回合 ${pc(S.ok1+S.ok2,S.turns)}`);
   console.log(`單次生成的檢查通過率 ${pc(S.ok1+S.ok2,S.gen)}（${S.gen} 次生成）；不通過原因 ${JSON.stringify(S.why)}`);
   console.log(`發言時明說要投誰 → 投票時照著投：${S.follow}／${S.stated}`);
   console.log(`載入模型 ${loadMs.toFixed(0)} ms；每次生成平均 ${(S.ms/S.gen).toFixed(0)} ms，最慢 ${S.mx.toFixed(0)} ms；模型本身佔 ${(net.bytes/1048576).toFixed(0)} MB，整個 Node 程序記憶體峰值 ${(rss/1048576).toFixed(0)} MB`);
   console.log('隨機幾段：');S.samples.forEach(s=>console.log('  '+s));
-  const passRate=(S.turns-S.ok1-S.ok2)/Math.max(1,S.turns),fail=S.bad>0||passRate>0.15||S.follow!==S.stated;   // 說「過」超過 15% 就算不能用
+  const passRate=(S.turns-S.ok1-S.ok2)/Math.max(1,S.turns),fail=S.bad>0||passRate>0.25||S.follow!==S.stated;   // 模型沒講成（改用規則發言 wwSay）超過 25% 就算不能用（0.28.0 起好人要「有根據」，約 15% 會退回規則發言）
   console.log(fail?'失敗':'全部通過');process.exit(fail?1:0);})();
