@@ -616,6 +616,7 @@ function wwTalkMemErr(st,seat,sp){
     if(dead.length&&/平安夜|昨晚沒(?:有)?人?(?:死|出局|倒)/.test(sp.replace(/(?:首夜|第一晚|第1晚|第一夜|第1夜|前晚|前一晚|昨天|上一?晚|第\d夜|那晚|那天)(?:是|是個|也是)?平安夜/g,'')))return'記錯昨晚';
     for(const a of sp.matchAll(/(\d+)\s*號\s*昨晚(?:被刀|倒牌|死|出局)|昨晚(?:死的?是|被刀的是|倒的是)\s*(\d+)\s*號/g))if(!dead.includes(+(a[1]||a[2])-1))return'記錯昨晚';}
   for(const a of sp.matchAll(/(?:投|歸票|票給|今天出|先出|要出|直接出)\s*(\d+)\s*號/g)){const v=+a[1]-1;if(v>=0&&v<st.n&&!st.alive[v]&&v!==seat)return'把出局的人當活人';}
+  if(st.phase!=='last'&&/開槍(?:帶走|打死|帶)|我(?:現在)?(?:要)?開槍/.test(sp))return'白天發言不能開槍';   // 0.28.1：小模型會在白天發言裡說「我是獵人，開槍帶走4號！」，那時根本不能開槍
   const now=[...new Set(wwClaimsOf(sp).filter(c=>!/狼/.test(c)))];if(now.length>1)return'自稱兩種身份';
   if(now.length){const real=WW_ROLES[st.roles[seat]].n,before=new Set();
     for(const m of st.msgs)if(m.seat===seat&&m.to==='all')wwClaimsOf(m.txt).forEach(c=>before.add(c));
