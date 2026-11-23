@@ -8,6 +8,7 @@
 #   4. 從目前最好的模型接著微調 0.6 輪（CPU fp32）
 #   5. 轉檔，A/B 對打 400 組（同一批局面各打兩次＝800 局，新模型分別當好人、當狼），對上目前最好的那版
 #   6. 新模型那邊勝率 > 52.5% 才算變強（第 0 版＝0.27.5 的模型），成為下一輪的起點；不然這輪作廢，下一輪換一批對局再試
+# 只跑幾輪：WW_ROUNDS=1。原始資料抽樣可以先自己放 <工作資料夾>/orig.jsonl（有就不會重抽）。
 # 要停：touch <工作資料夾>/STOP（做完目前這一步就停）。紀錄在 <工作資料夾>/loop.log。不會動到遊戲用的 ai/ww/tiny。
 set -u
 W=${1:?工作資料夾}; G=${2:-1600}; P=${3:-4}
@@ -51,5 +52,6 @@ const s=(g+w)/(2*n);console.log((s>0.525?'OK ':'NO ')+'新模型那邊勝率 '+(
   log "第 $K 版 $RES"
   case "$RES" in OK*) echo $K > "$W/best"; log "第 $K 版變強，下一輪從它開始";; *) log "第 $K 版沒有明顯變強，作廢";; esac
   touch "$W/done$K"; rm -f "$W"/p$K/train.u16 "$W"/p$K/train.idx   # 省空間（約數百 MB），要重訓再跑 prep
+  [ -n "${WW_ROUNDS:-}" ] && [ "$K" -ge "$WW_ROUNDS" ] && { log "做完 $WW_ROUNDS 輪（WW_ROUNDS），停止"; break; }
 done
 log "停止（看到 STOP）"

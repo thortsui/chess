@@ -15,6 +15,7 @@ const R=path.join(__dirname,'../../../');
 const E=require(R+'tools/ww_engine.js'),M=require(R+'ai/ww/mini.js');
 const WOLF=new Set(['wolf','wolfKing','whiteWolf','hiddenWolf']);
 const WWIN=+(process.env.WW_WWIN||0.5);
+const PICKLP=+(process.env.WW_PICKLP||-2.2);   // pick 時只留平均 log 機率 ≥ 這個值的發言（越接近 0 越通順、越像正常的話）
 function load(dir){const meta=JSON.parse(fs.readFileSync(path.join(dir,'model.json'),'utf8'));const bin=fs.readFileSync(path.join(dir,'model.bin'));
   return new M.Net(meta,bin.buffer.slice(bin.byteOffset,bin.byteOffset+bin.byteLength),{});}
 // 簡單的可重現亂數（換局面設定用；模型取樣用自己的亂數）
@@ -26,7 +27,8 @@ function randCfg(r,g){const n=6+Math.floor(r()*7);let cfg=E.wwCfgFor(n);
 // 跑一局；pickNet(st,seat) 決定這個座位用哪個模型；onTalk 每次生成後呼叫
 async function game(cfg,pickNet,onTalk){
   const st=E.wwNew(cfg,Array(cfg.n).fill(true),0);
-  E.wwSetTalk(async(prompt,st2,seat,n,opt)=>{const net=pickNet(st2,seat);const r=net.generate(prompt,opt);onTalk&&onTalk(st2,seat,n,r.text);return r.text;});
+  E.wwSetTalk(async(prompt,st2,seat,n,opt)=>{const net=pickNet(st2,seat);const r=net.generate(prompt,opt);if(opt&&opt.minLp!=null&&r.lp<opt.minLp)r.text='';   // 和遊戲一樣擋胡言亂語
+    onTalk&&onTalk(st2,seat,n,r.text,r.lp);return r.text;});
   let t=0,k=0;while(!st.over&&k<30000){t+=300;k++;E.wwTick(st,t);if(st.talk&&st.talk.res===undefined&&st.talk.p)await st.talk.p;}
   return st;}
 // 從公開訊息找每天投出去的人
@@ -38,12 +40,12 @@ const [cmd,...A]=process.argv.slice(2);
 if(cmd==='play'){const [dir,OUT,G,SEED]=A;const net=load(dir),r=rng(+(SEED||Date.now()%1e9)),out=fs.createWriteStream(OUT,{flags:'a'});
   const t0=Date.now();let nrow=0;
   for(let g=0;g<+G;g++){if(fs.existsSync(OUT+'.stop'))break;const cfg=randCfg(r,g),rows=[];const gid=(SEED||0)+'-'+g+'-'+Date.now();
-    const st=await game(cfg,()=>net,(st2,seat,n,txt)=>{
+    const st=await game(cfg,()=>net,(st2,seat,n,txt,lp)=>{
       // 和遊戲一樣的檢查；通過的才會真的被說出來，也才拿來學
       const p=E.wwTalkParse(txt);const q=p&&{...p,lines:p.lines.slice()};
       const err=(q&&E.wwTalkCover(st2,seat,{...q,lines:q.lines.slice()}))||E.wwTalkCheck(st2,seat,q)||(q&&E.wwTalkCopy(st2,seat,q.speech))||null;
       if(err)return;
-      rows.push({prompt:E.wwTalkPromptV1(st2,seat,true),out:txt,err:null,role:st2.roles[seat],phase:st2.phase,day:st2.day,n:st2.n,try:n,gid,seat,
+      rows.push({prompt:E.wwTalkPromptV1(st2,seat,true),out:txt,err:null,role:st2.roles[seat],phase:st2.phase,day:st2.day,n:st2.n,try:n,gid,seat,lp,
         st:{roles:st2.roles.slice(),alive:st2.alive.slice(),seerRes:{...st2.seerRes},strat:st2.strat,phase:st2.phase,day:st2.day,n:st2.n}});});
     const w=winner(st);if(!w)continue;const o=outs(st);
     for(const x of rows){const mine=WOLF.has(x.role)?'wolf':'good';let loc=0;
@@ -54,7 +56,7 @@ if(cmd==='play'){const [dir,OUT,G,SEED]=A;const net=load(dir),r=rng(+(SEED||Date
 else if(cmd==='pick'){const OUT=A.pop();const rows=[];for(const f of A)for(const l of fs.readFileSync(f,'utf8').split('\n'))if(l)rows.push(JSON.parse(l));
   // 同身份、同階段（發言／遺言）比平均；只留高於平均的
   const key=x=>x.role+'|'+x.phase,sum={},cnt={};for(const x of rows){sum[key(x)]=(sum[key(x)]||0)+x.score;cnt[key(x)]=(cnt[key(x)]||0)+1;}
-  const keep=rows.filter(x=>x.score>sum[key(x)]/cnt[key(x)]+1e-9);
+  const keep=rows.filter(x=>x.score>sum[key(x)]/cnt[key(x)]+1e-9&&(x.lp==null||x.lp>=PICKLP));
   fs.writeFileSync(OUT,keep.map(x=>JSON.stringify(x)).join('\n')+'\n');
   const by={};for(const x of keep)by[x.role]=(by[x.role]||0)+1;
   console.log(`共 ${rows.length} 段，留下 ${keep.length} 段（${(100*keep.length/rows.length).toFixed(0)}%）`,JSON.stringify(by));}
