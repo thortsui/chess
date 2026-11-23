@@ -329,7 +329,7 @@ function wwMaskInit(st){const gods=WW_GODS.filter(k=>st.cfg.roles[k]&&k!=='seer'
 function wwSay(st,s){const last=st.phase==='last',r=st.roles[s],killer=wwKiller(st,s),L=[];
   const P=st.pub||{},said=(P.claim&&P.claim[s])||[],accd=((wwAccuse(st)[s])||[]).length,real=WW_ROLES[r].n,mask=st.mask&&st.mask[s];
   const sc=wwCanned(st,s);if(sc)L.push(sc);
-  else if(!wwIsWolf(st,s)&&r!=='villager'&&r!=='seer'&&(accd>=2||last)&&!said.includes(real)&&(mask!==real||said.length))L.push(`我其實是${real}，${!last?'今天別投我':st.lastOut===s?'大家投錯人了':'昨晚被刀了'}。`);
+  else if(!wwIsWolf(st,s)&&r!=='villager'&&r!=='seer'&&(accd>=2||last)&&!said.includes(real)&&said.every(c=>c==='平民'))L.push(`我其實是${real}，${!last?'今天別投我':st.lastOut===s?'大家投錯人了':'昨晚被刀了'}。`);
   else if(mask&&!said.length&&(accd>=1||Math.random()<.2)){   // 偽裝的神職已經有別人說過（或法官公開過）就改說平民，不要硬撞
     const taken=Object.keys((P.claim)||{}).some(c=>+c!==s&&P.claim[c].includes(mask))||st.msgs.some(m=>m.seat<0&&m.to==='all'&&m.txt.includes(`是${mask}，可以選擇開槍`));
     L.push(`我是${taken?'平民':mask}${accd?'，不是狼':''}。`);}
@@ -581,6 +581,7 @@ function wwTalkCheck(st,seat,p){
   for(const m of sp.matchAll(/(\d+)\s*號/g)){const k=+m[1];if(!(k>=1&&k<=st.n))return'號碼超出範圍';}
   // 把自己的號碼講錯（「我8號覺得…」但他其實是 2 號）：小模型偶爾會（0.23.0 新增）
   for(const m of sp.matchAll(/我(?:是\s*(\d+)\s*號|\s*(\d+)\s*號(?=覺得|認為|先|就|純|今天|目前|這邊|也|還|才|個人|站|投|不|暫時|想|看|聽|表態|真的|當|只是|是|身份|明確|建議|直接|聽完|發言))/g))if(+(m[1]||m[2])!==seat+1)return'號碼說錯';
+  if(new RegExp('(^|[^0-9])'+(seat+1)+' *號 *(?:你|別|不要|怎麼|憑什麼)').test(sp))return'號碼說錯';   // 對著自己的號碼喊話（「2號別亂咬」但他自己就是 2 號，0.29.0）
   // 身份宣稱：好人只能說自己的真身份；狼人不能說自己是狼
   for(const m of sp.replace(/狼人殺/g,'＿').matchAll(WW_CLAIM_RE)){const c=m[1];
     if(/狼/.test(c))return wolf?'狼人自曝':'好人說自己是狼';
@@ -597,6 +598,7 @@ function wwTalkCheck(st,seat,p){
   if(r==='seer'){if(cl.kill.some(i=>i!==seat&&st.seerRes[i]!==true))return'預言家報假查殺';if(cl.gold.some(i=>i!==seat&&st.seerRes[i]!==false))return'預言家報假金水';}
   if(wolf&&/我(?:才)?是(?:真的?)?預言家|我(?:昨晚|首夜)?(?:查驗?|驗)/.test(sp)&&cl.kill.some(i=>mates.includes(i)))return'狼人查殺隊友';
   const mem=wwTalkMemErr(st,seat,sp);if(mem)return mem;
+  const fact=wwTalkFactErr(st,seat,sp);if(fact)return fact;
   if(WW_GROUND.on&&st.gut){const g=wwTalkGround(st,seat,p,cl);if(g)return g;}
   // 投票：要投活著的其他人；發言說要投誰就投誰
   let vote=p.vote;
@@ -616,23 +618,53 @@ function wwTalkMemErr(st,seat,sp){
     if(dead.length&&/平安夜|昨晚沒(?:有)?人?(?:死|出局|倒)/.test(sp.replace(/(?:首夜|第一晚|第1晚|第一夜|第1夜|前晚|前一晚|昨天|上一?晚|第\d夜|那晚|那天)(?:是|是個|也是)?平安夜/g,'')))return'記錯昨晚';
     for(const a of sp.matchAll(/(\d+)\s*號\s*昨晚(?:被刀|倒牌|死|出局)|昨晚(?:死的?是|被刀的是|倒的是)\s*(\d+)\s*號/g))if(!dead.includes(+(a[1]||a[2])-1))return'記錯昨晚';}
   for(const a of sp.matchAll(/(?:投|歸票|票給|今天出|先出|要出|直接出)\s*(\d+)\s*號/g)){const v=+a[1]-1;if(v>=0&&v<st.n&&!st.alive[v]&&v!==seat)return'把出局的人當活人';}
-  if(st.phase!=='last'&&/開槍(?:帶走|打死|帶)|我(?:現在)?(?:要)?開槍/.test(sp))return'白天發言不能開槍';   // 0.28.1：小模型會在白天發言裡說「我是獵人，開槍帶走4號！」，那時根本不能開槍
+  if((st.phase!=='last'||!['hunter','wolfKing'].includes(st.roles[seat]))&&/開槍(?:帶走|打死|帶)|我(?:現在)?(?:要)?開槍/.test(sp))return'白天發言不能開槍';   // 0.28.1：小模型會在白天發言裡說「我是獵人，開槍帶走4號！」，那時根本不能開槍
   const now=[...new Set(wwClaimsOf(sp).filter(c=>!/狼/.test(c)))];if(now.length>1)return'自稱兩種身份';
   if(now.length){const real=WW_ROLES[st.roles[seat]].n,before=new Set();
     for(const m of st.msgs)if(m.seat===seat&&m.to==='all')wwClaimsOf(m.txt).forEach(c=>before.add(c));
-    if(before.size&&!before.has(now[0])&&now[0]!==real)return'身份前後不一';}
+    // 0.29.0 起更嚴：說過自己是某個職業，之後就不能改口成另一個（前面說預言家、後面說獵人）。唯一可以的是先說平民（藏身份）、後來亮出真身份
+    if(before.size&&!before.has(now[0])&&!(now[0]===real&&[...before].every(c=>c==='平民')))return'身份前後不一';}
   return null;}
 // 發言要有根據（0.28.0 起）：好人電腦白天說的「誰是狼、要投誰、替誰講話、給誰金水」要和他自己的判斷（wwMind，只用他看得到的資訊）對得上。
 // 原因：投票是照發言投的，小模型隨口點名的人常常沒有任何理由，好人陣營就被自己人帶歪（實測模型發言時好人只贏 14%，規則發言時約 45%）。
 // 狼人不受限（他本來就在說謊帶節奏）。對不上就重寫，再不行改用規則發言（wwSay，有講理由）。
-const WW_GROUND={on:true,top:2,lvl:1.5};
+// 0.29.0 起放寬（Ethan：沒有根據也可以點名、可以亂玩）：只擋「明知故犯」——點名／要投他自己認定是好人的人（懷疑值 ≤ good，例如自己驗過的金水、翻牌的神職）、
+// 替幾乎確定是狼的人講話、給很可疑的人金水。strict:true 可以切回 0.28 的嚴格版（要投的人得是他最懷疑的前幾名）。
+const WW_GROUND={on:true,strict:false,top:2,lvl:1.5,good:-2.5};
 function wwTalkGround(st,seat,p,cl){if(wwIsWolf(st,seat)||st.phase==='last')return null;
   const M=wwMind(st,seat),S=i=>M.sus[i]||0,top=M.rank.slice(0,WW_GROUND.top).filter(i=>S(i)>0);
-  const ok=t=>S(t)>=WW_GROUND.lvl||top.includes(t);
+  const ok=t=>WW_GROUND.strict?S(t)>=WW_GROUND.lvl||top.includes(t):S(t)>WW_GROUND.good;
   const tg=new Set([...wwTalkStated(p.speech),...cl.wolf]);if(p.vote>=0)tg.add(p.vote);
   for(const t of tg)if(t>=0&&t<st.n&&t!==seat&&st.alive[t]&&!ok(t))return'沒有根據';
   for(const d of wwDefends(p.speech))if(d>=0&&d<st.n&&S(d)>=4)return'沒有根據';
-  if(st.roles[seat]!=='seer')for(const g of cl.gold)if(g>=0&&g<st.n&&S(g)>=WW_GROUND.lvl)return'沒有根據';
+  if(st.roles[seat]!=='seer')for(const g of cl.gold)if(g>=0&&g<st.n&&S(g)>=(WW_GROUND.strict?WW_GROUND.lvl:3))return'沒有根據';
+  return null;}
+// 亂引用沒有出現過的資訊（0.29.0 起擋）：小模型會憑空說「3號說他是女巫」「5號查殺2號」「4號昨天投了6號」「7號剛才的發言…」，但那些事根本沒發生。
+// 只對照這個人看得到的公開紀錄（發言、身份宣稱、查驗報告、投票結果）；假設句（如果…）、建議（請、希望…）、問句不算引用。說謊（自己編自己的事）不在這裡管。
+function wwTalkFactErr(st,seat,sp){
+  if(!st.msgs||!st.msgs.length)return null;
+  const P=st.pub||{},n=st.n,spoke=new Set(),votes=new Set(),inr=k=>k>=0&&k<n,E='引用沒發生的事';
+  for(const m of wwSeen(st,seat)){if(m.seat>=0){if(m.to==='all')spoke.add(m.seat);}
+    else if(/^投票結果：/.test(m.txt))for(const y of String(m.txt).matchAll(/(\d+) 號 \d+ 票（([^）]*)）/g))for(const z of y[2].split('、'))if(/^\d+$/.test(z))votes.add((z-1)+'>'+(y[1]-1));}
+  const rep=(x,k)=>((P.rep&&P.rep[x])||{})[k]||[],anyRep=(k,t)=>Object.keys(P.rep||{}).some(x=>rep(x,k).includes(t));
+  const claimed=(k,r)=>((P.claim&&P.claim[k])||[]).includes(r)||(r==='預言家'&&P.seer&&P.seer[k]!=null);
+  if(st.day<=1&&/昨天(?!晚上|夜|晚|半夜)|上一?輪|前天|前一天/.test(sp))return E;   // 第一天沒有「昨天」
+  const seer=(P.seer&&P.seer[seat]!=null)||WW_SEER_RE.test(sp)||st.roles[seat]==='seer';
+  for(const c of wwClauses(sp)){if(/如果|要是|假如|假設|萬一|除非|希望|請|建議|要不要|有沒有|會不會|是不是|誰|嗎|？|\?/.test(c))continue;let a;
+    // 引用別人的發言：那個人要真的講過話
+    for(a of c.matchAll(/(\d{1,2})\s*號\s*(?:的發言|剛才說|剛剛說|剛才的|剛剛的|說的話|講的話|那段發言|的說法|的邏輯)/g)){const k=a[1]-1;if(inr(k)&&k!==seat&&!spoke.has(k))return E;}
+    // 引用別人說自己是什麼身份
+    for(a of c.matchAll(/(\d{1,2})\s*號\s*(?:說|自稱|聲稱|跳|起跳|悍跳|對跳|報)([^，。！？,.!?\d]{0,5}?)(預言家|女巫|獵人|守衛|白痴|騎士|守墓人|烏鴉|熊|平民)/g)){const k=a[1]-1;
+      if(!inr(k)||k===seat||/[不沒非別假]/.test(a[2]))continue;if(!claimed(k,a[3]))return E;}
+    // 引用別人報的查驗：「9號查殺2號」「9號的金水是3號」「9號驗了4號」
+    for(a of c.matchAll(/(\d{1,2})\s*號\s*(?:的)?(查殺|金水)\s*(?:了|是|給)?\s*(\d{1,2})\s*號/g)){const x=a[1]-1,t=a[3]-1;if(!inr(x)||!inr(t)||x===seat)continue;if(!rep(x,a[2]==='查殺'?'kill':'gold').includes(t))return E;}
+    for(a of c.matchAll(/(\d{1,2})\s*號\s*(?:昨晚|首夜)?\s*(?:查驗?|驗)了?\s*(\d{1,2})\s*號/g)){const x=a[1]-1,t=a[2]-1;if(!inr(x)||!inr(t)||x===seat)continue;if(!rep(x,'kill').includes(t)&&!rep(x,'gold').includes(t))return E;}
+    // 引用投票：「4號昨天投了6號」
+    for(a of c.matchAll(/(\d{1,2})\s*號\s*(?:昨天|上一?輪|剛才|之前|前面)?\s*(?:投了|票了|投給了|跟票)\s*(\d{1,2})\s*號/g)){const x=a[1]-1,t=a[2]-1;if(inr(x)&&inr(t)&&!votes.has(x+'>'+t))return E;}
+    // 把活著的人說成已經出局
+    for(a of c.matchAll(/(\d{1,2})\s*號\s*(?:已經|都已經|早就|昨天)\s*(?:被投)?(?:出局|死|倒牌)/g)){const k=a[1]-1;if(inr(k)&&st.alive[k])return E;}}
+  // 自己沒跳預言家，卻說「N號是查殺／金水」：一定要有人真的報過
+  if(!seer)for(const a of sp.matchAll(/(\d{1,2})\s*號\s*(?:是|就是|是個|被|拿了?|吃了?)\s*(?:發)?\s*(查殺|金水)/g)){const t=a[1]-1;if(inr(t)&&t!==seat&&!anyRep(a[2]==='查殺'?'kill':'gold',t))return E;}
   return null;}
 // 抄別人：和今天別人說過的話有一段 10 個字以上一模一樣（小模型容易照抄前面的人）
 function wwTalkCopy(st,seat,sp){const t=sp.replace(/[\s，。！？、,.!?]/g,'');if(t.length<10)return null;
@@ -668,7 +700,7 @@ function wwTalkCover(st,seat,p){
   if(!lines.length)return'狼人打隊友';
   p.lines=lines;p.speech=lines.join('');if(keep.includes(p.vote))p.vote=-1;return null;}
 // 幫隊友講話：隊友今天被點名、自己的發言還沒提到他，就補一句替他說話的（同一個隊友一天只有一隻狼出來保，免得太明顯）
-const WW_BACK=[(x,y)=>`${x}號的發言我聽下來沒什麼問題，${y}號咬得太急了。`,(x,y)=>`我覺得${x}號不像狼，${y}號反而比較可疑。`,(x,y)=>`${y}號一直踩${x}號，理由我聽不太下去。`,
+const WW_BACK=[(x,y)=>`${x}號我看下來沒什麼問題，${y}號咬得太急了。`,(x,y)=>`我覺得${x}號不像狼，${y}號反而比較可疑。`,(x,y)=>`${y}號一直踩${x}號，理由我聽不太下去。`,
   (x,y)=>`${x}號那邊我先保一手，今天別急著動他。`,(x,y)=>`大家別被${y}號帶著走，${x}號目前看起來是好人。`,(x,y)=>`${x}號真有問題不會這樣聊，我比較想聽${y}號再解釋。`,
   (x,y)=>`${y}號點${x}號那段太牽強，我站${x}號這邊。`,(x,y)=>`${x}號我覺得可以先放著，${y}號的邏輯才有洞。`];
 function wwTalkBack(st,seat,p){
@@ -682,4 +714,4 @@ function wwTalkBack(st,seat,p){
 function wwTalkApply(st,seat,p){p.lines.slice(0,3).forEach(l=>wwMsg(st,'all',l.slice(0,120),seat));
   if(st.phase==='speak'&&p.vote>=0)st.intent[seat]={day:st.day,t:p.vote};st.seq++;}
 
-if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkMemErr,wwTalkGround,WW_GROUND,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};
+if(typeof module!=='undefined')module.exports={wwSetTalk,wwTalkMemErr,wwTalkFactErr,wwPubNote,wwTalkGround,WW_GROUND,wwTalkTic,wwTalkNewb,wwTalkCopy,wwTalkCover,wwTalkBack,wwAccuse,wwDanger,wwMates,wwTalkPrompt,wwTalkPromptV1,wwTalkReorder,wwRuleLine,wwKeyLine,wwSeen,wwMineLines,wwTalkParse,wwTalkCheck,wwTalkStated,wwTalkClaims,WW_STYLE,wwNew,wwAct,wwTick,wwView,wwJudge,wwBelief,wwCanned,wwMind,wwSay,wwDefends,wwClaimsOf,WW_MW,WW_AI,WW_PRESET,wwCfgFor,wwCfgErr,wwVil,WW_ROLES,wwCfgFix};

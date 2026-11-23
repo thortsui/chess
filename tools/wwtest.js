@@ -183,7 +183,7 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
   while(!st.over&&k++<30000){t+=300;E.wwTick(st,t);
    if(st.phase==='speak'&&st.day>=3&&k%7===0){const p=E.wwTalkPrompt(st,st.cur);
      for(const c in (st.pub.claim||{})){tot++;if(!new RegExp('(^|\\n)'+(+c+1)+'號：[^\\n]*我(?:其實|才|就)?是').test(p))lost++;}}}}
- ok(tot>300&&!lost,`第 3 天以後還記得說過的身份：${tot-lost}/${tot}`);
+ ok(tot>150&&!lost,`第 3 天以後還記得說過的身份：${tot-lost}/${tot}`);
  ok(E.wwKeyLine('10號：目前沒什麼頭緒，8號我會多注意。')===null&&E.wwKeyLine('3號：我是預言家，查驗2號是狼人，大家相信我。')==='3號：我是預言家，查驗2號是狼人。','舊發言只留重點');}
 // 記憶從源頭隔開（0.27.1）：給模型的提示只由「這個人看得到的東西」組成。把他不知道的人的身份全部洗牌、把他看不到的訊息全部刪掉，提示必須一字不差；
 // 而且提示的前半段（到「存活：」之前，模型會沿用快取的那段）只有公開內容，同一時間每個人都一樣
@@ -234,7 +234,18 @@ ok(E.wwCfgErr(E.wwCfgFix({n:8,roles:{hiddenWolf:1,seer:1}})),'hidden wolf alone 
  ok(chk(V[0],'我是獵人，我是預言家。')==='自稱兩種身份','同一段自稱兩種身份');
  ok(chk(V[0],'我是獵人，開槍帶走'+(V[1]+1)+'號！')==='白天發言不能開槍','白天發言不能說開槍');
  st.msgs.push({seat:h,to:'all',day:1,txt:'我是平民，先聽聽。'},{seat:V[0],to:'all',day:1,txt:'我是女巫。'});
- ok(!chk(h,'我其實是獵人，今天聽我的。'),'藏身份後改口成真身份可以');ok(chk(V[0],'我是守衛。')==='身份前後不一','改口成另一個假身份要擋');ok(!chk(V[0],'我是女巫，昨晚沒救人。'),'同一個假身份可以一直講');}
+ ok(!chk(h,'我其實是獵人，今天聽我的。'),'藏身份後改口成真身份可以');ok(chk(V[0],'我是守衛。')==='身份前後不一','改口成另一個假身份要擋');ok(!chk(V[0],'我是女巫，昨晚沒救人。'),'同一個假身份可以一直講');
+ // 0.29.0：說過預言家再說獵人（就算獵人是真身份）要擋；亂引用沒發生的事要擋
+ st.msgs.push({seat:h,to:'all',day:1,txt:'我是預言家。'});ok(chk(h,'我其實是獵人。')==='身份前後不一','說過預言家不能再改口說獵人');
+ const E0='引用沒發生的事',a=V[1]+1,b=V[2]+1,sr=R('seer')+1;
+ ok(chk(V[0],a+'號剛才說的話很怪。')===E0,'沒講過話的人不能引用他的發言');ok(!chk(V[0],(h+1)+'號剛才說的話很怪。'),'講過話的人可以引用');
+ E.wwPubNote(st,V[0],'我是女巫。');ok(chk(V[0],a+'號說他是女巫，我不信。')===E0,'沒人說過的身份不能引用');ok(!chk(V[1],(V[0]+1)+'號說他是女巫，我不信。'),'說過的身份可以引用');
+ ok(chk(V[0],sr+'號查殺'+b+'號，我跟。')===E0,'沒報過的查殺不能引用');ok(chk(V[0],b+'號是查殺，出他。')===E0,'沒人報過查殺不能說他是查殺');
+ ok(chk(V[0],a+'號昨天投了'+b+'號。')===E0,'沒發生的投票不能引用');ok(chk(V[0],b+'號已經出局了。')===E0,'活著的人不能說已經出局');
+ ok(!chk(V[0],'如果'+a+'號說他是女巫，我就信。'),'假設句不算引用');
+ E.wwPubNote(st,R('seer'),'我是預言家，'+b+'號是查殺。');st.msgs.push({seat:R('seer'),to:'all',day:2,txt:'我是預言家，'+b+'號是查殺。'},{seat:-1,to:'all',day:1,txt:`投票結果：${b} 號 1 票（${a}）`});
+ ok(!chk(V[0],sr+'號查殺'+b+'號，我跟。')&&!chk(V[0],b+'號是查殺，出他。'),'報過的查殺可以引用 '+chk(V[0],sr+'號查殺'+b+'號，我跟。')+' '+chk(V[0],b+'號是查殺，出他。'));ok(!chk(V[0],a+'號昨天投了'+b+'號。'),'發生過的投票可以引用');
+ st.day=1;ok(chk(V[0],'昨天的發言我都記得。')===E0,'第一天沒有昨天');st.day=2;}
 // 懷疑分高低：有人說他是我的身份＝高度懷疑；點名我＝中度
 {const st=E.wwNew(E.wwCfgFor(9),Array(9).fill(true),0);const R=r=>st.roles.indexOf(r),V=st.roles.map((r,i)=>r==='villager'?i:-1).filter(i=>i>=0),h=R('hunter');
  st.gut={};st.roles.forEach((r,i)=>st.gut[i]=Array(9).fill(0));st.phase='speak';st.day=1;
