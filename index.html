@@ -828,7 +828,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.28.1">v0.28.1</span>
+  <span class="ver" aria-label="版本 0.28.2">v0.28.2</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -4105,7 +4105,7 @@ const pkNext=s=>(s+1)%4;
 // 大小：3 < 4 < … < K < A < 2；同點數 ♠ > ♥ > ♦ > ♣
 const b2v=c=>((pkR(c)+10)%13)*4+pkS(c);
 const b2sort=h=>h.sort((a,b)=>b2v(a)-b2v(b));
-const B2_KIND=['','順子','同花','葫蘆','鐵支','同花順'];
+const B2_KIND=['','順子','','葫蘆','鐵支','同花順'];   // 沒有同花（Ethan 的玩法）
 // 順子大小（台灣常見）：34567 最小 … 10JQKA，再來 A2345，最大 23456
 const B2_STR=(()=>{const m={};const key=a=>a.slice().sort((x,y)=>x-y).join(',');
   for(let lo=3;lo<=9;lo++)m[key([lo,lo+1,lo+2,lo+3,lo+4])]=lo-3;m[key([10,11,12,13,1])]=7;m[key([1,2,3,4,5])]=8;m[key([2,3,4,5,6])]=9;return{m,key};})();
@@ -4120,7 +4120,6 @@ function b2Combo(cards){
   if(so!==undefined&&flush)return{n,k:5,v:so*4+pkS(cs[4]),name:'同花順'};
   if(groups[0][1]===4)return{n,k:4,v:rIdx(groups[0][0]),name:'鐵支'};
   if(groups[0][1]===3&&groups[1][1]===2)return{n,k:3,v:rIdx(groups[0][0]),name:'葫蘆'};
-  if(flush)return{n,k:2,v:top,name:'同花'};
   if(so!==undefined)return{n,k:1,v:so*4+pkS(cs[4]),name:'順子'};
   return null;
 }
@@ -4140,7 +4139,7 @@ function b2Act(st,seat,a){
     if(st.passes>=3){st.turn=st.lead.seat;st.lead=null;st.passes=0;st.round=(st.round||0)+1;}st.seq++;return null;}
   const cards=Array.isArray(a.cards)?a.cards:[];const h=st.hands[seat];
   if(!cards.length||new Set(cards).size!==cards.length||!cards.every(c=>h.includes(c)))return'選的牌不在手上';
-  const cb=b2Combo(cards);if(!cb)return'這幾張牌不能一起出（可出：單張、對子、順子、同花、葫蘆、鐵支、同花順）';
+  const cb=b2Combo(cards);if(!cb)return'這幾張牌不能一起出（可出：單張、對子、順子、葫蘆、鐵支、同花順；沒有同花）';
   if(st.first&&!cards.includes(8))return'第一手要包含梅花 3';
   if(st.lead&&!b2Beats(cb,st.lead.combo))return st.lead.combo.n!==cb.n?`要出 ${st.lead.combo.n} 張（或用鐵支、同花順壓）`:'壓不過上一手';
   st.hands[seat]=h.filter(c=>!cards.includes(c));st.first=false;st.pn=(st.pn||0)+1;st.lead={seat,cards:b2sort(cards.slice()),combo:cb,pn:st.pn};st.passes=0;
@@ -4274,7 +4273,7 @@ const pkNet={
 // 座位 0..3，順序為逆時針（自己在下 → 右 → 上 → 左）；房主（或單機）端跑規則與電腦玩家，其他人只收到自己看得到的資料
 const PK={g:'b2',role:null,phase:null,st:null,view:null,me:0,seats:[],names:[],net:null,code:null,timers:[],slapMt:-1,resMt:-1,sel:new Set(),note:'',noteT:null};
 try{const g=localStorage.getItem('xq-pkg');if(PK_GAMES[g])PK.g=g;}catch(e){}
-const PK_RULES={b2:'4 人各 13 張，梅花 3 先出。可出單張、對子，或五張的順子＜同花＜葫蘆＜鐵支＜同花順；鐵支、同花順可以壓任何牌。2 最大，同點數比花色 ♠＞♥＞♦＞♣。其他三家都過，桌上的牌推掉，由最後出牌的人自由出牌。最先出完的人贏。',
+const PK_RULES={b2:'4 人各 13 張，梅花 3 先出。可出單張、對子，或五張的順子＜葫蘆＜鐵支＜同花順（沒有同花）；鐵支、同花順是炸彈，可以壓任何牌（單張、對子也能炸）。2 最大，同點數比花色 ♠＞♥＞♦＞♣。其他三家都過，桌上的牌推掉，由最後出牌的人自由出牌。最先出完的人贏。',
   hh:'4 人平分整副牌。輪流翻牌並依序喊 1、2…13（A＝1，J Q K＝11 12 13）。翻出的牌和喊的數字一樣時大家搶著「拍！」，最後拍或沒拍到的人收走整疊；拍錯的人也要收。先把牌翻完的人贏。',
   om:'52 張加一張鬼牌發給 4 人，同點數的兩張先丟掉。輪流從下一位玩家手中抽一張，湊成一對就丟掉。手牌先清空的人過關，最後拿著鬼牌的人輸。'};
 const pkPos=s=>(s-PK.me+4)%4;            // 0 下（自己）1 右 2 上 3 左
