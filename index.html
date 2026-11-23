@@ -55,6 +55,7 @@
   --page:#15191c;--bar:#22282c;--bar-fg:#e4e8ea;--muted:#98a2a8;--wood-edge:#7a5426;color-scheme:dark}}
 :root[data-theme="dark"]{--page:#15191c;--bar:#22282c;--bar-fg:#e4e8ea;--muted:#98a2a8;--wood-edge:#7a5426;color-scheme:dark}
 html,body{height:100%;margin:0}
+@supports (height:100dvh){html,body{height:100dvh}}   /* 轉向後 100% 有時會停在舊的高度 */
 *{box-sizing:border-box}
 body{font-size:14px;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 [hidden]{display:none!important}
@@ -828,7 +829,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.28.2">v0.28.2</span>
+  <span class="ver" aria-label="版本 0.28.3">v0.28.3</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -7346,6 +7347,16 @@ function fit(){if(mode==='menu')return;const st=$('stage'),W=st.clientWidth,dk=v
   const w=Math.max(200,Math.min(W,H*(dk?0.5:ch?1:0.9))),bd=$('board');
   bd.style.width=w+'px';{const bw=Math.max(w,Math.min(W,560))+'px';$('barT').style.maxWidth=$('barM').style.maxWidth=bw;}$('infoT').style.width=$('infoM').style.width=w+'px';if(d3)requestAnimationFrame(()=>{try{d3Sync(true);}catch(e){}});bd.style.setProperty('--pf',(w*(dk?0.105:ch?0.068:0.066)).toFixed(1)+'px');}
 addEventListener('resize',fit);
+// 手機轉向：轉的時候 resize 常常在版面還沒定下來就先觸發（量到的是舊尺寸），或轉完留下一點捲動位移，按鈕就會偏掉。
+// 轉向後把捲動歸零，並在 0.06／0.35／0.8 秒各補發一次 resize，讓所有照尺寸排版的地方（棋盤、撲克牌、戰役地圖…）用定下來的尺寸重算
+(()=>{let tm=[],land=innerWidth>innerHeight;
+  const zero=()=>{if(scrollX||scrollY)scrollTo(0,0);for(const el of [document.documentElement,document.body,$('app')])if(el&&(el.scrollTop||el.scrollLeft)){el.scrollTop=0;el.scrollLeft=0;}};
+  const fix=()=>{tm.forEach(clearTimeout);tm=[60,350,800].map(ms=>setTimeout(()=>{zero();land=innerWidth>innerHeight;dispatchEvent(new Event('resize'));},ms));};
+  addEventListener('orientationchange',fix);
+  if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',fix);
+  addEventListener('resize',e=>{if(e.isTrusted&&(innerWidth>innerHeight)!==land){land=innerWidth>innerHeight;fix();}});
+  if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if((innerWidth>innerHeight)!==land){land=innerWidth>innerHeight;fix();}});
+  addEventListener('pageshow',fix);document.addEventListener('visibilitychange',()=>{if(!document.hidden)fix();});})();
 
 function netState(){R=typeof Peer!=='undefined'&&navigator.onLine!==false;setOnlineButtons();
   menuMsg(R?'':'目前離線：單機與 AI 對戰照常可玩，線上對戰需要網路',!R);}
