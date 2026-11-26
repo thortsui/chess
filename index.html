@@ -274,6 +274,15 @@ html,body{overflow:hidden;overscroll-behavior:none}
 .sheethead h2{margin:0;font-size:17px;letter-spacing:.06em}
 .sheetx{flex:none;width:38px;height:38px;border:0;border-radius:50%;background:var(--page);color:var(--bar-fg);font-size:24px;line-height:1;cursor:pointer;display:grid;place-items:center}
 .sheetbody>*{flex:none}
+#qrSheet{z-index:80}
+.qrbody{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 18px 18px;text-align:center}
+.qrbody p{margin:0;font-size:13px;opacity:.85}.qrbody b{font-size:34px;letter-spacing:.14em;font-variant-numeric:tabular-nums}
+.qrimg{width:min(68vw,240px);aspect-ratio:1;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.qrsvg{display:block;width:100%;height:100%}
+.qrurl{font-size:11px!important;word-break:break-all;opacity:.6!important;user-select:all;-webkit-user-select:all}
+.qrgo{border:0;border-radius:12px;padding:10px 22px;font:inherit;font-weight:700;background:#c8372d;color:#fff;cursor:pointer}
+.qrbtn{display:block;margin:8px auto 0;border:0;border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;font-weight:700;background:#c8372d;color:#fff;cursor:pointer}
+.qrchip{border:0;color:inherit;font-family:inherit;cursor:pointer}
 .sheetbody{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 20px;display:flex;flex-direction:column;gap:18px;-webkit-overflow-scrolling:touch}
 .sheetbody section h3{margin:0 0 8px;font-size:14px}
 .sheetbody section h3 small{font-weight:400;color:var(--muted);margin-left:4px}
@@ -829,7 +838,7 @@ html,body{overflow:hidden;overscroll-behavior:none}
   <div class="scene" id="scene" aria-hidden="true"></div>
   <button class="edgetab l" id="edgeL" data-act="modeStep" data-d="-1"><b>‹</b><span id="edgeLn"></span></button>
   <button class="edgetab r" id="edgeR" data-act="modeStep" data-d="1"><b>›</b><span id="edgeRn"></span></button>
-  <span class="ver" aria-label="版本 0.29.3">v0.29.3</span>
+  <span class="ver" aria-label="版本 0.30.0">v0.30.0</span>
   <div class="card">
     <div class="logo">
       <div class="duo"><span id="logoA">帥</span><span id="logoB">將</span></div>
@@ -919,6 +928,14 @@ html,body{overflow:hidden;overscroll-behavior:none}
   </div>
 </div>
 
+<div class="sheet" id="qrSheet" hidden role="dialog" aria-modal="true" aria-labelledby="qrTitle" onclick="if(event.target===this)qrClose()">
+  <div class="sheetbox">
+    <div class="sheethead"><h2 id="qrTitle">房間</h2><button class="sheetx" data-act="qrClose" aria-label="關閉">×</button></div>
+    <div class="qrbody"><p>房號</p><b id="qrCode">----</b><div class="qrimg" id="qrImg"></div>
+      <p>朋友用手機相機掃描，就會開啟遊戲並直接加入這個房間</p><p class="qrurl" id="qrUrl"></p>
+      <button class="qrgo" id="qrShare" data-act="qrShare">分享連結</button></div>
+  </div>
+</div>
 <div class="sheet" id="skinSheet" hidden role="dialog" aria-modal="true" aria-labelledby="skinTitle">
   <div class="sheetbox">
     <div class="sheethead"><h2 id="skinTitle">象棋外觀</h2><button class="sheetx" id="skinX" data-act="skinClose" aria-label="關閉">×</button></div>
@@ -2518,7 +2535,7 @@ function dkRenderBars(){
   else if(over)ts=result(o);
   else ts=turn===o?{t:'思考中…'}:{t:'等待中'};
   T.className='bar'+(!over&&turn===o&&oppHere?' active':'')+(over&&over.winner===o?' won':'');
-  T.innerHTML=barHTML(dkDot(o),`對手 · ${dkName(o)}`,ts,`<span class="chip">房號 ${code}</span>`);
+  T.innerHTML=barHTML(dkDot(o),`對手 · ${dkName(o)}`,ts,`${roomChip()}`);
   let ms;
   if(note)ms={t:note};
   else if(over)ms=result(mySide);
@@ -2933,7 +2950,7 @@ function chRenderBars(chk){
   else if(over)ts=result(o);
   else ts=turn===o?(chk?{t:'被將軍！',c:'check'}:{t:'思考中…'}):{t:'等待中'};
   T.className='bar'+(!over&&turn===o&&oppHere?' active':'')+(over&&over.winner===o?' won':'');
-  T.innerHTML=barHTML(chDot(o),`對手 · ${CH_SIDE[o]}`,ts,`<span class="chip">房號 ${code}</span>`);
+  T.innerHTML=barHTML(chDot(o),`對手 · ${CH_SIDE[o]}`,ts,`${roomChip()}`);
   let ms;
   if(note)ms={t:note};
   else if(over)ms=result(mySide);
@@ -3096,7 +3113,7 @@ function gmRenderBars(){
   else if(over)ts=result(o);
   else ts=turn===o?{t:'思考中…'}:{t:'等待中'};
   T.className='bar'+(!over&&turn===o&&oppHere?' active':'')+(over&&over.winner===o?' won':'');
-  T.innerHTML=barHTML(gmDot(o),`對手 · ${GM_SIDE[o]}`,ts,`<span class="chip">房號 ${code}</span>`);
+  T.innerHTML=barHTML(gmDot(o),`對手 · ${GM_SIDE[o]}`,ts,`${roomChip()}`);
   let ms;
   if(note)ms={t:note};
   else if(over)ms=result(mySide);
@@ -3299,7 +3316,7 @@ function goRenderBars(sc){
   else if(goPhase==='score')ts={t:role==='host'?'等你確認計分':'房主正在標記死子'};
   else ts=turn===o?{t:'思考中…'}:{t:'等待中'};
   T.className='bar'+(!over&&turn===o&&oppHere&&goPhase==='play'?' active':'')+(over&&over.winner===o?' won':'');
-  T.innerHTML=barHTML(o==='b'?'gb':'gw',`對手 · ${GO_SIDE[o]}`,ts,`<span class="chip">房號 ${code}</span>`);
+  T.innerHTML=barHTML(o==='b'?'gb':'gw',`對手 · ${GO_SIDE[o]}`,ts,`${roomChip()}`);
   let ms;
   if(note)ms={t:note};
   else if(pendingMove)ms={t:'傳送中…'};
@@ -4522,7 +4539,7 @@ function pkLobby(){
   const host=PK.role==='host';$('pkTitle').textContent=PK_GAMES[PK.g].n;$('pkCode').textContent=PK.code?`房號 ${PK.code}`:'';
   for(let p=1;p<4;p++){const el=$('pkS'+p);el.className='pkseat p'+p;el.innerHTML='';}$('pkS0').innerHTML='';$('pkHand').innerHTML='';$('pkBtns').innerHTML='';$('pkOver').hidden=true;
   const seats=host?PK.seats:(PK.lobby||[]),me=host?0:PK.me;
-  $('pkTable').innerHTML=`<div class="pklobby"><p>房號</p><b class="code">${PK.code||'----'}</b><p>把房號給朋友，在「撲克牌」選單輸入後加入</p>`
+  $('pkTable').innerHTML=`<div class="pklobby"><p>房號</p><b class="code">${PK.code||'----'}</b><p>把房號給朋友，在「撲克牌」選單輸入後加入</p>${qrBtn('pk',PK.code)}`
     +`<ul>${[0,1,2,3].map(i=>{const s=seats[i];return`<li class="${s&&s.kind!=='ai'?'in':''}">${s&&s.kind!=='ai'?s.name+(i===me?'（你）':''):'（空位，開始時由電腦補上）'}</li>`;}).join('')}</ul>`
     +(host?`<button class="go" data-act="pkGo">開始${PK_GAMES[PK.g].n}</button>`:'<p class="wait">等房主開始…</p>')+`</div>`;
 }
@@ -4535,7 +4552,7 @@ async function pkCreate(){
   PK.net=net;PK.role='host';PK.code=net.code;PK.me=0;PK.phase='lobby';PK.seats=[{kind:'me',name:'房主'},null,null,null];
   net.onMsg((peer,m)=>pkHostMsg(peer,m));net.onLeave(peer=>{const i=PK.seats.findIndex(s=>s&&s.peer===peer);if(i<0)return;
     if(PK.phase==='lobby'){PK.seats[i]=null;pkHostLobby();}else{PK.seats[i]={kind:'ai',name:PK.seats[i].name+'（離線，電腦接手）'};pkNote(PK.seats[i].name,2500);pkAfter();}});
-  pkShow();pkHostLobby();pkMenuMsg('');
+  pkShow();pkHostLobby();pkMenuMsg('');qrShow('pk',PK.code);
 }
 function pkHostLobby(){pkLobby();const lob=PK.seats.map(s=>s?{kind:s.kind==='me'?'net':s.kind,name:s.name}:null);
   PK.seats.forEach((s,i)=>{if(s&&s.kind==='net')PK.net.sendTo(s.peer,{k:'lobby',seats:lob,game:PK.g,code:PK.code,me:i});});}   // me：讓加入者知道自己是第幾個位置
@@ -5456,7 +5473,7 @@ function wwRenderLobby(){
     return`<li class="${s&&s.kind!=='ai'?'in':''}${me?' me':''}"><b>${i+1}</b><span>${s&&s.kind!=='ai'?(me?'你':'玩家'):'電腦補位'}</span></li>`;}).join('');
   const err=wwCfgErr(WW.cfg);
   $('wwLobby').hidden=false;
-  $('wwLobby').innerHTML=(WW.code?`<div class="wwcode"><p>房號</p><b>${WW.code}</b><p>把房號給朋友，在選單「狼人殺」輸入後加入</p></div>`:'')
+  $('wwLobby').innerHTML=(WW.code?`<div class="wwcode"><p>房號</p><b>${WW.code}</b><p>把房號給朋友，在選單「狼人殺」輸入後加入</p>${qrBtn('ww',WW.code)}</div>`:'')
     +`<ul class="wwlist">${list}</ul>`+wwCfgHTML(host)
     +(host?wwHintHTML()+`<button class="wwgo" data-act="wwGo"${err?' disabled':''}>開始遊戲</button>`:'<p class="wwwait">等房主開始…</p>');
 }
@@ -5575,7 +5592,7 @@ async function wwCreate(){
   net.onMsg((peer,m)=>wwHostMsg(peer,m));
   net.onLeave(peer=>{const i=WW.seats.findIndex(s=>s&&s.peer===peer);if(i<0)return;
     if(WW.phase==='lobby'){WW.seats.splice(i,1);wwHostLobby();}else{WW.seats[i]={kind:'ai'};if(WW.st){WW.st.ai[i]=true;wwMsgSys(`${i+1} 號離線了，由電腦接手。`);}wwAfter();}});
-  wwShow();wwHostLobby();wwMenuMsg('');}
+  wwShow();wwHostLobby();wwMenuMsg('');qrShow('ww',WW.code);}
 function wwMsgSys(t){if(WW.st){wwMsg(WW.st,'all',t);WW.st.seq++;}}
 function wwHostMsg(peer,m){
   if(!m||typeof m!=='object')return;
@@ -5996,7 +6013,7 @@ async function bgCreate(cp){cp=cp||'bg';bgUse(cp);if(!R){bgMenuMsg('連線元件
   BG.net=net;BG.role='host';BG.code=net.code;BG.guests=[];BG.seats=Array(nS).fill(null);BG.seats[me0]={kind:'me'};BG.mySeat=me0;BG.st=null;
   net.onMsg((peer,m)=>bgHostMsg(peer,m));
   net.onLeave(peer=>{BG.guests=BG.guests.filter(g=>g.peer!==peer);const k=BG.seats.findIndex(s=>s&&s.peer===peer);if(k>=0)BG.seats[k]=BG.st?{kind:'ai'}:null;if(BG.st){bgAfter();}else bgLobby();});
-  bgShow();bgLobby();bgMenuMsg('');}
+  bgShow();bgLobby();bgMenuMsg('');qrShow(cp,BG.code);}
 function bgHostMsg(peer,m){if(!m||typeof m!=='object')return;
   if(m.k==='join'){if(!BG.guests.some(g=>g.peer===peer)){if(BG.guests.length>=BG.seats.length-1){BG.net.sendTo(peer,{k:'full',why:`房間已經滿 ${BG.seats.length} 人`});return;}BG.guests.push({peer});
       if(!BG.st){const k=BG.seats.findIndex((s,i)=>(BG_CP==='w2'||i>0)&&!s);if(k>=0)BG.seats[k]={kind:'net',peer};}}
@@ -6007,7 +6024,7 @@ function bgHostMsg(peer,m){if(!m||typeof m!=='object')return;
 function bgLobby(){const host=BG.role==='host',seats=host?BG.seats:(BG.lobby||[]),mine=host?0:BG.mySeat;
   $('bgView').hidden=true;$('bgFoot').hidden=true;$('bgNat').hidden=true;$('bgOver').hidden=true;$('bgLobby').hidden=false;$('bgCode').textContent=BG.code?`房號 ${BG.code}`:'';
   const w2=BG_CP==='w2',names=w2?BG_NATIONS.map(N=>W2_SIDE[N.s].slice(0,1)+'・'+N.n):['清軍',...BG_NATIONS.map(N=>N.n)];
-  $('bgLobby').innerHTML=`<div class="wwcode"><p>房號</p><b>${BG.code||'----'}</b><p>把房號給朋友，在選單「${w2?'歷史戰役 → 二次大戰':'八國聯軍'}」輸入後加入；點下面的位置換成你要玩的一方</p></div>`
+  $('bgLobby').innerHTML=`<div class="wwcode"><p>房號</p><b>${BG.code||'----'}</b><p>把房號給朋友，在選單「${w2?'歷史戰役 → 二次大戰':'八國聯軍'}」輸入後加入；點下面的位置換成你要玩的一方</p>${qrBtn(w2?'w2':'bg',BG.code)}</div>`
     +`<div class="bgseats">${names.map((nm,k)=>{const s=seats[k],me=k===mine&&s,c=w2?BG_NATIONS[k].c:k?BG_NATIONS[k-1].c:'#b8100d';
       return`<button class="bgseat${me?' me':''}${s&&s.kind!=='ai'?' taken':''}" data-act="bgSeat" data-i="${k}" style="--nc:${c}"><i></i><b>${nm}</b><span>${me?'你':s&&s.kind!=='ai'?'玩家':'電腦'}</span></button>`;}).join('')}</div>`
     +(host?'<button class="wwgo" data-act="bgGo">開始</button>':'<p class="wwwait">等房主開始…</p>');
@@ -7137,7 +7154,7 @@ function renderBars(chk){
   else if(over)ts=result(o);
   else ts=turn===o?(chk?{t:'被將軍！',c:'check'}:{t:'思考中…'}):{t:'等待中'};
   T.className='bar'+(!over&&turn===o&&oppHere?' active':'')+(over&&over.winner===o?' won':'');
-  T.innerHTML=barHTML(o,`對手 · ${SIDE[o]}`,ts,`<span class="chip">房號 ${code}</span>`);
+  T.innerHTML=barHTML(o,`對手 · ${SIDE[o]}`,ts,`${roomChip()}`);
   let ms;
   if(note)ms={t:note};
   else if(over)ms=result(mySide);
@@ -7172,6 +7189,68 @@ function enterGame(m){
 }
 let busy=false;
 function setOnlineButtons(){const ok=!!R&&!busy;$('createBtn').disabled=!ok;$('joinBtn').disabled=!ok;}
+/* ---------- 房號 QR Code（0.30.0）：自寫的 QR 產生器（位元組模式、M 級糾錯、版本 1～9）＋掃描後自動加入 ---------- */
+function qrMatrix(txt){
+  const data=[...new TextEncoder().encode(txt)],ECC=[0,10,16,26,18,24,16,18,22,22],NB=[0,1,1,1,2,2,4,4,4,5];
+  const raw=v=>{let r=(16*v+128)*v+64;if(v>=2){const n=Math.floor(v/7)+2;r-=(25*n-10)*n-55;if(v>=7)r-=36;}return r;};
+  const dcw=v=>Math.floor(raw(v)/8)-ECC[v]*NB[v];
+  let v=1;while(v<=9&&12+data.length*8>dcw(v)*8)v++;if(v>9)return null;
+  const bb=[],push=(x,n)=>{for(let i=n-1;i>=0;i--)bb.push((x>>>i)&1);};
+  push(4,4);push(data.length,8);data.forEach(b=>push(b,8));
+  const cap=dcw(v)*8;push(0,Math.min(4,cap-bb.length));push(0,(8-bb.length%8)%8);for(let p=0xEC;bb.length<cap;p^=0xEC^0x11)push(p,8);
+  const bytes=[];for(let i=0;i<bb.length;i+=8){let x=0;for(let j=0;j<8;j++)x=x<<1|bb[i+j];bytes.push(x);}
+  const mul=(x,y)=>{let z=0;for(let i=7;i>=0;i--){z=(z<<1)^((z>>>7)*0x11D);z^=((y>>>i)&1)*x;}return z;};
+  const deg=ECC[v],div=Array(deg).fill(0);div[deg-1]=1;for(let i=0,root=1;i<deg;i++){for(let j=0;j<deg;j++){div[j]=mul(div[j],root);if(j+1<deg)div[j]^=div[j+1];}root=mul(root,2);}
+  const rem=d=>{const r=Array(deg).fill(0);d.forEach(b=>{const f=b^r.shift();r.push(0);div.forEach((c,i)=>r[i]^=mul(c,f));});return r;};
+  const nb=NB[v],rawCw=Math.floor(raw(v)/8),nShort=nb-rawCw%nb,sLen=Math.floor(rawCw/nb),blocks=[];
+  for(let i=0,k=0;i<nb;i++){const d=bytes.slice(k,k+sLen-deg+(i<nShort?0:1));k+=d.length;const e=rem(d);if(i<nShort)d.push(0);blocks.push(d.concat(e));}
+  const cw=[];for(let i=0;i<blocks[0].length;i++)blocks.forEach((b,j)=>{if(i!==sLen-deg||j>=nShort)cw.push(b[i]);});
+  const N=v*4+17,M=[...Array(N)].map(()=>Array(N).fill(false)),F=[...Array(N)].map(()=>Array(N).fill(false));
+  const set=(x,y,d)=>{M[y][x]=d;F[y][x]=true;};
+  for(let i=0;i<N;i++){set(6,i,i%2===0);set(i,6,i%2===0);}
+  [[3,3],[N-4,3],[3,N-4]].forEach(([x,y])=>{for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const xx=x+dx,yy=y+dy,d=Math.max(Math.abs(dx),Math.abs(dy));if(xx>=0&&xx<N&&yy>=0&&yy<N)set(xx,yy,d!==2&&d!==4);}});
+  const al=[];if(v>1){const n=Math.floor(v/7)+2,st=Math.ceil((v*4+4)/(n*2-2))*2;al.push(6);for(let p=v*4+10;al.length<n;p-=st)al.splice(1,0,p);}
+  al.forEach((y,i)=>al.forEach((x,j)=>{if((i===0&&j===0)||(i===0&&j===al.length-1)||(i===al.length-1&&j===0))return;
+    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)set(x+dx,y+dy,Math.max(Math.abs(dx),Math.abs(dy))!==1);}));
+  const fmt=mask=>{const d=mask;let r=d;for(let i=0;i<10;i++)r=(r<<1)^((r>>>9)*0x537);const b=((d<<10)|r)^0x5412,g=i=>((b>>>i)&1)===1;
+    for(let i=0;i<=5;i++)set(8,i,g(i));set(8,7,g(6));set(8,8,g(7));set(7,8,g(8));for(let i=9;i<15;i++)set(14-i,8,g(i));
+    for(let i=0;i<8;i++)set(N-1-i,8,g(i));for(let i=8;i<15;i++)set(8,N-15+i,g(i));set(8,N-8,true);};
+  fmt(0);
+  if(v>=7){let r=v;for(let i=0;i<12;i++)r=(r<<1)^((r>>>11)*0x1F25);const b=v<<12|r;for(let i=0;i<18;i++){const t=((b>>>i)&1)===1,a=N-11+i%3,c=Math.floor(i/3);set(a,c,t);set(c,a,t);}}
+  for(let right=N-1,i=0;right>=1;right-=2){if(right===6)right=5;for(let vt=0;vt<N;vt++)for(let j=0;j<2;j++){const x=right-j,y=((right+1)&2)===0?N-1-vt:vt;
+    if(!F[y][x]&&i<cw.length*8){M[y][x]=((cw[i>>>3]>>>(7-(i&7)))&1)===1;i++;}}}
+  const MK=[(x,y)=>(x+y)%2===0,(x,y)=>y%2===0,x=>x%3===0,(x,y)=>(x+y)%3===0,(x,y)=>(Math.floor(x/3)+Math.floor(y/2))%2===0,(x,y)=>x*y%2+x*y%3===0,(x,y)=>(x*y%2+x*y%3)%2===0,(x,y)=>((x+y)%2+x*y%3)%2===0];
+  const apply=m=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!F[y][x]&&MK[m](x,y))M[y][x]=!M[y][x];};
+  const score=()=>{let s=0,dark=0;for(let y=0;y<N;y++){let rx=1,ry=1;for(let x=0;x<N;x++){if(M[y][x])dark++;
+        if(x){if(M[y][x]===M[y][x-1]){rx++;if(rx===5)s+=3;else if(rx>5)s++;}else rx=1;if(M[x][y]===M[x-1][y]){ry++;if(ry===5)s+=3;else if(ry>5)s++;}else ry=1;}
+        if(x&&y&&M[y][x]===M[y][x-1]&&M[y][x]===M[y-1][x]&&M[y][x]===M[y-1][x-1])s+=3;}}
+    const lines=[];for(let i=0;i<N;i++){lines.push(M[i].map(b=>b?1:0).join(''));lines.push(M.map(r=>r[i]?1:0).join(''));}
+    lines.forEach(l=>{l='0000'+l+'0000';for(let i=l.indexOf('1011101');i>=0;i=l.indexOf('1011101',i+1))if(l.slice(i-4,i)==='0000'||l.slice(i+7,i+11)==='0000')s+=40;});
+    return s+Math.floor(Math.abs(dark*20-N*N*10)/(N*N))*10;};
+  let best=0,bs=Infinity;for(let m=0;m<8;m++){apply(m);fmt(m);const s=score();if(s<bs){bs=s;best=m;}apply(m);}
+  apply(best);fmt(best);return M;
+}
+function qrSVG(txt){const M=qrMatrix(txt);if(!M)return'';const N=M.length,q=4;let d='';
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(M[y][x])d+=`M${x+q} ${y+q}h1v1h-1z`;
+  return`<svg class="qrsvg" viewBox="0 0 ${N+q*2} ${N+q*2}" shape-rendering="crispEdges" role="img" aria-label="房號 QR Code"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;}
+const QR_GAME={xq:'對坐象棋',pk:'撲克牌',ww:'狼人殺',bg:'八國聯軍',w2:'二次大戰'};
+function qrLink(k,c){const web=/^https?:$/.test(location.protocol)&&!/^(localhost|127\.|\[::1\])/.test(location.hostname);
+  return(web?location.origin+location.pathname:'https://thortsui.github.io/chess/')+'?join='+k+'-'+c;}
+function qrShow(k,c){if(!QR_GAME[k]||!/^\d{4}$/.test(c||''))return;const u=qrLink(k,c);
+  $('qrTitle').textContent=QR_GAME[k]+' 房間';$('qrCode').textContent=c;$('qrImg').innerHTML=qrSVG(u);$('qrUrl').textContent=u;$('qrSheet').dataset.u=u;
+  $('qrShare').textContent=navigator.share?'分享連結':'複製連結';$('qrSheet').hidden=false;}
+function qrClose(){$('qrSheet').hidden=true;}
+async function qrShareGo(){const u=$('qrSheet').dataset.u||'',b=$('qrShare');
+  if(navigator.share){try{await navigator.share({title:'一起來玩',text:`加入我的房間（房號 ${$('qrCode').textContent}）`,url:u});}catch(e){}return;}
+  try{await navigator.clipboard.writeText(u);b.textContent='✓ 已複製';}catch(e){b.textContent='複製失敗，請長按網址複製';}setTimeout(()=>{b.textContent='複製連結';},2000);}
+const qrBtn=(k,c)=>c?`<button class="qrbtn" data-act="qrShow" data-k="${k}" data-c="${c}">▦ 顯示 QR Code，朋友一掃就加入</button>`:'';
+const roomChip=()=>role==='host'?`<button class="chip qrchip" data-act="qrShow" data-k="xq" data-c="${code}" aria-label="顯示房號 ${code} 的 QR Code">房號 ${code} ▦</button>`:`<span class="chip">房號 ${code}</span>`;
+// 掃 QR Code 開進來的網址 ?join=種類-房號：切到那個遊戲並自動加入
+function qrAutoJoin(){const m=/[?&]join=(xq|pk|ww|bg|w2)-(\d{4})\b/.exec(location.search);if(!m)return;
+  try{history.replaceState(null,'',location.pathname);}catch(e){}
+  const k=m[1],c=m[2];modeGo(k);const inp={xq:'codeIn',pk:'pkCodeIn',ww:'wwCodeIn',bg:'bgCodeIn',w2:'w2CodeIn'}[k];if($(inp))$(inp).value=c;
+  const go=()=>{if(k==='xq'){if(!busy)joinRoom(c);}else if(k==='pk')pkJoin(c);else if(k==='ww')wwJoin(c);else bgJoin(c,k);};
+  if(R)go();else{let n=0;const t=setInterval(()=>{if(R||++n>20){clearInterval(t);if(R)go();}},500);}}
 
 /* ---------- online (PeerJS · 房主當伺服器) ---------- */
 const enc=b=>b.flat().map(p=>p?(p.s==='r'?p.t:p.t.toLowerCase()):'.').join('');
@@ -7241,7 +7320,7 @@ function hostAccept(c){
     c.on('open',()=>{send(c,'full',{});setTimeout(()=>{try{c.close()}catch(e){}},800);});return;}
   if(conn&&conn!==c){try{conn.close()}catch(e){}}
   conn=c;guestPeer=c.peer;wire(c);
-  c.on('open',()=>{if(c!==conn)return;guestOnline=true;broadcast();render();});
+  c.on('open',()=>{if(c!==conn)return;guestOnline=true;qrClose();broadcast();render();});
 }
 function openPeer(id){
   return new Promise(res=>{
@@ -7274,7 +7353,7 @@ async function createRoom(){
       peer.on('connection',hostAccept);
       peer.on('disconnected',()=>{try{if(peer&&!peer.destroyed)peer.reconnect()}catch(e){}});
       peer.on('error',()=>{});
-      if(variant==='dk'){mySide='A';dkFirst='A';}if(variant==='ch')mySide='w';if(variant==='gm'||variant==='go')mySide='b';init();busy=false;enterGame('online');
+      if(variant==='dk'){mySide='A';dkFirst='A';}if(variant==='ch')mySide='w';if(variant==='gm'||variant==='go')mySide='b';init();busy=false;enterGame('online');qrShow('xq',c);
       rebroadcast=setInterval(()=>{if(guestOnline)broadcast();},4000);
       return;
     }
@@ -7305,6 +7384,7 @@ const CONFIRM=new Set(['reset','menu','leave']);
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
   const act=b.dataset.act;
+  if(act==='qrShow'){qrShow(b.dataset.k,b.dataset.c);return;}if(act==='qrClose'){qrClose();return;}if(act==='qrShare'){qrShareGo();return;}
   if(act.startsWith('pk')&&pkClick(b))return;
   if(act.startsWith('ww')&&wwClick(b))return;
   if(act.startsWith('bg')&&bgClick(b))return;
@@ -7400,6 +7480,7 @@ function start(saved){
   else showMenu();
 }
 start({});
+qrAutoJoin();
 </script>
 <div id="pwaBar" hidden style="position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9999;background:#2b2f33;color:#fff;border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.3);font:14px/1.4 system-ui,sans-serif;max-width:calc(100vw - 32px)">
   <span id="pwaTxt">安裝成 App，離線也能玩</span>
